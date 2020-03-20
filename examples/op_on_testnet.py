@@ -13,7 +13,7 @@ from beem.block import Block
 from beem.account import Account
 from beem.amount import Amount
 from beemgraphenebase.account import PasswordKey, PrivateKey, PublicKey
-from beem.steem import Steem
+from beem.hive import Hive
 from beem.utils import parse_time, formatTimedelta
 from beemapi.exceptions import NumRetriesReached
 from beem.nodelist import NodeList
@@ -26,10 +26,10 @@ useWallet = False
 walletpassword = "123"
 
 if __name__ == "__main__":
-    testnet_node = "https://testnet.steem.vc"
-    stm = Steem(node=testnet_node)
+    testnet_node = "https://testnet.hive.vc"
+    stm = Hive(node=testnet_node)
     prefix = stm.prefix
-    # curl --data "username=username&password=secretPassword" https://testnet.steem.vc/create
+    # curl --data "username=username&password=secretPassword" https://testnet.hive.vc/create
     if useWallet:
         stm.wallet.wipe(True)
         stm.wallet.create(walletpassword)
@@ -52,11 +52,11 @@ if __name__ == "__main__":
         stm.wallet.addPrivateKey(memo_privkey)
         stm.wallet.addPrivateKey(posting_privkey)
     else:
-        stm = Steem(node=testnet_node,
+        stm = Hive(node=testnet_node,
                     wif={'active': str(active_privkey),
                          'posting': str(posting_privkey),
                          'memo': str(memo_privkey)})
-    account = Account(username, steem_instance=stm)
+    account = Account(username, hive_instance=stm)
     if account["name"] == "beem":
         account.disallow("beem1", permission='posting')
         account.allow('beem1', weight=1, permission='posting', account=None)
@@ -68,9 +68,9 @@ if __name__ == "__main__":
 
     # stm.create_account("beem1", creator=account, password=password1)
 
-    account1 = Account("beem1", steem_instance=stm)
-    b = Blockchain(steem_instance=stm)
+    account1 = Account("beem1", hive_instance=stm)
+    b = Blockchain(hive_instance=stm)
     blocknum = b.get_current_block().identifier
 
-    account.transfer("beem1", 1, "SBD", "test")
-    b1 = Block(blocknum, steem_instance=stm)
+    account.transfer("beem1", 1, "HBD", "test")
+    b1 = Block(blocknum, hive_instance=stm)

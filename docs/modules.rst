@@ -28,8 +28,8 @@ beem Modules
    beem.price
    beem.rc
    beem.snapshot
-   beem.steem
-   beem.steemconnect
+   beem.hive
+   beem.hiveconnect
    beem.storage
    beem.transactionbuilder
    beem.utils
@@ -45,7 +45,7 @@ beemapi Modules
    beemapi.exceptions
    beemapi.graphenenerpc
    beemapi.node
-   beemapi.steemnoderpc
+   beemapi.hivenoderpc
    beemapi.websocket
 
 beembase Modules

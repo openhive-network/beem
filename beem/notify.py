@@ -5,8 +5,8 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import logging
 from events import Events
-from beemapi.websocket import SteemWebsocket
-from beem.instance import shared_steem_instance
+from beemapi.websocket import HiveWebsocket
+from beem.instance import shared_hive_instance
 from beem.blockchain import Blockchain
 from beem.price import Order, FilledOrder
 log = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ class Notify(Events):
         blockchain.
 
         :param fnt on_block: Callback that will be called for each block received
-        :param Steem steem_instance: Steem instance
+        :param Hive hive_instance: Hive instance
 
         **Example**
 
@@ -45,25 +45,25 @@ class Notify(Events):
         # accounts=[],
         on_block=None,
         only_block_id=False,
-        steem_instance=None,
+        hive_instance=None,
         keep_alive=25
     ):
         # Events
         Events.__init__(self)
         self.events = Events()
 
-        # Steem instance
-        self.steem = steem_instance or shared_steem_instance()
+        # Hive instance
+        self.hive = hive_instance or shared_hive_instance()
 
         # Callbacks
         if on_block:
             self.on_block += on_block
 
         # Open the websocket
-        self.websocket = SteemWebsocket(
-            urls=self.steem.rpc.nodes,
-            user=self.steem.rpc.user,
-            password=self.steem.rpc.password,
+        self.websocket = HiveWebsocket(
+            urls=self.hive.rpc.nodes,
+            user=self.hive.rpc.user,
+            password=self.hive.rpc.password,
             only_block_id=only_block_id,
             on_block=self.process_block,
             keep_alive=keep_alive

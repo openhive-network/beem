@@ -11,7 +11,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-class SteemNodeRPC(GrapheneRPC):
+class HiveNodeRPC(GrapheneRPC):
     """ This class allows to call API methods exposed by the witness node via
         websockets / rpc-json.
 
@@ -27,7 +27,7 @@ class SteemNodeRPC(GrapheneRPC):
     """
 
     def __init__(self, *args, **kwargs):
-        """ Init SteemNodeRPC
+        """ Init HiveNodeRPC
 
             :param str urls: Either a single Websocket/Http URL, or a list of URLs
             :param str user: Username for Authentication
@@ -37,7 +37,7 @@ class SteemNodeRPC(GrapheneRPC):
             :param int timeout: Timeout setting for https nodes (default is 60)
 
         """
-        super(SteemNodeRPC, self).__init__(*args, **kwargs)
+        super(HiveNodeRPC, self).__init__(*args, **kwargs)
         self.next_node_on_empty_reply = False
 
     def set_next_node_on_empty_reply(self, next_node_on_empty_reply=True):
@@ -47,7 +47,7 @@ class SteemNodeRPC(GrapheneRPC):
     def rpcexec(self, payload):
         """ Execute a call by sending the payload.
             It makes use of the GrapheneRPC library.
-            In here, we mostly deal with Steem specific error handling
+            In here, we mostly deal with Hive specific error handling
 
             :param json payload: Payload data
             :raises ValueError: if the server does not respond in proper JSON format
@@ -61,7 +61,7 @@ class SteemNodeRPC(GrapheneRPC):
             doRetry = False
             try:
                 # Forward call to GrapheneWebsocketRPC and catch+evaluate errors
-                reply = super(SteemNodeRPC, self).rpcexec(payload)
+                reply = super(HiveNodeRPC, self).rpcexec(payload)
                 if self.next_node_on_empty_reply and not bool(reply) and self.nodes.working_nodes_count > 1:
                     self._retry_on_next_node("Empty Reply")
                     doRetry = True

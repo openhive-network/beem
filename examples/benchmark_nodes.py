@@ -11,7 +11,7 @@ from prettytable import PrettyTable
 from beem.blockchain import Blockchain
 from beem.account import Account
 from beem.block import Block
-from beem.steem import Steem
+from beem.hive import Hive
 from beem.utils import parse_time, formatTimedelta
 from beem.nodelist import NodeList
 from beemapi.exceptions import NumRetriesReached
@@ -32,14 +32,14 @@ if __name__ == "__main__":
     for node in nodes:
         print("Current node:", node)
         try:
-            stm = Steem(node=node, num_retries=3)
-            blockchain = Blockchain(steem_instance=stm)
-            account = Account("gtg", steem_instance=stm)
+            stm = Hive(node=node, num_retries=3)
+            blockchain = Blockchain(hive_instance=stm)
+            account = Account("gtg", hive_instance=stm)
             virtual_op_count = account.virtual_op_count()
             blockchain_version = stm.get_blockchain_version()
 
             last_block_id = 19273700
-            last_block = Block(last_block_id, steem_instance=stm)
+            last_block = Block(last_block_id, hive_instance=stm)
             startTime = datetime.now()
 
             stopTime = last_block.time() + timedelta(seconds=how_many_minutes * 60)
@@ -48,7 +48,7 @@ if __name__ == "__main__":
             total_transaction = 0
 
             start_time = time.time()
-            last_node = blockchain.steem.rpc.url
+            last_node = blockchain.hive.rpc.url
 
             for entry in blockchain.blocks(start=last_block_id, max_batch_size=max_batch_size, threading=threading, thread_num=thread_num):
                 block_no = entry.identifier

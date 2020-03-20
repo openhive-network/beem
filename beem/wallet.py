@@ -9,7 +9,7 @@ import os
 import hashlib
 from beemgraphenebase import bip38
 from beemgraphenebase.account import PrivateKey
-from beem.instance import shared_steem_instance
+from beem.instance import shared_hive_instance
 from .account import Account
 from .aes import AESCipher
 from .exceptions import (
@@ -42,7 +42,7 @@ class Wallet(object):
         your accounts. It either uses manually provided private keys
         or uses a SQLite database managed by storage.py.
 
-        :param SteemNodeRPC rpc: RPC connection to a Steem node
+        :param HiveNodeRPC rpc: RPC connection to a Hive node
         :param keys: Predefine the wif keys to shortcut the
                wallet database
         :type keys: array, dict, str
@@ -51,12 +51,12 @@ class Wallet(object):
 
         * **Wallet Database**: Here, beem loads the keys from the
           locally stored wallet SQLite database (see ``storage.py``).
-          To use this mode, simply call :class:`beem.steem.Steem` without the
+          To use this mode, simply call :class:`beem.hive.Hive` without the
           ``keys`` parameter
         * **Providing Keys**: Here, you can provide the keys for
           your accounts manually. All you need to do is add the wif
           keys for the accounts you want to use as a simple array
-          using the ``keys`` parameter to :class:`beem.steem.Steem`.
+          using the ``keys`` parameter to :class:`beem.hive.Hive`.
         * **Force keys**: This more is for advanced users and
           requires that you know what you are doing. Here, the
           ``keys`` parameter is a dictionary that overwrite the
@@ -68,10 +68,10 @@ class Wallet(object):
 
         .. code-block:: python
 
-           from beem import Steem
-           steem = Steem()
-           steem.wallet.wipe(True)
-           steem.wallet.create("supersecret-passphrase")
+           from beem import Hive
+           hive = Hive()
+           hive.wallet.wipe(True)
+           hive.wallet.create("supersecret-passphrase")
 
         This will raise :class:`beem.exceptions.WalletExists` if you already have a wallet installed.
 
@@ -80,9 +80,9 @@ class Wallet(object):
 
         .. code-block:: python
 
-           from beem import Steem
-           steem = Steem()
-           steem.wallet.unlock("supersecret-passphrase")
+           from beem import Hive
+           hive = Hive()
+           hive.wallet.unlock("supersecret-passphrase")
 
         A private key can be added by using the
         :func:`addPrivateKey` method that is available
@@ -90,10 +90,10 @@ class Wallet(object):
 
         .. code-block:: python
 
-           from beem import Steem
-           steem = Steem()
-           steem.wallet.unlock("supersecret-passphrase")
-           steem.wallet.addPrivateKey("5xxxxxxxxxxxxxxxxxxxx")
+           from beem import Hive
+           hive = Hive()
+           hive.wallet.unlock("supersecret-passphrase")
+           hive.wallet.addPrivateKey("5xxxxxxxxxxxxxxxxxxxx")
 
         .. note:: The private key has to be either in hexadecimal or in wallet
                   import format (wif) (starting with a ``5``).
@@ -112,8 +112,8 @@ class Wallet(object):
     token = {}
     keyMap = {}  # wif pairs to force certain keys
 
-    def __init__(self, steem_instance=None, *args, **kwargs):
-        self.steem = steem_instance or shared_steem_instance()
+    def __init__(self, hive_instance=None, *args, **kwargs):
+        self.hive = hive_instance or shared_hive_instance()
 
         # Compatibility after name change from wif->keys
         if "wif" in kwargs and "keys" not in kwargs:
@@ -145,8 +145,8 @@ class Wallet(object):
 
     @property
     def prefix(self):
-        if self.steem.is_connected():
-            prefix = self.steem.prefix
+        if self.hive.is_connected():
+            prefix = self.hive.prefix
         else:
             # If not connected, load prefix from config
             prefix = config["prefix"]
@@ -154,13 +154,13 @@ class Wallet(object):
 
     @property
     def rpc(self):
-        if not self.steem.is_connected():
+        if not self.hive.is_connected():
             raise OfflineHasNoRPCException("No RPC available in offline mode!")
-        return self.steem.rpc
+        return self.hive.rpc
 
     def setKeys(self, loadkeys):
         """ This method is strictly only for in memory keys that are
-            passed to Wallet/Steem with the ``keys`` argument
+            passed to Wallet/Hive with the ``keys`` argument
         """
         log.debug(
             "Force setting of private keys. Not using the wallet database!")
@@ -184,7 +184,7 @@ class Wallet(object):
 
     def setToken(self, loadtoken):
         """ This method is strictly only for in memory token that are
-            passed to Wallet/Steem with the ``token`` argument
+            passed to Wallet/Hive with the ``token`` argument
         """
         log.debug(
             "Force setting of private token. Not using the wallet database!")
@@ -210,7 +210,7 @@ class Wallet(object):
     def tryUnlockFromEnv(self):
         """ Try to fetch the unlock password from UNLOCK environment variable and keyring when no password is given.
         """
-        password_storage = self.steem.config["password_storage"]
+        password_storage = self.hive.config["password_storage"]
         if password_storage == "environment" and "UNLOCK" in os.environ:
             log.debug("Trying to use environmental variable to unlock wallet")
             pwd = os.environ.get("UNLOCK")
@@ -363,7 +363,7 @@ class Wallet(object):
     def _get_pub_from_wif(self, wif):
         """ Get the pubkey as string, from the wif key as string
         """
-        # it could be either graphenebase or steem so we can't check
+        # it could be either graphenebase or hive so we can't check
         # the type directly
         if isinstance(wif, PrivateKey):
             wif = str(wif)
@@ -595,13 +595,13 @@ class Wallet(object):
 
             :param str pub: Public key
         """
-        if not self.steem.is_connected():
+        if not self.hive.is_connected():
             raise OfflineHasNoRPCException("No RPC available in offline mode!")
-        self.steem.rpc.set_next_node_on_empty_reply(False)
-        if self.steem.rpc.get_use_appbase():
-            names = self.steem.rpc.get_key_references({'keys': [pub]}, api="account_by_key")["accounts"]
+        self.hive.rpc.set_next_node_on_empty_reply(False)
+        if self.hive.rpc.get_use_appbase():
+            names = self.hive.rpc.get_key_references({'keys': [pub]}, api="account_by_key")["accounts"]
         else:
-            names = self.steem.rpc.get_key_references([pub], api="account_by_key")
+            names = self.hive.rpc.get_key_references([pub], api="account_by_key")
         for name in names:
             for i in name:
                 yield i
@@ -629,7 +629,7 @@ class Wallet(object):
         """
         for name in self.getAccountsFromPublicKey(pub):
             try:
-                account = Account(name, steem_instance=self.steem)
+                account = Account(name, hive_instance=self.hive)
             except AccountDoesNotExistsException:
                 continue
             yield {"name": account["name"],
@@ -648,7 +648,7 @@ class Wallet(object):
             return {"name": None, "type": None, "pubkey": pub}
         else:
             try:
-                account = Account(name, steem_instance=self.steem)
+                account = Account(name, hive_instance=self.hive)
             except:
                 return
             return {"name": account["name"],
@@ -687,7 +687,7 @@ class Wallet(object):
         """ Return all installed public keys
         """
         if self.keyStorage:
-            return self.keyStorage.getPublicKeys(prefix=self.steem.prefix)
+            return self.keyStorage.getPublicKeys(prefix=self.hive.prefix)
         else:
             return list(Wallet.keys.keys())
 

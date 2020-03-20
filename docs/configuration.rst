@@ -2,7 +2,7 @@
 Configuration
 *************
 
-The pysteem library comes with its own local configuration database
+The pyhive library comes with its own local configuration database
 that stores information like
 
 * API node URLs
@@ -17,13 +17,13 @@ You can access those variables like a regular dictionary by using
 
 .. code-block:: python
 
-    from beem import Steem
-    steem = Steem()
-    print(steem.config.items())
+    from beem import Hive
+    hive = Hive()
+    print(hive.config.items())
 
 Keys can be added and changed like they are for regular dictionaries.
 
-If you don't want to load the :class:`beem.steem.Steem` class, you
+If you don't want to load the :class:`beem.hive.Hive` class, you
 can load the configuration directly by using:
 
 .. code-block:: python
@@ -39,26 +39,26 @@ It is also possible to access the configuration with the commandline tool `beemp
 API node URLs
 -------------
 
-The default node URLs which will be used when  `node` is  `None` in :class:`beem.steem.Steem` class
+The default node URLs which will be used when  `node` is  `None` in :class:`beem.hive.Hive` class
 is stored in `config["nodes"]` as string. The list can be get and set by:
 
 .. code-block:: python
 
-    from beem import Steem
-    steem = Steem()
-    node_list = steem.get_default_nodes()
+    from beem import Hive
+    hive = Hive()
+    node_list = hive.get_default_nodes()
     node_list = node_list[1:] + [node_list[0]]
-    steem.set_default_nodes(node_list)
+    hive.set_default_nodes(node_list)
 
 beempy can also be used to set nodes:
 
 .. code-block:: bash
 
-        beempy set nodes wss://steemd.privex.io
-        beempy set nodes "['wss://steemd.privex.io', 'wss://gtg.steem.house:8090']"
+        beempy set nodes wss://hived.privex.io
+        beempy set nodes "['wss://hived.privex.io', 'wss://gtg.hive.house:8090']"
 
 The default nodes can be reset to the default value. When the first node does not
-answer, steem should be set to the offline mode. This can be done by:
+answer, hive should be set to the offline mode. This can be done by:
 
 .. code-block:: bash
 
@@ -68,9 +68,9 @@ or
 
 .. code-block:: python
 
-    from beem import Steem
-    steem = Steem(offline=True)
-    steem.set_default_nodes("")
+    from beem import Hive
+    hive = Hive(offline=True)
+    hive.set_default_nodes("")
 
 Default account
 ---------------
@@ -80,10 +80,10 @@ It is also used in  `beempy` for all account related functions.
 
 .. code-block:: python
 
-    from beem import Steem
-    steem = Steem()
-    steem.set_default_account("test")
-    steem.config["default_account"] = "test"
+    from beem import Hive
+    hive = Hive()
+    hive.set_default_account("test")
+    hive.config["default_account"] = "test"
 
 or by beempy with
 
@@ -98,9 +98,9 @@ The default vote weight is used for voting, when no vote weight is given.
 
 .. code-block:: python
 
-    from beem import Steem
-    steem = Steem()
-    steem.config["default_vote_weight"] = 100
+    from beem import Hive
+    hive = Hive()
+    hive.config["default_vote_weight"] = 100
 
 or by beempy with
 
@@ -161,9 +161,9 @@ Testing if the master password is correctly provided by keyring or the `UNLOCK` 
 
 .. code-block:: python
 
-    from beem import Steem
-    steem = Steem()
-    print(steem.wallet.locked())
+    from beem import Hive
+    hive = Hive()
+    print(hive.wallet.locked())
 
 When the output is False, automatic unlocking with keyring or the `UNLOCK` variable works.
 It can also tested by beempy with

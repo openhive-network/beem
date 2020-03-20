@@ -13,12 +13,12 @@ except ImportError:
 import requests
 from .storage import configStorage as config
 from six import PY2
-from beem.instance import shared_steem_instance
+from beem.instance import shared_hive_instance
 from beem.amount import Amount
 
 
-class SteemConnect(object):
-    """ SteemConnect
+class HiveConnect(object):
+    """ HiveConnect
 
         :param str scope: comma separated string with scopes
             login,offline,vote,comment,delete_comment,comment_options,custom_json,claim_reward_balance
@@ -27,57 +27,57 @@ class SteemConnect(object):
         .. code-block:: python
 
             # Run the login_app in examples and login with a account
-            from beem import Steem
-            from beem.steemconnect import SteemConnect
+            from beem import Hive
+            from beem.hiveconnect import HiveConnect
             from beem.comment import Comment
-            sc2 = SteemConnect(client_id="beem.app")
-            steem = Steem(steemconnect=sc2)
-            steem.wallet.unlock("supersecret-passphrase")
-            post = Comment("author/permlink", steem_instance=steem)
+            sc2 = HiveConnect(client_id="beem.app")
+            hive = Hive(hiveconnect=sc2)
+            hive.wallet.unlock("supersecret-passphrase")
+            post = Comment("author/permlink", hive_instance=hive)
             post.upvote(voter="test")  # replace "test" with your account
 
-        Examples for creating steemconnect v2 urls for broadcasting in browser:
+        Examples for creating hiveconnect v2 urls for broadcasting in browser:
 
         .. testoutput::
 
-            from beem import Steem
+            from beem import Hive
             from beem.account import Account
-            from beem.steemconnect import SteemConnect
+            from beem.hiveconnect import HiveConnect
             from pprint import pprint
-            steem = Steem(nobroadcast=True, unsigned=True)
-            sc2 = SteemConnect(steem_instance=steem)
-            acc = Account("test", steem_instance=steem)
-            pprint(sc2.url_from_tx(acc.transfer("test1", 1, "STEEM", "test")))
+            hive = Hive(nobroadcast=True, unsigned=True)
+            sc2 = HiveConnect(hive_instance=hive)
+            acc = Account("test", hive_instance=hive)
+            pprint(sc2.url_from_tx(acc.transfer("test1", 1, "HIVE", "test")))
 
         .. testcode::
 
-            'https://steemconnect.com/sign/transfer?from=test&to=test1&amount=1.000+STEEM&memo=test'
+            'https://hiveconnect.com/sign/transfer?from=test&to=test1&amount=1.000+HIVE&memo=test'
 
         .. testoutput::
 
-            from beem import Steem
+            from beem import Hive
             from beem.transactionbuilder import TransactionBuilder
             from beembase import operations
-            from beem.steemconnect import SteemConnect
+            from beem.hiveconnect import HiveConnect
             from pprint import pprint
-            stm = Steem(nobroadcast=True, unsigned=True)
-            sc2 = SteemConnect(steem_instance=stm)
-            tx = TransactionBuilder(steem_instance=stm)
+            stm = Hive(nobroadcast=True, unsigned=True)
+            sc2 = HiveConnect(hive_instance=stm)
+            tx = TransactionBuilder(hive_instance=stm)
             op = operations.Transfer(**{"from": 'test',
                                         "to": 'test1',
-                                        "amount": '1.000 STEEM',
+                                        "amount": '1.000 HIVE',
                                         "memo": 'test'})
             tx.appendOps(op)
             pprint(sc2.url_from_tx(tx.json()))
 
         .. testcode::
 
-            'https://steemconnect.com/sign/transfer?from=test&to=test1&amount=1.000+STEEM&memo=test'
+            'https://hiveconnect.com/sign/transfer?from=test&to=test1&amount=1.000+HIVE&memo=test'
 
     """
 
-    def __init__(self, steem_instance=None, *args, **kwargs):
-        self.steem = steem_instance or shared_steem_instance()
+    def __init__(self, hive_instance=None, *args, **kwargs):
+        self.hive = hive_instance or shared_hive_instance()
         self.access_token = None
         self.get_refresh_token = kwargs.get("get_refresh_token", False)
         self.hot_sign_redirect_uri = kwargs.get("hot_sign_redirect_uri", config["hot_sign_redirect_uri"])
@@ -93,7 +93,7 @@ class SteemConnect(object):
         return {'Authorization': self.access_token}
 
     def get_login_url(self, redirect_uri, **kwargs):
-        """ Returns a login url for receiving token from steemconnect
+        """ Returns a login url for receiving token from hiveconnect
         """
         client_id = kwargs.get("client_id", self.client_id)
         scope = kwargs.get("scope", self.scope)
@@ -121,7 +121,7 @@ class SteemConnect(object):
             "grant_type": "authorization_code",
             "code": code,
             "client_id": self.client_id,
-            "client_secret": self.steem.wallet.getTokenForAccountName(self.client_id),
+            "client_secret": self.hive.wallet.getTokenForAccountName(self.client_id),
         }
 
         r = requests.post(
@@ -132,13 +132,13 @@ class SteemConnect(object):
         return r.json()
 
     def me(self, username=None):
-        """ Calls the me function from steemconnect
+        """ Calls the me function from hiveconnect
 
         .. code-block:: python
 
-            from beem.steemconnect import SteemConnect
-            sc2 = SteemConnect()
-            sc2.steem.wallet.unlock("supersecret-passphrase")
+            from beem.hiveconnect import HiveConnect
+            sc2 = HiveConnect()
+            sc2.hive.wallet.unlock("supersecret-passphrase")
             sc2.me(username="test")
 
         """
@@ -160,7 +160,7 @@ class SteemConnect(object):
         if permission != "posting":
             self.access_token = None
             return
-        self.access_token = self.steem.wallet.getTokenForAccountName(username)
+        self.access_token = self.hive.wallet.getTokenForAccountName(username)
 
     def broadcast(self, operations, username=None):
         """ Broadcast an operation
@@ -174,7 +174,7 @@ class SteemConnect(object):
                         'vote', {
                                     'voter': 'gandalf',
                                     'author': 'gtg',
-                                    'permlink': 'steem-pressure-4-need-for-speed',
+                                    'permlink': 'hive-pressure-4-need-for-speed',
                                     'weight': 10000
                                 }
                     ]
@@ -204,7 +204,7 @@ class SteemConnect(object):
             "grant_type": "refresh_token",
             "refresh_token": code,
             "client_id": self.client_id,
-            "client_secret": self.steem.wallet.getTokenForAccountName(self.client_id),
+            "client_secret": self.hive.wallet.getTokenForAccountName(self.client_id),
             "scope": scope,
         }
 
@@ -256,7 +256,7 @@ class SteemConnect(object):
                 value = params[key]
                 if isinstance(value, list) and len(value) == 3:
                     try:
-                        amount = Amount(value, steem_instance=self.steem)
+                        amount = Amount(value, hive_instance=self.hive)
                         params[key] = str(amount)
                     except:
                         amount = None

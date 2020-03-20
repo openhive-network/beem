@@ -13,7 +13,7 @@ from beem.block import Block
 from beem.account import Account
 from beem.amount import Amount
 from beemgraphenebase.account import PasswordKey, PrivateKey, PublicKey
-from beem.steem import Steem
+from beem.hive import Hive
 from beem.utils import parse_time, formatTimedelta
 from beemapi.exceptions import NumRetriesReached
 from beem.nodelist import NodeList
@@ -55,7 +55,7 @@ def test_post(wls):
                 })
 
     privateWif = "5K..."
-    tx = TransactionBuilder(use_condenser_api=True, steem_instance=wls)
+    tx = TransactionBuilder(use_condenser_api=True, hive_instance=wls)
     tx.appendOps(op1)
     tx.appendWif(privateWif)
     tx.sign()
@@ -63,7 +63,7 @@ def test_post(wls):
 
 if __name__ == "__main__":
     # `blocking=True` forces use of broadcast_transaction_synchronous
-    wls = Steem(node=["https://pubrpc.whaleshares.io"], blocking=True)
+    wls = Hive(node=["https://pubrpc.whaleshares.io"], blocking=True)
     print(wls.get_blockchain_version())
     print(wls.get_config())
     test_post(wls)

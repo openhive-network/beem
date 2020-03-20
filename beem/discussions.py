@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
-from .instance import shared_steem_instance
+from .instance import shared_hive_instance
 from .account import Account
 from .comment import Comment
 from .utils import resolve_authorperm
@@ -32,7 +32,7 @@ class Query(dict):
         .. testcode::
 
             from beem.discussions import Query
-            query = Query(limit=10, tag="steemit")
+            query = Query(limit=10, tag="hiveit")
 
     """
     def __init__(self, limit=0, tag="", truncate_body=0,
@@ -60,11 +60,11 @@ class Query(dict):
 class Discussions(object):
     """ Get Discussions
 
-        :param Steem steem_instance: Steem instance
+        :param Hive hive_instance: Hive instance
 
     """
-    def __init__(self, lazy=False, steem_instance=None):
-        self.steem = steem_instance or shared_steem_instance()
+    def __init__(self, lazy=False, hive_instance=None):
+        self.hive = hive_instance or shared_hive_instance()
         self.lazy = lazy
 
     def get_discussions(self, discussion_type, discussion_query, limit=1000):
@@ -77,7 +77,7 @@ class Discussions(object):
             .. testcode::
 
                 from beem.discussions import Query, Discussions
-                query = Query(limit=51, tag="steemit")
+                query = Query(limit=51, tag="hiveit")
                 discussions = Discussions()
                 count = 0
                 for d in discussions.get_discussions("tags", query, limit=200):
@@ -117,41 +117,41 @@ class Discussions(object):
             discussion_query["start_tag"] = start_tag
             discussion_query["start_parent_author"] = start_parent_author
             if discussion_type == "trending":
-                dd = Discussions_by_trending(discussion_query, steem_instance=self.steem, lazy=self.lazy)
+                dd = Discussions_by_trending(discussion_query, hive_instance=self.hive, lazy=self.lazy)
             elif discussion_type == "author_before_date":
                 dd = Discussions_by_author_before_date(author=discussion_query["author"],
                                                        start_permlink=discussion_query["start_permlink"],
                                                        before_date=discussion_query["before_date"],
                                                        limit=discussion_query["limit"],
-                                                       steem_instance=self.steem, lazy=self.lazy)
+                                                       hive_instance=self.hive, lazy=self.lazy)
             elif discussion_type == "payout":
-                dd = Comment_discussions_by_payout(discussion_query, steem_instance=self.steem, lazy=self.lazy)
+                dd = Comment_discussions_by_payout(discussion_query, hive_instance=self.hive, lazy=self.lazy)
             elif discussion_type == "post_payout":
-                dd = Post_discussions_by_payout(discussion_query, steem_instance=self.steem, lazy=self.lazy)
+                dd = Post_discussions_by_payout(discussion_query, hive_instance=self.hive, lazy=self.lazy)
             elif discussion_type == "created":
-                dd = Discussions_by_created(discussion_query, steem_instance=self.steem, lazy=self.lazy)
+                dd = Discussions_by_created(discussion_query, hive_instance=self.hive, lazy=self.lazy)
             elif discussion_type == "active":
-                dd = Discussions_by_active(discussion_query, steem_instance=self.steem, lazy=self.lazy)
+                dd = Discussions_by_active(discussion_query, hive_instance=self.hive, lazy=self.lazy)
             elif discussion_type == "cashout":
-                dd = Discussions_by_cashout(discussion_query, steem_instance=self.steem, lazy=self.lazy)
+                dd = Discussions_by_cashout(discussion_query, hive_instance=self.hive, lazy=self.lazy)
             elif discussion_type == "votes":
-                dd = Discussions_by_votes(discussion_query, steem_instance=self.steem, lazy=self.lazy)
+                dd = Discussions_by_votes(discussion_query, hive_instance=self.hive, lazy=self.lazy)
             elif discussion_type == "children":
-                dd = Discussions_by_children(discussion_query, steem_instance=self.steem, lazy=self.lazy)
+                dd = Discussions_by_children(discussion_query, hive_instance=self.hive, lazy=self.lazy)
             elif discussion_type == "hot":
-                dd = Discussions_by_hot(discussion_query, steem_instance=self.steem, lazy=self.lazy)
+                dd = Discussions_by_hot(discussion_query, hive_instance=self.hive, lazy=self.lazy)
             elif discussion_type == "feed":
-                dd = Discussions_by_feed(discussion_query, steem_instance=self.steem, lazy=self.lazy)
+                dd = Discussions_by_feed(discussion_query, hive_instance=self.hive, lazy=self.lazy)
             elif discussion_type == "blog":
-                dd = Discussions_by_blog(discussion_query, steem_instance=self.steem, lazy=self.lazy)
+                dd = Discussions_by_blog(discussion_query, hive_instance=self.hive, lazy=self.lazy)
             elif discussion_type == "comments":
-                dd = Discussions_by_comments(discussion_query, steem_instance=self.steem, lazy=self.lazy)
+                dd = Discussions_by_comments(discussion_query, hive_instance=self.hive, lazy=self.lazy)
             elif discussion_type == "promoted":
-                dd = Discussions_by_promoted(discussion_query, steem_instance=self.steem, lazy=self.lazy)
+                dd = Discussions_by_promoted(discussion_query, hive_instance=self.hive, lazy=self.lazy)
             elif discussion_type == "replies":
-                dd = Replies_by_last_update(discussion_query, steem_instance=self.steem, lazy=self.lazy)
+                dd = Replies_by_last_update(discussion_query, hive_instance=self.hive, lazy=self.lazy)
             elif discussion_type == "tags":
-                dd = Trending_tags(discussion_query, steem_instance=self.steem, lazy=self.lazy)
+                dd = Trending_tags(discussion_query, hive_instance=self.hive, lazy=self.lazy)
             else:
                 raise ValueError("Wrong discussion_type")
             if not dd:
@@ -191,26 +191,26 @@ class Discussions_by_trending(list):
 
         :param Query discussion_query: Defines the parameter for
             searching posts
-        :param Steem steem_instance: Steem instance
+        :param Hive hive_instance: Hive instance
 
         .. testcode::
 
             from beem.discussions import Query, Discussions_by_trending
-            q = Query(limit=10, tag="steem")
+            q = Query(limit=10, tag="hive")
             for h in Discussions_by_trending(q):
                 print(h)
 
     """
-    def __init__(self, discussion_query, lazy=False, steem_instance=None):
-        self.steem = steem_instance or shared_steem_instance()
-        self.steem.rpc.set_next_node_on_empty_reply(self.steem.rpc.get_use_appbase())
-        if self.steem.rpc.get_use_appbase():
-            posts = self.steem.rpc.get_discussions_by_trending(discussion_query, api="tags")['discussions']
+    def __init__(self, discussion_query, lazy=False, hive_instance=None):
+        self.hive = hive_instance or shared_hive_instance()
+        self.hive.rpc.set_next_node_on_empty_reply(self.hive.rpc.get_use_appbase())
+        if self.hive.rpc.get_use_appbase():
+            posts = self.hive.rpc.get_discussions_by_trending(discussion_query, api="tags")['discussions']
         else:
-            posts = self.steem.rpc.get_discussions_by_trending(discussion_query)
+            posts = self.hive.rpc.get_discussions_by_trending(discussion_query)
         super(Discussions_by_trending, self).__init__(
             [
-                Comment(x, lazy=lazy, steem_instance=self.steem)
+                Comment(x, lazy=lazy, hive_instance=self.hive)
                 for x in posts
             ]
         )
@@ -227,7 +227,7 @@ class Discussions_by_author_before_date(list):
         :param str start_permlink: Defines the permlink of a starting discussion
         :param str before_date: Defines the before date for query
         :param int limit: Defines the limit of discussions
-        :param Steem steem_instance: Steem instance
+        :param Hive hive_instance: Hive instance
 
         .. testcode::
 
@@ -236,17 +236,17 @@ class Discussions_by_author_before_date(list):
                 print(h)
 
     """
-    def __init__(self, author="", start_permlink="", before_date="1970-01-01T00:00:00", limit=100, lazy=False, steem_instance=None):
-        self.steem = steem_instance or shared_steem_instance()
-        self.steem.rpc.set_next_node_on_empty_reply(self.steem.rpc.get_use_appbase())
-        if self.steem.rpc.get_use_appbase():
+    def __init__(self, author="", start_permlink="", before_date="1970-01-01T00:00:00", limit=100, lazy=False, hive_instance=None):
+        self.hive = hive_instance or shared_hive_instance()
+        self.hive.rpc.set_next_node_on_empty_reply(self.hive.rpc.get_use_appbase())
+        if self.hive.rpc.get_use_appbase():
             discussion_query = {"author": author, "start_permlink": start_permlink, "before_date": before_date, "limit": limit}
-            posts = self.steem.rpc.get_discussions_by_author_before_date(discussion_query, api="tags")['discussions']
+            posts = self.hive.rpc.get_discussions_by_author_before_date(discussion_query, api="tags")['discussions']
         else:
-            posts = self.steem.rpc.get_discussions_by_author_before_date(author, start_permlink, before_date, limit)
+            posts = self.hive.rpc.get_discussions_by_author_before_date(author, start_permlink, before_date, limit)
         super(Discussions_by_author_before_date, self).__init__(
             [
-                Comment(x, lazy=lazy, steem_instance=self.steem)
+                Comment(x, lazy=lazy, hive_instance=self.hive)
                 for x in posts
             ]
         )
@@ -257,7 +257,7 @@ class Comment_discussions_by_payout(list):
 
         :param Query discussion_query: Defines the parameter for
             searching posts
-        :param Steem steem_instance: Steem instance
+        :param Hive hive_instance: Hive instance
 
         .. testcode::
 
@@ -267,16 +267,16 @@ class Comment_discussions_by_payout(list):
                 print(h)
 
     """
-    def __init__(self, discussion_query, lazy=False, steem_instance=None):
-        self.steem = steem_instance or shared_steem_instance()
-        self.steem.rpc.set_next_node_on_empty_reply(self.steem.rpc.get_use_appbase())
-        if self.steem.rpc.get_use_appbase():
-            posts = self.steem.rpc.get_comment_discussions_by_payout(discussion_query, api="tags")['discussions']
+    def __init__(self, discussion_query, lazy=False, hive_instance=None):
+        self.hive = hive_instance or shared_hive_instance()
+        self.hive.rpc.set_next_node_on_empty_reply(self.hive.rpc.get_use_appbase())
+        if self.hive.rpc.get_use_appbase():
+            posts = self.hive.rpc.get_comment_discussions_by_payout(discussion_query, api="tags")['discussions']
         else:
-            posts = self.steem.rpc.get_comment_discussions_by_payout(discussion_query)
+            posts = self.hive.rpc.get_comment_discussions_by_payout(discussion_query)
         super(Comment_discussions_by_payout, self).__init__(
             [
-                Comment(x, lazy=lazy, steem_instance=self.steem)
+                Comment(x, lazy=lazy, hive_instance=self.hive)
                 for x in posts
             ]
         )
@@ -287,7 +287,7 @@ class Post_discussions_by_payout(list):
 
         :param Query discussion_query: Defines the parameter for
             searching posts
-        :param Steem steem_instance: Steem instance
+        :param Hive hive_instance: Hive instance
 
         .. testcode::
 
@@ -297,16 +297,16 @@ class Post_discussions_by_payout(list):
                 print(h)
 
     """
-    def __init__(self, discussion_query, lazy=False, steem_instance=None):
-        self.steem = steem_instance or shared_steem_instance()
-        self.steem.rpc.set_next_node_on_empty_reply(self.steem.rpc.get_use_appbase())
-        if self.steem.rpc.get_use_appbase():
-            posts = self.steem.rpc.get_post_discussions_by_payout(discussion_query, api="tags")['discussions']
+    def __init__(self, discussion_query, lazy=False, hive_instance=None):
+        self.hive = hive_instance or shared_hive_instance()
+        self.hive.rpc.set_next_node_on_empty_reply(self.hive.rpc.get_use_appbase())
+        if self.hive.rpc.get_use_appbase():
+            posts = self.hive.rpc.get_post_discussions_by_payout(discussion_query, api="tags")['discussions']
         else:
-            posts = self.steem.rpc.get_post_discussions_by_payout(discussion_query)
+            posts = self.hive.rpc.get_post_discussions_by_payout(discussion_query)
         super(Post_discussions_by_payout, self).__init__(
             [
-                Comment(x, lazy=lazy, steem_instance=self.steem)
+                Comment(x, lazy=lazy, hive_instance=self.hive)
                 for x in posts
             ]
         )
@@ -317,7 +317,7 @@ class Discussions_by_created(list):
 
         :param Query discussion_query: Defines the parameter for
             searching posts
-        :param Steem steem_instance: Steem instance
+        :param Hive hive_instance: Hive instance
 
         .. testcode::
 
@@ -327,16 +327,16 @@ class Discussions_by_created(list):
                 print(h)
 
     """
-    def __init__(self, discussion_query, lazy=False, steem_instance=None):
-        self.steem = steem_instance or shared_steem_instance()
-        self.steem.rpc.set_next_node_on_empty_reply(self.steem.rpc.get_use_appbase())
-        if self.steem.rpc.get_use_appbase():
-            posts = self.steem.rpc.get_discussions_by_created(discussion_query, api="tags")['discussions']
+    def __init__(self, discussion_query, lazy=False, hive_instance=None):
+        self.hive = hive_instance or shared_hive_instance()
+        self.hive.rpc.set_next_node_on_empty_reply(self.hive.rpc.get_use_appbase())
+        if self.hive.rpc.get_use_appbase():
+            posts = self.hive.rpc.get_discussions_by_created(discussion_query, api="tags")['discussions']
         else:
-            posts = self.steem.rpc.get_discussions_by_created(discussion_query)
+            posts = self.hive.rpc.get_discussions_by_created(discussion_query)
         super(Discussions_by_created, self).__init__(
             [
-                Comment(x, lazy=lazy, steem_instance=self.steem)
+                Comment(x, lazy=lazy, hive_instance=self.hive)
                 for x in posts
             ]
         )
@@ -347,7 +347,7 @@ class Discussions_by_active(list):
 
         :param Query discussion_query: Defines the parameter
             searching posts
-        :param Steem steem_instance: Steem() instance to use when accesing a RPC
+        :param Hive hive_instance: Hive() instance to use when accesing a RPC
 
         .. testcode::
 
@@ -357,16 +357,16 @@ class Discussions_by_active(list):
                 print(h)
 
     """
-    def __init__(self, discussion_query, lazy=False, steem_instance=None):
-        self.steem = steem_instance or shared_steem_instance()
-        self.steem.rpc.set_next_node_on_empty_reply(self.steem.rpc.get_use_appbase())
-        if self.steem.rpc.get_use_appbase():
-            posts = self.steem.rpc.get_discussions_by_active(discussion_query, api="tags")['discussions']
+    def __init__(self, discussion_query, lazy=False, hive_instance=None):
+        self.hive = hive_instance or shared_hive_instance()
+        self.hive.rpc.set_next_node_on_empty_reply(self.hive.rpc.get_use_appbase())
+        if self.hive.rpc.get_use_appbase():
+            posts = self.hive.rpc.get_discussions_by_active(discussion_query, api="tags")['discussions']
         else:
-            posts = self.steem.rpc.get_discussions_by_active(discussion_query)
+            posts = self.hive.rpc.get_discussions_by_active(discussion_query)
         super(Discussions_by_active, self).__init__(
             [
-                Comment(x, lazy=lazy, steem_instance=self.steem)
+                Comment(x, lazy=lazy, hive_instance=self.hive)
                 for x in posts
             ]
         )
@@ -378,7 +378,7 @@ class Discussions_by_cashout(list):
 
         :param Query discussion_query: Defines the parameter
             searching posts
-        :param Steem steem_instance: Steem instance
+        :param Hive hive_instance: Hive instance
 
         .. testcode::
 
@@ -388,16 +388,16 @@ class Discussions_by_cashout(list):
                 print(h)
 
     """
-    def __init__(self, discussion_query, lazy=False, steem_instance=None):
-        self.steem = steem_instance or shared_steem_instance()
-        self.steem.rpc.set_next_node_on_empty_reply(self.steem.rpc.get_use_appbase())
-        if self.steem.rpc.get_use_appbase():
-            posts = self.steem.rpc.get_discussions_by_cashout(discussion_query, api="tags")['discussions']
+    def __init__(self, discussion_query, lazy=False, hive_instance=None):
+        self.hive = hive_instance or shared_hive_instance()
+        self.hive.rpc.set_next_node_on_empty_reply(self.hive.rpc.get_use_appbase())
+        if self.hive.rpc.get_use_appbase():
+            posts = self.hive.rpc.get_discussions_by_cashout(discussion_query, api="tags")['discussions']
         else:
-            posts = self.steem.rpc.get_discussions_by_cashout(discussion_query)
+            posts = self.hive.rpc.get_discussions_by_cashout(discussion_query)
         super(Discussions_by_cashout, self).__init__(
             [
-                Comment(x, lazy=lazy, steem_instance=self.steem)
+                Comment(x, lazy=lazy, hive_instance=self.hive)
                 for x in posts
             ]
         )
@@ -408,7 +408,7 @@ class Discussions_by_votes(list):
 
         :param Query discussion_query: Defines the parameter
             searching posts
-        :param Steem steem_instance: Steem instance
+        :param Hive hive_instance: Hive instance
 
         .. testcode::
 
@@ -418,16 +418,16 @@ class Discussions_by_votes(list):
                 print(h)
 
     """
-    def __init__(self, discussion_query, lazy=False, steem_instance=None):
-        self.steem = steem_instance or shared_steem_instance()
-        self.steem.rpc.set_next_node_on_empty_reply(self.steem.rpc.get_use_appbase())
-        if self.steem.rpc.get_use_appbase():
-            posts = self.steem.rpc.get_discussions_by_votes(discussion_query, api="tags")['discussions']
+    def __init__(self, discussion_query, lazy=False, hive_instance=None):
+        self.hive = hive_instance or shared_hive_instance()
+        self.hive.rpc.set_next_node_on_empty_reply(self.hive.rpc.get_use_appbase())
+        if self.hive.rpc.get_use_appbase():
+            posts = self.hive.rpc.get_discussions_by_votes(discussion_query, api="tags")['discussions']
         else:
-            posts = self.steem.rpc.get_discussions_by_votes(discussion_query)
+            posts = self.hive.rpc.get_discussions_by_votes(discussion_query)
         super(Discussions_by_votes, self).__init__(
             [
-                Comment(x, lazy=lazy, steem_instance=self.steem)
+                Comment(x, lazy=lazy, hive_instance=self.hive)
                 for x in posts
             ]
         )
@@ -438,7 +438,7 @@ class Discussions_by_children(list):
 
         :param Query discussion_query: Defines the parameter
             searching posts
-        :param Steem steem_instance: Steem instance
+        :param Hive hive_instance: Hive instance
 
         .. testcode::
 
@@ -448,16 +448,16 @@ class Discussions_by_children(list):
                 print(h)
 
     """
-    def __init__(self, discussion_query, lazy=False, steem_instance=None):
-        self.steem = steem_instance or shared_steem_instance()
-        self.steem.rpc.set_next_node_on_empty_reply(self.steem.rpc.get_use_appbase())
-        if self.steem.rpc.get_use_appbase():
-            posts = self.steem.rpc.get_discussions_by_children(discussion_query, api="tags")['discussions']
+    def __init__(self, discussion_query, lazy=False, hive_instance=None):
+        self.hive = hive_instance or shared_hive_instance()
+        self.hive.rpc.set_next_node_on_empty_reply(self.hive.rpc.get_use_appbase())
+        if self.hive.rpc.get_use_appbase():
+            posts = self.hive.rpc.get_discussions_by_children(discussion_query, api="tags")['discussions']
         else:
-            posts = self.steem.rpc.get_discussions_by_children(discussion_query)
+            posts = self.hive.rpc.get_discussions_by_children(discussion_query)
         super(Discussions_by_children, self).__init__(
             [
-                Comment(x, lazy=lazy, steem_instance=self.steem)
+                Comment(x, lazy=lazy, hive_instance=self.hive)
                 for x in posts
             ]
         )
@@ -468,26 +468,26 @@ class Discussions_by_hot(list):
 
         :param Query discussion_query: Defines the parameter
             searching posts
-        :param Steem steem_instance: Steem instance
+        :param Hive hive_instance: Hive instance
 
         .. testcode::
 
             from beem.discussions import Query, Discussions_by_hot
-            q = Query(limit=10, tag="steem")
+            q = Query(limit=10, tag="hive")
             for h in Discussions_by_hot(q):
                 print(h)
 
     """
-    def __init__(self, discussion_query, lazy=False, steem_instance=None):
-        self.steem = steem_instance or shared_steem_instance()
-        self.steem.rpc.set_next_node_on_empty_reply(self.steem.rpc.get_use_appbase())
-        if self.steem.rpc.get_use_appbase():
-            posts = self.steem.rpc.get_discussions_by_hot(discussion_query, api="tags")['discussions']
+    def __init__(self, discussion_query, lazy=False, hive_instance=None):
+        self.hive = hive_instance or shared_hive_instance()
+        self.hive.rpc.set_next_node_on_empty_reply(self.hive.rpc.get_use_appbase())
+        if self.hive.rpc.get_use_appbase():
+            posts = self.hive.rpc.get_discussions_by_hot(discussion_query, api="tags")['discussions']
         else:
-            posts = self.steem.rpc.get_discussions_by_hot(discussion_query)
+            posts = self.hive.rpc.get_discussions_by_hot(discussion_query)
         super(Discussions_by_hot, self).__init__(
             [
-                Comment(x, lazy=lazy, steem_instance=self.steem)
+                Comment(x, lazy=lazy, hive_instance=self.hive)
                 for x in posts
             ]
         )
@@ -498,30 +498,30 @@ class Discussions_by_feed(list):
 
         :param Query discussion_query: Defines the parameter
             searching posts, tag musst be set to a username
-        :param Steem steem_instance: Steem instance
+        :param Hive hive_instance: Hive instance
 
         .. testcode::
 
             from beem.discussions import Query, Discussions_by_feed
-            q = Query(limit=10, tag="steem")
+            q = Query(limit=10, tag="hive")
             for h in Discussions_by_feed(q):
                 print(h)
 
     """
-    def __init__(self, discussion_query, lazy=False, steem_instance=None):
-        self.steem = steem_instance or shared_steem_instance()
-        self.steem.rpc.set_next_node_on_empty_reply(self.steem.rpc.get_use_appbase())
-        if self.steem.rpc.get_use_appbase():
-            posts = self.steem.rpc.get_discussions_by_feed(discussion_query, api="tags")['discussions']
+    def __init__(self, discussion_query, lazy=False, hive_instance=None):
+        self.hive = hive_instance or shared_hive_instance()
+        self.hive.rpc.set_next_node_on_empty_reply(self.hive.rpc.get_use_appbase())
+        if self.hive.rpc.get_use_appbase():
+            posts = self.hive.rpc.get_discussions_by_feed(discussion_query, api="tags")['discussions']
         else:
             # limit = discussion_query["limit"]
             # account = discussion_query["tag"]
             # entryId = 0
-            # posts = self.steem.rpc.get_feed(account, entryId, limit, api='follow')["comment"]
-            posts = self.steem.rpc.get_discussions_by_feed(discussion_query)
+            # posts = self.hive.rpc.get_feed(account, entryId, limit, api='follow')["comment"]
+            posts = self.hive.rpc.get_discussions_by_feed(discussion_query)
         super(Discussions_by_feed, self).__init__(
             [
-                Comment(x, lazy=lazy, steem_instance=self.steem)
+                Comment(x, lazy=lazy, hive_instance=self.hive)
                 for x in posts
             ]
         )
@@ -532,7 +532,7 @@ class Discussions_by_blog(list):
 
         :param Query discussion_query: Defines the parameter
             searching posts, tag musst be set to a username
-        :param Steem steem_instance: Steem instance
+        :param Hive hive_instance: Hive instance
 
         .. testcode::
 
@@ -542,22 +542,22 @@ class Discussions_by_blog(list):
                 print(h)
 
     """
-    def __init__(self, discussion_query, lazy=False, steem_instance=None):
-        self.steem = steem_instance or shared_steem_instance()
-        self.steem.rpc.set_next_node_on_empty_reply(self.steem.rpc.get_use_appbase())
-        if self.steem.rpc.get_use_appbase():
-            posts = self.steem.rpc.get_discussions_by_blog(discussion_query, api="tags")
+    def __init__(self, discussion_query, lazy=False, hive_instance=None):
+        self.hive = hive_instance or shared_hive_instance()
+        self.hive.rpc.set_next_node_on_empty_reply(self.hive.rpc.get_use_appbase())
+        if self.hive.rpc.get_use_appbase():
+            posts = self.hive.rpc.get_discussions_by_blog(discussion_query, api="tags")
             if 'discussions' in posts:
                 posts = posts['discussions']  # inconsistent format across node types
         else:
             # limit = discussion_query["limit"]
             # account = discussion_query["tag"]
             # entryId = 0
-            # posts = self.steem.rpc.get_feed(account, entryId, limit, api='follow')
-            posts = self.steem.rpc.get_discussions_by_blog(discussion_query)
+            # posts = self.hive.rpc.get_feed(account, entryId, limit, api='follow')
+            posts = self.hive.rpc.get_discussions_by_blog(discussion_query)
         super(Discussions_by_blog, self).__init__(
             [
-                Comment(x, lazy=lazy, steem_instance=self.steem)
+                Comment(x, lazy=lazy, hive_instance=self.hive)
                 for x in posts
             ]
         )
@@ -568,28 +568,28 @@ class Discussions_by_comments(list):
 
         :param Query discussion_query: Defines the parameter
             searching posts, start_author and start_permlink must be set.
-        :param Steem steem_instance: Steem instance
+        :param Hive hive_instance: Hive instance
 
         .. testcode::
 
             from beem.discussions import Query, Discussions_by_comments
-            q = Query(limit=10, start_author="steemit", start_permlink="firstpost")
+            q = Query(limit=10, start_author="hiveit", start_permlink="firstpost")
             for h in Discussions_by_comments(q):
                 print(h)
 
     """
-    def __init__(self, discussion_query, lazy=False, steem_instance=None):
-        self.steem = steem_instance or shared_steem_instance()
-        self.steem.rpc.set_next_node_on_empty_reply(self.steem.rpc.get_use_appbase())
-        if self.steem.rpc.get_use_appbase():
-            posts = self.steem.rpc.get_discussions_by_comments(discussion_query, api="tags")
+    def __init__(self, discussion_query, lazy=False, hive_instance=None):
+        self.hive = hive_instance or shared_hive_instance()
+        self.hive.rpc.set_next_node_on_empty_reply(self.hive.rpc.get_use_appbase())
+        if self.hive.rpc.get_use_appbase():
+            posts = self.hive.rpc.get_discussions_by_comments(discussion_query, api="tags")
             if 'discussions' in posts:
                 posts = posts['discussions']  # inconsistent format across node types
         else:
-            posts = self.steem.rpc.get_discussions_by_comments(discussion_query)
+            posts = self.hive.rpc.get_discussions_by_comments(discussion_query)
         super(Discussions_by_comments, self).__init__(
             [
-                Comment(x, lazy=lazy, steem_instance=self.steem)
+                Comment(x, lazy=lazy, hive_instance=self.hive)
                 for x in posts
             ]
         )
@@ -600,26 +600,26 @@ class Discussions_by_promoted(list):
 
         :param Query discussion_query: Defines the parameter
             searching posts
-        :param Steem steem_instance: Steem instance
+        :param Hive hive_instance: Hive instance
 
         .. testcode::
 
             from beem.discussions import Query, Discussions_by_promoted
-            q = Query(limit=10, tag="steem")
+            q = Query(limit=10, tag="hive")
             for h in Discussions_by_promoted(q):
                 print(h)
 
     """
-    def __init__(self, discussion_query, lazy=False, steem_instance=None):
-        self.steem = steem_instance or shared_steem_instance()
-        self.steem.rpc.set_next_node_on_empty_reply(self.steem.rpc.get_use_appbase())
-        if self.steem.rpc.get_use_appbase():
-            posts = self.steem.rpc.get_discussions_by_promoted(discussion_query, api="tags")['discussions']
+    def __init__(self, discussion_query, lazy=False, hive_instance=None):
+        self.hive = hive_instance or shared_hive_instance()
+        self.hive.rpc.set_next_node_on_empty_reply(self.hive.rpc.get_use_appbase())
+        if self.hive.rpc.get_use_appbase():
+            posts = self.hive.rpc.get_discussions_by_promoted(discussion_query, api="tags")['discussions']
         else:
-            posts = self.steem.rpc.get_discussions_by_promoted(discussion_query)
+            posts = self.hive.rpc.get_discussions_by_promoted(discussion_query)
         super(Discussions_by_promoted, self).__init__(
             [
-                Comment(x, lazy=lazy, steem_instance=self.steem)
+                Comment(x, lazy=lazy, hive_instance=self.hive)
                 for x in posts
             ]
         )
@@ -630,29 +630,29 @@ class Replies_by_last_update(list):
 
         :param Query discussion_query: Defines the parameter
             searching posts start_parent_author and start_permlink must be set.
-        :param Steem steem_instance: Steem instance
+        :param Hive hive_instance: Hive instance
 
         .. testcode::
 
             from beem.discussions import Query, Replies_by_last_update
-            q = Query(limit=10, start_parent_author="steemit", start_permlink="firstpost")
+            q = Query(limit=10, start_parent_author="hiveit", start_permlink="firstpost")
             for h in Replies_by_last_update(q):
                 print(h)
 
     """
-    def __init__(self, discussion_query, lazy=False, steem_instance=None):
-        self.steem = steem_instance or shared_steem_instance()
-        self.steem.rpc.set_next_node_on_empty_reply(self.steem.rpc.get_use_appbase())
-        if self.steem.rpc.get_use_appbase():
-            posts = self.steem.rpc.get_replies_by_last_update(discussion_query, api="tags")
+    def __init__(self, discussion_query, lazy=False, hive_instance=None):
+        self.hive = hive_instance or shared_hive_instance()
+        self.hive.rpc.set_next_node_on_empty_reply(self.hive.rpc.get_use_appbase())
+        if self.hive.rpc.get_use_appbase():
+            posts = self.hive.rpc.get_replies_by_last_update(discussion_query, api="tags")
             if 'discussions' in posts:
                 posts = posts['discussions']
         else:
-            posts = self.steem.rpc.get_replies_by_last_update(discussion_query["start_author"], discussion_query["start_permlink"], discussion_query["limit"])
+            posts = self.hive.rpc.get_replies_by_last_update(discussion_query["start_author"], discussion_query["start_permlink"], discussion_query["limit"])
 
         super(Replies_by_last_update, self).__init__(
             [
-                Comment(x, lazy=lazy, steem_instance=self.steem)
+                Comment(x, lazy=lazy, hive_instance=self.hive)
                 for x in posts
             ]
         )
@@ -663,7 +663,7 @@ class Trending_tags(list):
 
         :param Query discussion_query: Defines the parameter
             searching posts, start_tag can be set.
-        :param Steem steem_instance: Steem instance
+        :param Hive hive_instance: Hive instance
 
         .. testcode::
 
@@ -673,13 +673,13 @@ class Trending_tags(list):
                 print(h)
 
     """
-    def __init__(self, discussion_query, lazy=False, steem_instance=None):
-        self.steem = steem_instance or shared_steem_instance()
-        self.steem.rpc.set_next_node_on_empty_reply(self.steem.rpc.get_use_appbase())
-        if self.steem.rpc.get_use_appbase():
-            tags = self.steem.rpc.get_trending_tags(discussion_query, api="tags")['tags']
+    def __init__(self, discussion_query, lazy=False, hive_instance=None):
+        self.hive = hive_instance or shared_hive_instance()
+        self.hive.rpc.set_next_node_on_empty_reply(self.hive.rpc.get_use_appbase())
+        if self.hive.rpc.get_use_appbase():
+            tags = self.hive.rpc.get_trending_tags(discussion_query, api="tags")['tags']
         else:
-            tags = self.steem.rpc.get_trending_tags(discussion_query["start_tag"], discussion_query["limit"], api="tags")
+            tags = self.hive.rpc.get_trending_tags(discussion_query["start_tag"], discussion_query["limit"], api="tags")
         super(Trending_tags, self).__init__(
             [
                 x

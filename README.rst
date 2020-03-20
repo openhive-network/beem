@@ -1,8 +1,8 @@
-beem - Unofficial Python Library for Steem
+beem - Unofficial Python Library for Hive
 ===============================================
 
-beem is an unofficial python library for steem, which is created new from scratch from `python-bitshares`_
-The library name is derived from a beam machine, similar to the analogy between steem and steam. beem includes `python-graphenelib`_.
+beem is an unofficial python library for hive, which is created new from scratch from `python-bitshares`_
+The library name is derived from a beam machine, similar to the analogy between hive and steam. beem includes `python-graphenelib`_.
 
 .. image:: https://img.shields.io/pypi/v/beem.svg
     :target: https://pypi.python.org/pypi/beem/
@@ -53,7 +53,7 @@ You may find help in the  `beem-discord-channel`_. The discord channel can also 
 
 A complete library documentation is available at  `beem.readthedocs.io`_.
 
-Advantages over the official steem-python library
+Advantages over the official hive-python library
 =================================================
 
 * High unit test coverage
@@ -62,20 +62,20 @@ Advantages over the official steem-python library
 * Node error handling and automatic node switching
 * Usage of pycryptodomex instead of the outdated pycrypto
 * Complete documentation of beempy and all classes including all functions
-* steemconnect integration
+* hiveconnect integration
 * Works on read-only systems
 * Own BlockchainObject class with cache
 * Contains all broadcast operations
 * Estimation of virtual account operation index from date or block number
 * the command line tool beempy uses click and has more commands
-* SteemNodeRPC can be used to execute even not implemented RPC-Calls
+* HiveNodeRPC can be used to execute even not implemented RPC-Calls
 * More complete implemention
 
 Installation
 ============
 The minimal working python version is 2.7.x. or 3.4.x
 
-beem can be installed parallel to python-steem.
+beem can be installed parallel to python-hive.
 
 For Debian and Ubuntu, please ensure that the following packages are installed:
 

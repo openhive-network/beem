@@ -18,17 +18,17 @@ You can change the password via `changewalletpassphrase` command.
 
 
 From this point on, every time an action requires your private keys, you will be prompted ot enter
-this password (from CLI as well as while using `steem` library).
+this password (from CLI as well as while using `hive` library).
 
 To bypass password entry, you can set an environment variable ``UNLOCK``.
 
 ::
 
-    UNLOCK=mysecretpassword beempy transfer <recipient_name> 100 STEEM
+    UNLOCK=mysecretpassword beempy transfer <recipient_name> 100 HIVE
 
 Common Commands
 ---------------
-First, you may like to import your Steem account:
+First, you may like to import your Hive account:
 
 ::
 
@@ -57,19 +57,19 @@ Sending funds:
 
 ::
 
-   beempy transfer --account <account_name> <recipient_name> 100 STEEM memo
+   beempy transfer --account <account_name> <recipient_name> 100 HIVE memo
 
 Upvoting a post:
 
 ::
 
-   beempy upvote --account <account_name> https://steemit.com/funny/@mynameisbrian/the-content-stand-a-comic
+   beempy upvote --account <account_name> https://hiveit.com/funny/@mynameisbrian/the-content-stand-a-comic
 
 
 Setting Defaults
 ----------------
 For a more convenient use of ``beempy`` as well as the ``beem`` library, you can set some defaults.
-This is especially useful if you have a single Steem account.
+This is especially useful if you have a single Hive account.
 
 ::
 
@@ -88,7 +88,7 @@ If you've set up your `default_account`, you can now send funds by omitting this
 
 ::
 
-    beempy transfer <recipient_name> 100 STEEM memo
+    beempy transfer <recipient_name> 100 HIVE memo
 
 Commands
 --------
@@ -107,8 +107,8 @@ You can see all available commands with ``beempy --help``
    Usage: cli.py [OPTIONS] COMMAND1 [ARGS]... [COMMAND2 [ARGS]...]...
 
    Options:
-     -n, --node TEXT        URL for public Steem API (e.g.
-                            https://api.steemit.com)
+     -n, --node TEXT        URL for public Hive API (e.g.
+                            https://api.hiveit.com)
      -o, --offline          Prevent connecting to network
      -d, --no-broadcast     Do not broadcast
      -p, --no-wallet        Do not load the wallet
@@ -125,12 +125,12 @@ You can see all available commands with ``beempy --help``
      approvewitness          Approve a witnesses
      balance                 Shows balance
      broadcast               broadcast a signed transaction
-     buy                     Buy STEEM or SBD from the internal market...
+     buy                     Buy HIVE or HBD from the internal market...
      cancel                  Cancel order in the internal market
      changewalletpassphrase  Change wallet password
      claimreward             Claim reward balances By default, this will...
      config                  Shows local configuration
-     convert                 Convert STEEMDollars to Steem (takes a week...
+     convert                 Convert HIVEDollars to Hive (takes a week...
      createwallet            Create new wallet with a new password
      currentnode             Sets the currently working node at the first...
      delkey                  Delete key from the wallet PUB is the public...
@@ -159,16 +159,16 @@ You can see all available commands with ``beempy --help``
      power                   Shows vote power and bandwidth
      powerdown               Power down (start withdrawing VESTS from...
      powerdownroute          Setup a powerdown route
-     powerup                 Power up (vest STEEM as STEEM POWER)
+     powerup                 Power up (vest HIVE as HIVE POWER)
      pricehistory            Show price history
-     resteem                 Resteem an existing post
-     sell                    Sell STEEM or SBD from the internal market...
+     rehive                 Rehive an existing post
+     sell                    Sell HIVE or HBD from the internal market...
      set                     Set default_account, default_vote_weight or...
      setprofile              Set a variable in an account's profile
      sign                    Sign a provided transaction with available...
      ticker                  Show ticker
      tradehistory            Show price history
-     transfer                Transfer SBD/STEEM
+     transfer                Transfer HBD/HIVE
      unfollow                Unfollow/Unmute another account
      updatememokey           Update an account's memo key
      upvote                  Upvote a post/comment POST is...

@@ -105,7 +105,7 @@ class WatchingTheWatchersBot:
                     racc = None
                     proxy = None
                     related = list()
-                    if a["recovery_account"] != "steem" and a["recovery_account"] != "":
+                    if a["recovery_account"] != "hive" and a["recovery_account"] != "":
                         related.append(a["recovery_account"])
                     if a["proxy"] != "":
                         related.append(a["proxy"])

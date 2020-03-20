@@ -1,7 +1,7 @@
-beem\.steemconnect
+beem\.hiveconnect
 ==================
 
-.. automodule:: beem.steemconnect
+.. automodule:: beem.hiveconnect
     :members:
     :undoc-members:
     :show-inheritance:

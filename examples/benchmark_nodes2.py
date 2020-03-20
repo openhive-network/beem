@@ -12,7 +12,7 @@ from prettytable import PrettyTable
 from beem.blockchain import Blockchain
 from beem.account import Account
 from beem.block import Block
-from beem.steem import Steem
+from beem.hive import Hive
 from beem.utils import parse_time, formatTimedelta, construct_authorperm, resolve_authorperm, resolve_authorpermvoter, construct_authorpermvoter, formatTimeString
 from beem.comment import Comment
 from beem.nodelist import NodeList
@@ -43,16 +43,16 @@ def benchmark_node(node, how_many_minutes=10, how_many_seconds=30):
     threading = False
     thread_num = 16
 
-    authorpermvoter = u"@gtg/steem-pressure-4-need-for-speed|gandalf"
+    authorpermvoter = u"@gtg/hive-pressure-4-need-for-speed|gandalf"
     [author, permlink, voter] = resolve_authorpermvoter(authorpermvoter)
     authorperm = construct_authorperm(author, permlink)
     last_block_id = 19273700
     try:
-        stm = Steem(node=node, num_retries=3, num_retries_call=3, timeout=30)
-        blockchain = Blockchain(steem_instance=stm)
+        stm = Hive(node=node, num_retries=3, num_retries_call=3, timeout=30)
+        blockchain = Blockchain(hive_instance=stm)
         blockchain_version = stm.get_blockchain_version()
 
-        last_block = Block(last_block_id, steem_instance=stm)
+        last_block = Block(last_block_id, hive_instance=stm)
 
         stopTime = last_block.time() + timedelta(seconds=how_many_minutes * 60)
         total_transaction = 0
@@ -90,8 +90,8 @@ def benchmark_node(node, how_many_minutes=10, how_many_seconds=30):
         block_count = -1
 
     try:
-        stm = Steem(node=node, num_retries=3, num_retries_call=3, timeout=30)
-        account = Account("gtg", steem_instance=stm)
+        stm = Hive(node=node, num_retries=3, num_retries_call=3, timeout=30)
+        account = Account("gtg", hive_instance=stm)
         blockchain_version = stm.get_blockchain_version()
 
         start = timer()
@@ -114,20 +114,20 @@ def benchmark_node(node, how_many_minutes=10, how_many_seconds=30):
         successful = False
 
     try:
-        stm = Steem(node=node, num_retries=3, num_retries_call=3, timeout=30)
-        account = Account("gtg", steem_instance=stm)
+        stm = Hive(node=node, num_retries=3, num_retries_call=3, timeout=30)
+        account = Account("gtg", hive_instance=stm)
         blockchain_version = stm.get_blockchain_version()
 
         start = timer()
-        Vote(authorpermvoter, steem_instance=stm)
+        Vote(authorpermvoter, hive_instance=stm)
         stop = timer()
         vote_time = stop - start
         start = timer()
-        Comment(authorperm, steem_instance=stm)
+        Comment(authorperm, hive_instance=stm)
         stop = timer()
         comment_time = stop - start
         start = timer()
-        Account(author, steem_instance=stm)
+        Account(author, hive_instance=stm)
         stop = timer()
         account_time = stop - start
         start = timer()
@@ -200,7 +200,7 @@ if __name__ == "__main__":
     print("\n")
     print("Total benchmark time: %.2f s\n" % (timer() - benchmark_time))
     if set_default_nodes:
-        stm = Steem(offline=True)
+        stm = Hive(offline=True)
         stm.set_default_nodes(working_nodes)
     else:
         print("beempy set nodes " + str(working_nodes))

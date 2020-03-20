@@ -1,8 +1,8 @@
 """ beem."""
-from .steem import Steem
+from .hive import Hive
 from .version import version as __version__
 __all__ = [
-    "steem",
+    "hive",
     "aes",
     "account",
     "amount",

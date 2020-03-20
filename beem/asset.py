@@ -14,7 +14,7 @@ class Asset(BlockchainObject):
         :param str Asset: Symbol name or object id of an asset
         :param bool lazy: Lazy loading
         :param bool full: Also obtain bitasset-data and dynamic asset dat
-        :param Steem steem_instance: Steem
+        :param Hive hive_instance: Hive
             instance
         :returns: All data of an asset
 
@@ -29,24 +29,24 @@ class Asset(BlockchainObject):
         asset,
         lazy=False,
         full=False,
-        steem_instance=None
+        hive_instance=None
     ):
         self.full = full
         super(Asset, self).__init__(
             asset,
             lazy=lazy,
             full=full,
-            steem_instance=steem_instance
+            hive_instance=hive_instance
         )
         # self.refresh()
 
     def refresh(self):
         """ Refresh the data from the API server
         """
-        self.chain_params = self.steem.get_network()
+        self.chain_params = self.hive.get_network()
         if self.chain_params is None:
             from beemgraphenebase.chains import known_chains
-            self.chain_params = known_chains["STEEMAPPBASE"]
+            self.chain_params = known_chains["HIVEAPPBASE"]
         self["asset"] = ""
         found_asset = False
         for asset in self.chain_params["chain_assets"]:

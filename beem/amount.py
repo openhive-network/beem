@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 from builtins import bytes, int, str
 from future.utils import python_2_unicode_compatible
 from beemgraphenebase.py23 import bytes_types, integer_types, string_types, text_type
-from beem.instance import shared_steem_instance
+from beem.instance import shared_hive_instance
 from beem.asset import Asset
 from decimal import Decimal, ROUND_DOWN
 
@@ -38,14 +38,14 @@ class Amount(dict):
         :param str asset: Let's you create an instance with a specific asset (symbol)
         :param boolean fixed_point_arithmetic: when set to True, all operation are fixed
             point operations and the amount is always be rounded down to the precision
-        :param Steem steem_instance: Steem instance
+        :param Hive hive_instance: Hive instance
         :returns: All data required to represent an Amount/Asset
         :rtype: dict
         :raises ValueError: if the data provided is not recognized
 
         Way to obtain a proper instance:
 
-            * ``args`` can be a string, e.g.:  "1 SBD"
+            * ``args`` can be a string, e.g.:  "1 HBD"
             * ``args`` can be a dictionary containing ``amount`` and ``asset_id``
             * ``args`` can be a dictionary containing ``amount`` and ``asset``
             * ``args`` can be a list of a ``float`` and ``str`` (symbol)
@@ -65,9 +65,9 @@ class Amount(dict):
 
             from beem.amount import Amount
             from beem.asset import Asset
-            a = Amount("1 STEEM")
-            b = Amount(1, "STEEM")
-            c = Amount("20", Asset("STEEM"))
+            a = Amount("1 HIVE")
+            b = Amount(1, "HIVE")
+            c = Amount("20", Asset("HIVE"))
             a + b
             a * 2
             a += b
@@ -75,15 +75,15 @@ class Amount(dict):
 
         .. testoutput::
 
-            2.000 STEEM
-            2.000 STEEM
+            2.000 HIVE
+            2.000 HIVE
 
     """
-    def __init__(self, amount, asset=None, fixed_point_arithmetic=False, new_appbase_format=True, steem_instance=None):
+    def __init__(self, amount, asset=None, fixed_point_arithmetic=False, new_appbase_format=True, hive_instance=None):
         self["asset"] = {}
         self.new_appbase_format = new_appbase_format
         self.fixed_point_arithmetic = fixed_point_arithmetic
-        self.steem = steem_instance or shared_steem_instance()
+        self.hive = hive_instance or shared_hive_instance()
         if amount and asset is None and isinstance(amount, Amount):
             # Copy Asset object
             self["amount"] = amount["amount"]
@@ -93,27 +93,27 @@ class Amount(dict):
         elif amount and asset is None and isinstance(amount, list) and len(amount) == 3:
             # Copy Asset object
             self["amount"] = Decimal(amount[0]) / Decimal(10 ** amount[1])
-            self["asset"] = Asset(amount[2], steem_instance=self.steem)
+            self["asset"] = Asset(amount[2], hive_instance=self.hive)
             self["symbol"] = self["asset"]["symbol"]
 
         elif amount and asset is None and isinstance(amount, dict) and "amount" in amount and "nai" in amount and "precision" in amount:
             # Copy Asset object
             self.new_appbase_format = True
             self["amount"] = Decimal(amount["amount"]) / Decimal(10 ** amount["precision"])
-            self["asset"] = Asset(amount["nai"], steem_instance=self.steem)
+            self["asset"] = Asset(amount["nai"], hive_instance=self.hive)
             self["symbol"] = self["asset"]["symbol"]
 
         elif amount is not None and asset is None and isinstance(amount, string_types):
             self["amount"], self["symbol"] = amount.split(" ")
-            self["asset"] = Asset(self["symbol"], steem_instance=self.steem)
+            self["asset"] = Asset(self["symbol"], hive_instance=self.hive)
 
         elif (amount and asset is None and isinstance(amount, dict) and "amount" in amount and "asset_id" in amount):
-            self["asset"] = Asset(amount["asset_id"], steem_instance=self.steem)
+            self["asset"] = Asset(amount["asset_id"], hive_instance=self.hive)
             self["symbol"] = self["asset"]["symbol"]
             self["amount"] = Decimal(amount["amount"]) / Decimal(10 ** self["asset"]["precision"])
 
         elif (amount and asset is None and isinstance(amount, dict) and "amount" in amount and "asset" in amount):
-            self["asset"] = Asset(amount["asset"], steem_instance=self.steem)
+            self["asset"] = Asset(amount["asset"], hive_instance=self.hive)
             self["symbol"] = self["asset"]["symbol"]
             self["amount"] = Decimal(amount["amount"]) / Decimal(10 ** self["asset"]["precision"])
 
@@ -139,12 +139,12 @@ class Amount(dict):
 
         elif isinstance(amount, (float)) and asset and isinstance(asset, string_types):
             self["amount"] = str(amount)
-            self["asset"] = Asset(asset, steem_instance=self.steem)
+            self["asset"] = Asset(asset, hive_instance=self.hive)
             self["symbol"] = asset
 
         elif isinstance(amount, (integer_types, Decimal)) and asset and isinstance(asset, string_types):
             self["amount"] = amount
-            self["asset"] = Asset(asset, steem_instance=self.steem)
+            self["asset"] = Asset(asset, hive_instance=self.hive)
             self["symbol"] = asset  
         elif amount and asset and isinstance(asset, Asset):
             self["amount"] = amount
@@ -152,7 +152,7 @@ class Amount(dict):
             self["asset"] = asset
         elif amount and asset and isinstance(asset, string_types):
             self["amount"] = amount
-            self["asset"] = Asset(asset, steem_instance=self.steem)
+            self["asset"] = Asset(asset, hive_instance=self.hive)
             self["symbol"] = self["asset"]["symbol"]            
         else:
             raise ValueError
@@ -169,7 +169,7 @@ class Amount(dict):
             asset=self["asset"].copy(),
             new_appbase_format=self.new_appbase_format,
             fixed_point_arithmetic=self.fixed_point_arithmetic,
-            steem_instance=self.steem)
+            hive_instance=self.hive)
 
     @property
     def amount(self):
@@ -194,14 +194,14 @@ class Amount(dict):
 
     @property
     def asset(self):
-        """ Returns the asset as instance of :class:`steem.asset.Asset`
+        """ Returns the asset as instance of :class:`hive.asset.Asset`
         """
         if not self["asset"]:
-            self["asset"] = Asset(self["symbol"], steem_instance=self.steem)
+            self["asset"] = Asset(self["symbol"], hive_instance=self.hive)
         return self["asset"]
 
     def json(self):
-        if self.steem.is_connected() and self.steem.rpc.get_use_appbase():
+        if self.hive.is_connected() and self.hive.rpc.get_use_appbase():
             if self.new_appbase_format:
                 return {'amount': str(int(self)), 'nai': self["asset"]["asset"], 'precision': self["asset"]["precision"]}
             else:
@@ -272,7 +272,7 @@ class Amount(dict):
         if isinstance(other, Amount):
             from .price import Price
             check_asset(other["asset"], self["asset"])
-            return Price(self, other, steem_instance=self.steem)
+            return Price(self, other, hive_instance=self.hive)
         else:
             a["amount"] //= Decimal(other)
         if self.fixed_point_arithmetic:
@@ -284,7 +284,7 @@ class Amount(dict):
         a = self.copy()
         if isinstance(other, Amount):
             check_asset(other["asset"], self["asset"])
-            return Price(self, other, steem_instance=self.steem)
+            return Price(self, other, hive_instance=self.hive)
         elif isinstance(other, Price):
             if not self["asset"] == other["base"]["asset"]:
                 raise AssertionError()

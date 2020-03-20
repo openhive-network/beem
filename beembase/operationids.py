@@ -71,7 +71,7 @@ ops = [
     'producer_reward',
     'clear_null_account_balance',
     'proposal_pay',
-    'sps_fund'
+    'hps_fund'
 ]
 operations = {o: ops.index(o) for o in ops}
 

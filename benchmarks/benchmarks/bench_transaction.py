@@ -25,7 +25,7 @@ from beembase.operationids import getOperationNameForId
 from beemgraphenebase.py23 import py23_bytes, bytes_types
 from beem.amount import Amount
 from beem.asset import Asset
-from beem.steem import Steem
+from beem.hive import Hive
 
 class Benchmark(object):
     goal_time = 2
@@ -33,13 +33,13 @@ class Benchmark(object):
 
 class Transaction(Benchmark):
     def setup(self):
-        self.prefix = u"STEEM"
+        self.prefix = u"HIVE"
         self.default_prefix = u"STM"
         self.wif = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
         self.ref_block_num = 34294
         self.ref_block_prefix = 3707022213
         self.expiration = "2016-04-06T08:29:27"
-        self.stm = Steem(
+        self.stm = Hive(
             offline=True
         )        
 
@@ -61,7 +61,7 @@ class Transaction(Benchmark):
         self.op = operations.Transfer(**{
             "from": "foo",
             "to": "baar",
-            "amount": Amount("111.110 STEEM", steem_instance=self.stm),
+            "amount": Amount("111.110 HIVE", hive_instance=self.stm),
             "memo": "Fooo",
             "prefix": self.default_prefix
         })
@@ -73,7 +73,7 @@ class Transaction(Benchmark):
                 'creator':
                 'xeroc',
                 'fee':
-                '10.000 STEEM',
+                '10.000 HIVE',
                 'json_metadata':
                 '',
                 'memo_key':
@@ -128,7 +128,7 @@ class Transaction(Benchmark):
         self.op = operations.Transfer_to_vesting(**{
             "from": "foo",
             "to": "baar",
-            "amount": "111.110 STEEM",
+            "amount": "111.110 HIVE",
             "prefix": self.default_prefix
         })
 
@@ -177,7 +177,7 @@ class Transaction(Benchmark):
             **{
                 "from": "testuser",
                 "to": "testuser",
-                "amount": "1.000 STEEM",
+                "amount": "1.000 HIVE",
                 "memo": "testmemo",
                 "prefix": self.default_prefix
             })
@@ -190,7 +190,7 @@ class Transaction(Benchmark):
                 "from": "testuser",
                 "request_id": 9001,
                 "to": "testser",
-                "amount": "100.000 SBD",
+                "amount": "100.000 HBD",
                 "memo": "memohere",
                 "prefix": self.default_prefix
             })
@@ -212,8 +212,8 @@ class Transaction(Benchmark):
             **{
                 "owner": "",
                 "orderid": 0,
-                "amount_to_sell": "0.000 STEEM",
-                "min_to_receive": "0.000 STEEM",
+                "amount_to_sell": "0.000 HIVE",
+                "min_to_receive": "0.000 HIVE",
                 "fill_or_kill": False,
                 "expiration": "2016-12-31T23:59:59",
                 "prefix": self.default_prefix
@@ -296,7 +296,7 @@ class Transaction(Benchmark):
         self.op = operations.Convert(**{
             "owner": "xeroc",
             "requestid": 2342343235,
-            "amount": "100.000 SBD",
+            "amount": "100.000 HBD",
             "prefix": self.default_prefix
         })
 
@@ -322,8 +322,8 @@ class Transaction(Benchmark):
             **{
                 "publisher": "xeroc",
                 "exchange_rate": {
-                    "base": "1.000 SBD",
-                    "quote": "4.123 STEEM"
+                    "base": "1.000 HBD",
+                    "quote": "4.123 HIVE"
                 },
                 "prefix": self.default_prefix
             })
@@ -350,12 +350,12 @@ class Transaction(Benchmark):
                 "block_signing_key":
                 "STM6zLNtyFVToBsBZDsgMhgjpwysYVbsQD6YhP3kRkQhANUB4w7Qp",
                 "props": {
-                    "account_creation_fee": "10.000 STEEM",
+                    "account_creation_fee": "10.000 HIVE",
                     "maximum_block_size": 1111111,
-                    "sbd_interest_rate": 1000
+                    "hbd_interest_rate": 1000
                 },
                 "fee":
-                "10.000 STEEM",
+                "10.000 HIVE",
                 "prefix": self.default_prefix
             })
 
@@ -400,8 +400,8 @@ class Transaction(Benchmark):
                 "permlink":
                 "piston",
                 "max_accepted_payout":
-                "1000000.000 SBD",
-                "percent_steem_dollars":
+                "1000000.000 HBD",
+                "percent_hive_dollars":
                 10000,
                 "allow_votes":
                 True,

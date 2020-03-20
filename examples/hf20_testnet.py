@@ -13,7 +13,7 @@ from beem.block import Block
 from beem.account import Account
 from beem.amount import Amount
 from beemgraphenebase.account import PasswordKey, PrivateKey, PublicKey
-from beem.steem import Steem
+from beem.hive import Hive
 from beem.utils import parse_time, formatTimedelta
 from beemapi.exceptions import NumRetriesReached
 from beem.nodelist import NodeList
@@ -22,12 +22,12 @@ logging.basicConfig(level=logging.INFO)
 
 
 if __name__ == "__main__":
-    # stm = Steem(node="https://testnet.timcliff.com/")
-    # stm = Steem(node="https://testnet.steemitdev.com")
-    stm = Steem(node="https://api.steemit.com")
+    # stm = Hive(node="https://testnet.timcliff.com/")
+    # stm = Hive(node="https://testnet.hiveitdev.com")
+    stm = Hive(node="https://api.hiveit.com")
     stm.wallet.unlock(pwd="pwd123")
 
-    account = Account("beembot", steem_instance=stm)
+    account = Account("beembot", hive_instance=stm)
     print(account.get_voting_power())
 
-    account.transfer("holger80", 0.001, "SBD", "test")
+    account.transfer("holger80", 0.001, "HBD", "test")

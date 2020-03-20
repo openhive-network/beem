@@ -8,7 +8,7 @@ import random
 import pytz
 import logging
 from datetime import datetime, timedelta
-from beem.instance import shared_steem_instance
+from beem.instance import shared_hive_instance
 from .utils import (
     formatTimeFromNow, formatTime, formatTimeString, assets_from_string, parse_time, addTzInfo)
 from .asset import Asset
@@ -30,7 +30,7 @@ log = logging.getLogger(__name__)
 class Market(dict):
     """ This class allows to easily access Markets on the blockchain for trading, etc.
 
-        :param Steem steem_instance: Steem instance
+        :param Hive hive_instance: Hive instance
         :param Asset base: Base asset
         :param Asset quote: Quote asset
         :returns: Blockchain Market
@@ -49,7 +49,7 @@ class Market(dict):
         * ``base-quote`` separated with ``-``
 
         .. note:: Throughout this library, the ``quote`` symbol will be
-                  presented first (e.g. ``STEEM:SBD`` with ``STEEM`` being the
+                  presented first (e.g. ``HIVE:HBD`` with ``HIVE`` being the
                   quote), while the ``base`` only refers to a secondary asset
                   for a trade. This means, if you call
                   :func:`beem.market.Market.sell` or
@@ -62,35 +62,35 @@ class Market(dict):
         self,
         base=None,
         quote=None,
-        steem_instance=None,
+        hive_instance=None,
     ):
         """
         Init Market
 
-            :param beem.steem.Steem steem_instance: Steem instance
+            :param beem.hive.Hive hive_instance: Hive instance
             :param beem.asset.Asset base: Base asset
             :param beem.asset.Asset quote: Quote asset
         """
-        self.steem = steem_instance or shared_steem_instance()
+        self.hive = hive_instance or shared_hive_instance()
 
         if quote is None and isinstance(base, str):
             quote_symbol, base_symbol = assets_from_string(base)
-            quote = Asset(quote_symbol, steem_instance=self.steem)
-            base = Asset(base_symbol, steem_instance=self.steem)
+            quote = Asset(quote_symbol, hive_instance=self.hive)
+            base = Asset(base_symbol, hive_instance=self.hive)
             super(Market, self).__init__({"base": base, "quote": quote})
         elif base and quote:
-            quote = Asset(quote, steem_instance=self.steem)
-            base = Asset(base, steem_instance=self.steem)
+            quote = Asset(quote, hive_instance=self.hive)
+            base = Asset(base, hive_instance=self.hive)
             super(Market, self).__init__({"base": base, "quote": quote})
         elif base is None and quote is None:
-            quote = Asset("SBD", steem_instance=self.steem)
-            base = Asset("STEEM", steem_instance=self.steem)
+            quote = Asset("HBD", hive_instance=self.hive)
+            base = Asset("HIVE", hive_instance=self.hive)
             super(Market, self).__init__({"base": base, "quote": quote})
         else:
             raise ValueError("Unknown Market config")
 
     def get_string(self, separator=":"):
-        """ Return a formated string that identifies the market, e.g. ``STEEM:SBD``
+        """ Return a formated string that identifies the market, e.g. ``HIVE:HBD``
 
             :param str separator: The separator of the assets (defaults to ``:``)
         """
@@ -120,12 +120,12 @@ class Market(dict):
             * ``latest``: Price of the order last filled
             * ``lowest_ask``: Price of the lowest ask
             * ``highest_bid``: Price of the highest bid
-            * ``sbd_volume``: Volume of SBD
-            * ``steem_volume``: Volume of STEEM
+            * ``hbd_volume``: Volume of HBD
+            * ``hive_volume``: Volume of HIVE
             * ``percent_change``: 24h change percentage (in %)
 
             .. note::
-                Market is STEEM:SBD and prices are SBD per STEEM!
+                Market is HIVE:HBD and prices are HBD per HIVE!
 
             Sample Output:
 
@@ -136,15 +136,15 @@ class Market(dict):
                     'latest': 0.0,
                     'lowest_ask': 0.3249636958897082,
                     'percent_change': 0.0,
-                    'sbd_volume': 108329611.0,
-                    'steem_volume': 355094043.0
+                    'hbd_volume': 108329611.0,
+                    'hive_volume': 355094043.0
                 }
 
         """
         data = {}
         # Core Exchange rate
-        self.steem.rpc.set_next_node_on_empty_reply(True)
-        ticker = self.steem.rpc.get_ticker(api="market_history")
+        self.hive.rpc.set_next_node_on_empty_reply(True)
+        ticker = self.hive.rpc.get_ticker(api="market_history")
 
         if raw_data:
             return ticker
@@ -153,23 +153,23 @@ class Market(dict):
             ticker["highest_bid"],
             base=self["base"],
             quote=self["quote"],
-            steem_instance=self.steem
+            hive_instance=self.hive
         )
         data["latest"] = Price(
             ticker["latest"],
             quote=self["quote"],
             base=self["base"],
-            steem_instance=self.steem
+            hive_instance=self.hive
         )
         data["lowest_ask"] = Price(
             ticker["lowest_ask"],
             base=self["base"],
             quote=self["quote"],
-            steem_instance=self.steem
+            hive_instance=self.hive
         )
         data["percent_change"] = float(ticker["percent_change"])
-        data["sbd_volume"] = Amount(ticker["sbd_volume"], steem_instance=self.steem)
-        data["steem_volume"] = Amount(ticker["steem_volume"], steem_instance=self.steem)
+        data["hbd_volume"] = Amount(ticker["hbd_volume"], hive_instance=self.hive)
+        data["hive_volume"] = Amount(ticker["hive_volume"], hive_instance=self.hive)
 
         return data
 
@@ -181,22 +181,22 @@ class Market(dict):
             .. code-block:: js
 
                 {
-                    "STEEM": 361666.63617,
-                    "SBD": 1087.0
+                    "HIVE": 361666.63617,
+                    "HBD": 1087.0
                 }
 
         """
-        self.steem.rpc.set_next_node_on_empty_reply(True)
-        volume = self.steem.rpc.get_volume(api="market_history")
+        self.hive.rpc.set_next_node_on_empty_reply(True)
+        volume = self.hive.rpc.get_volume(api="market_history")
         if raw_data:
             return volume
         return {
-            self["base"]["symbol"]: Amount(volume["sbd_volume"], steem_instance=self.steem),
-            self["quote"]["symbol"]: Amount(volume["steem_volume"], steem_instance=self.steem)
+            self["base"]["symbol"]: Amount(volume["hbd_volume"], hive_instance=self.hive),
+            self["quote"]["symbol"]: Amount(volume["hive_volume"], hive_instance=self.hive)
         }
 
     def orderbook(self, limit=25, raw_data=False):
-        """ Returns the order book for SBD/STEEM market.
+        """ Returns the order book for HBD/HIVE market.
 
             :param int limit: Limit the amount of orders (default: 25)
 
@@ -206,12 +206,12 @@ class Market(dict):
 
                     {
                         'asks': [
-                            380.510 STEEM 460.291 SBD @ 1.209669 SBD/STEEM,
-                            53.785 STEEM 65.063 SBD @ 1.209687 SBD/STEEM
+                            380.510 HIVE 460.291 HBD @ 1.209669 HBD/HIVE,
+                            53.785 HIVE 65.063 HBD @ 1.209687 HBD/HIVE
                         ],
                         'bids': [
-                            0.292 STEEM 0.353 SBD @ 1.208904 SBD/STEEM,
-                            8.498 STEEM 10.262 SBD @ 1.207578 SBD/STEEM
+                            0.292 HIVE 0.353 HBD @ 1.208904 HBD/HIVE,
+                            8.498 HIVE 10.262 HBD @ 1.207578 HBD/HIVE
                         ],
                         'asks_date': [
                             datetime.datetime(2018, 4, 30, 21, 7, 24, tzinfo=<UTC>),
@@ -230,19 +230,19 @@ class Market(dict):
                     {
                         'asks': [
                             {
-                                'order_price': {'base': '8.000 STEEM', 'quote': '9.618 SBD'},
+                                'order_price': {'base': '8.000 HIVE', 'quote': '9.618 HBD'},
                                 'real_price': '1.20225000000000004',
-                                'steem': 4565,
-                                'sbd': 5488,
+                                'hive': 4565,
+                                'hbd': 5488,
                                 'created': '2018-04-30T21:12:45'
                             }
                         ],
                         'bids': [
                             {
-                                'order_price': {'base': '10.000 SBD', 'quote': '8.333 STEEM'},
+                                'order_price': {'base': '10.000 HBD', 'quote': '8.333 HIVE'},
                                 'real_price': '1.20004800192007677',
-                                'steem': 8333,
-                                'sbd': 10000,
+                                'hive': 8333,
+                                'hbd': 10000,
                                 'created': '2018-04-30T20:29:33'
                             }
                         ]
@@ -254,21 +254,21 @@ class Market(dict):
                 obtain the actual amounts for sale
 
         """
-        self.steem.rpc.set_next_node_on_empty_reply(True)
-        if self.steem.rpc.get_use_appbase():
-            orders = self.steem.rpc.get_order_book({'limit': limit}, api="market_history")
+        self.hive.rpc.set_next_node_on_empty_reply(True)
+        if self.hive.rpc.get_use_appbase():
+            orders = self.hive.rpc.get_order_book({'limit': limit}, api="market_history")
         else:
-            orders = self.steem.rpc.get_order_book(limit, api='database_api')
+            orders = self.hive.rpc.get_order_book(limit, api='database_api')
         if raw_data:
             return orders
         asks = list([Order(
-            Amount(x["order_price"]["quote"], steem_instance=self.steem),
-            Amount(x["order_price"]["base"], steem_instance=self.steem),
-            steem_instance=self.steem) for x in orders["asks"]])
+            Amount(x["order_price"]["quote"], hive_instance=self.hive),
+            Amount(x["order_price"]["base"], hive_instance=self.hive),
+            hive_instance=self.hive) for x in orders["asks"]])
         bids = list([Order(
-            Amount(x["order_price"]["quote"], steem_instance=self.steem),
-            Amount(x["order_price"]["base"], steem_instance=self.steem),
-            steem_instance=self.steem).invert() for x in orders["bids"]])
+            Amount(x["order_price"]["quote"], hive_instance=self.hive),
+            Amount(x["order_price"]["base"], hive_instance=self.hive),
+            hive_instance=self.hive).invert() for x in orders["bids"]])
         asks_date = list([formatTimeString(x["created"]) for x in orders["asks"]])
         bids_date = list([formatTimeString(x["created"]) for x in orders["bids"]])
         data = {"asks": asks, "bids": bids, "asks_date": asks_date, "bids_date": bids_date}
@@ -287,11 +287,11 @@ class Market(dict):
                 .. code-block:: none
 
                     [
-                        (2018-04-30 21:00:54+00:00) 0.267 STEEM 0.323 SBD @ 1.209738 SBD/STEEM,
-                        (2018-04-30 20:59:30+00:00) 0.131 STEEM 0.159 SBD @ 1.213740 SBD/STEEM,
-                        (2018-04-30 20:55:45+00:00) 0.093 STEEM 0.113 SBD @ 1.215054 SBD/STEEM,
-                        (2018-04-30 20:55:30+00:00) 26.501 STEEM 32.058 SBD @ 1.209690 SBD/STEEM,
-                        (2018-04-30 20:55:18+00:00) 2.108 STEEM 2.550 SBD @ 1.209677 SBD/STEEM,
+                        (2018-04-30 21:00:54+00:00) 0.267 HIVE 0.323 HBD @ 1.209738 HBD/HIVE,
+                        (2018-04-30 20:59:30+00:00) 0.131 HIVE 0.159 HBD @ 1.213740 HBD/HIVE,
+                        (2018-04-30 20:55:45+00:00) 0.093 HIVE 0.113 HBD @ 1.215054 HBD/HIVE,
+                        (2018-04-30 20:55:30+00:00) 26.501 HIVE 32.058 HBD @ 1.209690 HBD/HIVE,
+                        (2018-04-30 20:55:18+00:00) 2.108 HIVE 2.550 HBD @ 1.209677 HBD/HIVE,
                     ]
 
             Sample output (raw_data=True):
@@ -299,11 +299,11 @@ class Market(dict):
                 .. code-block:: js
 
                     [
-                        {'date': '2018-04-30T21:02:45', 'current_pays': '0.235 SBD', 'open_pays': '0.194 STEEM'},
-                        {'date': '2018-04-30T21:02:03', 'current_pays': '24.494 SBD', 'open_pays': '20.248 STEEM'},
-                        {'date': '2018-04-30T20:48:30', 'current_pays': '175.464 STEEM', 'open_pays': '211.955 SBD'},
-                        {'date': '2018-04-30T20:48:30', 'current_pays': '0.999 STEEM', 'open_pays': '1.207 SBD'},
-                        {'date': '2018-04-30T20:47:54', 'current_pays': '0.273 SBD', 'open_pays': '0.225 STEEM'},
+                        {'date': '2018-04-30T21:02:45', 'current_pays': '0.235 HBD', 'open_pays': '0.194 HIVE'},
+                        {'date': '2018-04-30T21:02:03', 'current_pays': '24.494 HBD', 'open_pays': '20.248 HIVE'},
+                        {'date': '2018-04-30T20:48:30', 'current_pays': '175.464 HIVE', 'open_pays': '211.955 HBD'},
+                        {'date': '2018-04-30T20:48:30', 'current_pays': '0.999 HIVE', 'open_pays': '1.207 HBD'},
+                        {'date': '2018-04-30T20:47:54', 'current_pays': '0.273 HBD', 'open_pays': '0.225 HIVE'},
                     ]
 
             .. note:: Each bid is an instance of
@@ -312,14 +312,14 @@ class Market(dict):
                 obtain the actual amounts for sale
 
         """
-        self.steem.rpc.set_next_node_on_empty_reply(limit > 0)
-        if self.steem.rpc.get_use_appbase():
-            orders = self.steem.rpc.get_recent_trades({'limit': limit}, api="market_history")['trades']
+        self.hive.rpc.set_next_node_on_empty_reply(limit > 0)
+        if self.hive.rpc.get_use_appbase():
+            orders = self.hive.rpc.get_recent_trades({'limit': limit}, api="market_history")['trades']
         else:
-            orders = self.steem.rpc.get_recent_trades(limit, api="market_history")
+            orders = self.hive.rpc.get_recent_trades(limit, api="market_history")
         if raw_data:
             return orders
-        filled_order = list([FilledOrder(x, steem_instance=self.steem) for x in orders])
+        filled_order = list([FilledOrder(x, hive_instance=self.hive) for x in orders])
         return filled_order
 
     def trade_history(self, start=None, stop=None, intervall=None, limit=25, raw_data=False):
@@ -385,25 +385,25 @@ class Market(dict):
             start = stop - timedelta(hours=24)
         start = addTzInfo(start)
         stop = addTzInfo(stop)
-        self.steem.rpc.set_next_node_on_empty_reply(False)
-        if self.steem.rpc.get_use_appbase():
-            orders = self.steem.rpc.get_trade_history({'start': formatTimeString(start),
+        self.hive.rpc.set_next_node_on_empty_reply(False)
+        if self.hive.rpc.get_use_appbase():
+            orders = self.hive.rpc.get_trade_history({'start': formatTimeString(start),
                                                        'end': formatTimeString(stop),
                                                        'limit': limit}, api="market_history")['trades']
         else:
-            orders = self.steem.rpc.get_trade_history(
+            orders = self.hive.rpc.get_trade_history(
                 formatTimeString(start),
                 formatTimeString(stop),
                 limit, api="market_history")
         if raw_data:
             return orders
-        filled_order = list([FilledOrder(x, steem_instance=self.steem) for x in orders])
+        filled_order = list([FilledOrder(x, hive_instance=self.hive) for x in orders])
         return filled_order
 
     def market_history_buckets(self):
-        self.steem.rpc.set_next_node_on_empty_reply(True)
-        ret = self.steem.rpc.get_market_history_buckets(api="market_history")
-        if self.steem.rpc.get_use_appbase():
+        self.hive.rpc.set_next_node_on_empty_reply(True)
+        ret = self.hive.rpc.get_market_history_buckets(api="market_history")
+        if self.hive.rpc.get_use_appbase():
             return ret['bucket_sizes']
         else:
             return ret
@@ -424,19 +424,19 @@ class Market(dict):
                 .. code-block:: js
 
                     {
-                        'close_sbd': 2493387,
-                        'close_steem': 7743431,
-                        'high_sbd': 1943872,
-                        'high_steem': 5999610,
+                        'close_hbd': 2493387,
+                        'close_hive': 7743431,
+                        'high_hbd': 1943872,
+                        'high_hive': 5999610,
                         'id': '7.1.5252',
-                        'low_sbd': 534928,
-                        'low_steem': 1661266,
+                        'low_hbd': 534928,
+                        'low_hive': 1661266,
                         'open': '2016-07-08T11:25:00',
-                        'open_sbd': 534928,
-                        'open_steem': 1661266,
-                        'sbd_volume': 9714435,
+                        'open_hbd': 534928,
+                        'open_hive': 1661266,
+                        'hbd_volume': 9714435,
                         'seconds': 300,
-                        'steem_volume': 30088443
+                        'hive_volume': 30088443
                     }
 
         """
@@ -446,13 +446,13 @@ class Market(dict):
         else:
             if bucket_seconds not in buckets:
                 raise ValueError("You need select the bucket_seconds from " + str(buckets))
-        self.steem.rpc.set_next_node_on_empty_reply(False)
-        if self.steem.rpc.get_use_appbase():
-            history = self.steem.rpc.get_market_history({'bucket_seconds': bucket_seconds,
+        self.hive.rpc.set_next_node_on_empty_reply(False)
+        if self.hive.rpc.get_use_appbase():
+            history = self.hive.rpc.get_market_history({'bucket_seconds': bucket_seconds,
                                                          'start': formatTimeFromNow(-start_age - end_age),
                                                          'end': formatTimeFromNow(-end_age)}, api="market_history")['buckets']
         else:
-            history = self.steem.rpc.get_market_history(
+            history = self.hive.rpc.get_market_history(
                 bucket_seconds,
                 formatTimeFromNow(-start_age - end_age),
                 formatTimeFromNow(-end_age),
@@ -474,29 +474,29 @@ class Market(dict):
                 or a list of Order() instances if False (defaults to False)
         """
         if not account:
-            if "default_account" in self.steem.config:
-                account = self.steem.config["default_account"]
+            if "default_account" in self.hive.config:
+                account = self.hive.config["default_account"]
         if not account:
             raise ValueError("You need to provide an account")
-        account = Account(account, full=True, steem_instance=self.steem)
+        account = Account(account, full=True, hive_instance=self.hive)
 
         r = []
         # orders = account["limit_orders"]
-        if not self.steem.is_connected():
+        if not self.hive.is_connected():
             return None
-        self.steem.rpc.set_next_node_on_empty_reply(False)
-        if self.steem.rpc.get_use_appbase():
-            orders = self.steem.rpc.find_limit_orders({'account': account["name"]}, api="database")['orders']
+        self.hive.rpc.set_next_node_on_empty_reply(False)
+        if self.hive.rpc.get_use_appbase():
+            orders = self.hive.rpc.find_limit_orders({'account': account["name"]}, api="database")['orders']
         else:
-            orders = self.steem.rpc.get_open_orders(account["name"])
+            orders = self.hive.rpc.get_open_orders(account["name"])
         if raw_data:
             return orders
         for o in orders:
             order = {}
             order["order"] = Order(
-                Amount(o["sell_price"]["base"], steem_instance=self.steem),
-                Amount(o["sell_price"]["quote"], steem_instance=self.steem),
-                steem_instance=self.steem
+                Amount(o["sell_price"]["base"], hive_instance=self.hive),
+                Amount(o["sell_price"]["quote"], hive_instance=self.hive),
+                hive_instance=self.hive
             )
             order["orderid"] = o["orderid"]
             order["created"] = formatTimeString(o["created"])
@@ -523,16 +523,16 @@ class Market(dict):
             :param string returnOrderId: If set to "head" or "irreversible" the call will wait for the tx to appear in
                 the head/irreversible block and add the key "orderid" to the tx output
 
-            Prices/Rates are denoted in 'base', i.e. the SBD_STEEM market
-            is priced in STEEM per SBD.
+            Prices/Rates are denoted in 'base', i.e. the HBD_HIVE market
+            is priced in HIVE per HBD.
 
-            **Example:** in the SBD_STEEM market, a price of 300 means
-            a SBD is worth 300 STEEM
+            **Example:** in the HBD_HIVE market, a price of 300 means
+            a HBD is worth 300 HIVE
 
             .. note::
 
                 All prices returned are in the **reversed** orientation as the
-                market. I.e. in the STEEM/SBD market, prices are SBD per STEEM.
+                market. I.e. in the HIVE/HBD market, prices are HBD per HIVE.
                 That way you can multiply prices with `1.05` to get a +5%.
 
             .. warning::
@@ -543,31 +543,31 @@ class Market(dict):
                 buy asset than you placed the order
                 for. Example:
 
-                    * You place and order to buy 10 SBD for 100 STEEM/SBD
-                    * This means that you actually place a sell order for 1000 STEEM in order to obtain **at least** 10 SBD
-                    * If an order on the market exists that sells SBD for cheaper, you will end up with more than 10 SBD
+                    * You place and order to buy 10 HBD for 100 HIVE/HBD
+                    * This means that you actually place a sell order for 1000 HIVE in order to obtain **at least** 10 HBD
+                    * If an order on the market exists that sells HBD for cheaper, you will end up with more than 10 HBD
         """
         if not expiration:
-            expiration = self.steem.config["order-expiration"]
+            expiration = self.hive.config["order-expiration"]
         if not account:
-            if "default_account" in self.steem.config:
-                account = self.steem.config["default_account"]
+            if "default_account" in self.hive.config:
+                account = self.hive.config["default_account"]
         if not account:
             raise ValueError("You need to provide an account")
-        account = Account(account, steem_instance=self.steem)
+        account = Account(account, hive_instance=self.hive)
 
         if isinstance(price, Price):
             price = price.as_base(self["base"]["symbol"])
 
         if isinstance(amount, Amount):
-            amount = Amount(amount, steem_instance=self.steem)
+            amount = Amount(amount, hive_instance=self.hive)
             if not amount["asset"]["symbol"] == self["quote"]["symbol"]:
                 raise AssertionError("Price: {} does not match amount: {}".format(
                     str(price), str(amount)))
         elif isinstance(amount, str):
-            amount = Amount(amount, steem_instance=self.steem)
+            amount = Amount(amount, hive_instance=self.hive)
         else:
-            amount = Amount(amount, self["quote"]["symbol"], steem_instance=self.steem)
+            amount = Amount(amount, self["quote"]["symbol"], hive_instance=self.hive)
 
         order = operations.Limit_order_create(**{
             "owner": account["name"],
@@ -575,28 +575,28 @@ class Market(dict):
             "amount_to_sell": Amount(
                 float(amount) * float(price),
                 self["base"]["symbol"],
-                steem_instance=self.steem
+                hive_instance=self.hive
             ),
             "min_to_receive": Amount(
                 float(amount),
                 self["quote"]["symbol"],
-                steem_instance=self.steem
+                hive_instance=self.hive
             ),
             "expiration": formatTimeFromNow(expiration),
             "fill_or_kill": killfill,
-            "prefix": self.steem.prefix,
+            "prefix": self.hive.prefix,
         })
 
         if returnOrderId:
             # Make blocking broadcasts
-            prevblocking = self.steem.blocking
-            self.steem.blocking = returnOrderId
+            prevblocking = self.hive.blocking
+            self.hive.blocking = returnOrderId
 
-        tx = self.steem.finalizeOp(order, account["name"], "active")
+        tx = self.hive.finalizeOp(order, account["name"], "active")
 
         if returnOrderId:
             tx["orderid"] = tx["operation_results"][0][1]
-            self.steem.blocking = prevblocking
+            self.hive.blocking = prevblocking
 
         return tx
 
@@ -620,38 +620,38 @@ class Market(dict):
             :param string returnOrderId: If set to "head" or "irreversible" the call will wait for the tx to appear in
                 the head/irreversible block and add the key "orderid" to the tx output
 
-            Prices/Rates are denoted in 'base', i.e. the SBD_STEEM market
-            is priced in STEEM per SBD.
+            Prices/Rates are denoted in 'base', i.e. the HBD_HIVE market
+            is priced in HIVE per HBD.
 
-            **Example:** in the SBD_STEEM market, a price of 300 means
-            a SBD is worth 300 STEEM
+            **Example:** in the HBD_HIVE market, a price of 300 means
+            a HBD is worth 300 HIVE
 
             .. note::
 
                 All prices returned are in the **reversed** orientation as the
-                market. I.e. in the STEEM/SBD market, prices are SBD per STEEM.
+                market. I.e. in the HIVE/HBD market, prices are HBD per HIVE.
                 That way you can multiply prices with `1.05` to get a +5%.
         """
         if not expiration:
-            expiration = self.steem.config["order-expiration"]
+            expiration = self.hive.config["order-expiration"]
         if not account:
-            if "default_account" in self.steem.config:
-                account = self.steem.config["default_account"]
+            if "default_account" in self.hive.config:
+                account = self.hive.config["default_account"]
         if not account:
             raise ValueError("You need to provide an account")
-        account = Account(account, steem_instance=self.steem)
+        account = Account(account, hive_instance=self.hive)
         if isinstance(price, Price):
             price = price.as_base(self["base"]["symbol"])
 
         if isinstance(amount, Amount):
-            amount = Amount(amount, steem_instance=self.steem)
+            amount = Amount(amount, hive_instance=self.hive)
             if not amount["asset"]["symbol"] == self["quote"]["symbol"]:
                 raise AssertionError("Price: {} does not match amount: {}".format(
                     str(price), str(amount)))
         elif isinstance(amount, str):
-            amount = Amount(amount, steem_instance=self.steem)
+            amount = Amount(amount, hive_instance=self.hive)
         else:
-            amount = Amount(amount, self["quote"]["symbol"], steem_instance=self.steem)
+            amount = Amount(amount, self["quote"]["symbol"], hive_instance=self.hive)
 
         order = operations.Limit_order_create(**{
             "owner": account["name"],
@@ -659,27 +659,27 @@ class Market(dict):
             "amount_to_sell": Amount(
                 float(amount),
                 self["quote"]["symbol"],
-                steem_instance=self.steem
+                hive_instance=self.hive
             ),
             "min_to_receive": Amount(
                 float(amount) * float(price),
                 self["base"]["symbol"],
-                steem_instance=self.steem
+                hive_instance=self.hive
             ),
             "expiration": formatTimeFromNow(expiration),
             "fill_or_kill": killfill,
-            "prefix": self.steem.prefix,
+            "prefix": self.hive.prefix,
         })
         if returnOrderId:
             # Make blocking broadcasts
-            prevblocking = self.steem.blocking
-            self.steem.blocking = returnOrderId
+            prevblocking = self.hive.blocking
+            self.hive.blocking = returnOrderId
 
-        tx = self.steem.finalizeOp(order, account["name"], "active")
+        tx = self.hive.finalizeOp(order, account["name"], "active")
 
         if returnOrderId:
             tx["orderid"] = tx["operation_results"][0][1]
-            self.steem.blocking = prevblocking
+            self.hive.blocking = prevblocking
 
         return tx
 
@@ -691,11 +691,11 @@ class Market(dict):
             :type orderNumbers: int, list
         """
         if not account:
-            if "default_account" in self.steem.config:
-                account = self.steem.config["default_account"]
+            if "default_account" in self.hive.config:
+                account = self.hive.config["default_account"]
         if not account:
             raise ValueError("You need to provide an account")
-        account = Account(account, full=False, steem_instance=self.steem)
+        account = Account(account, full=False, hive_instance=self.hive)
 
         if not isinstance(orderNumbers, (list, set, tuple)):
             orderNumbers = {orderNumbers}
@@ -706,8 +706,8 @@ class Market(dict):
                 operations.Limit_order_cancel(**{
                     "owner": account["name"],
                     "orderid": order,
-                    "prefix": self.steem.prefix}))
-        return self.steem.finalizeOp(op, account["name"], "active", **kwargs)
+                    "prefix": self.hive.prefix}))
+        return self.hive.finalizeOp(op, account["name"], "active", **kwargs)
 
     @staticmethod
     def _weighted_average(values, weights):
@@ -779,18 +779,18 @@ class Market(dict):
             [x['volume'] for x in prices.values()])
 
     @staticmethod
-    def steem_btc_ticker():
-        """ Returns the STEEM/BTC price from bittrex, binance, huobi and upbit. The mean price is
+    def hive_btc_ticker():
+        """ Returns the HIVE/BTC price from bittrex, binance, huobi and upbit. The mean price is
             weighted by the exchange volume.
         """
         prices = {}
         responses = []
         urls = [
             # "https://poloniex.com/public?command=returnTicker",
-            "https://bittrex.com/api/v1.1/public/getmarketsummary?market=BTC-STEEM",
+            "https://bittrex.com/api/v1.1/public/getmarketsummary?market=BTC-HIVE",
             "https://api.binance.com/api/v1/ticker/24hr",
-            "https://api.huobi.pro/market/history/kline?period=1day&size=1&symbol=steembtc",
-            "https://crix-api.upbit.com/v1/crix/trades/ticks?code=CRIX.UPBIT.BTC-STEEM&count=1",
+            "https://api.huobi.pro/market/history/kline?period=1day&size=1&symbol=hivebtc",
+            "https://crix-api.upbit.com/v1/crix/trades/ticks?code=CRIX.UPBIT.BTC-HIVE&count=1",
         ]
         headers = {'Content-type': 'application/x-www-form-urlencoded',
                    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36'}
@@ -803,7 +803,7 @@ class Market(dict):
                   if hasattr(x, "status_code") and x.status_code == 200 and x.json()]:
             try:
                 if "poloniex" in r.url:
-                    data = r.json()["BTC_STEEM"]
+                    data = r.json()["BTC_HIVE"]
                     prices['poloniex'] = {
                         'price': float(data['last']),
                         'volume': float(data['baseVolume'])}
@@ -812,7 +812,7 @@ class Market(dict):
                     price = (data['Bid'] + data['Ask']) / 2
                     prices['bittrex'] = {'price': price, 'volume': data['BaseVolume']}
                 elif "binance" in r.url:
-                    data = [x for x in r.json() if x['symbol'] == 'STEEMBTC'][0]
+                    data = [x for x in r.json() if x['symbol'] == 'HIVEBTC'][0]
                     prices['binance'] = {
                         'price': float(data['lastPrice']),
                         'volume': float(data['quoteVolume'])}
@@ -830,12 +830,12 @@ class Market(dict):
                 log.info(str(e))
 
         if len(prices) == 0:
-            raise RuntimeError("Obtaining STEEM/BTC prices has failed from all sources.")
+            raise RuntimeError("Obtaining HIVE/BTC prices has failed from all sources.")
 
         return Market._weighted_average(
             [x['price'] for x in prices.values()],
             [x['volume'] for x in prices.values()])
 
-    def steem_usd_implied(self):
-        """Returns the current STEEM/USD market price"""
-        return self.steem_btc_ticker() * self.btc_usd_ticker()
+    def hive_usd_implied(self):
+        """Returns the current HIVE/USD market price"""
+        return self.hive_btc_ticker() * self.btc_usd_ticker()

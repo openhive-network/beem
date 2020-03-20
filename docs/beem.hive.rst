@@ -1,7 +1,7 @@
-beem\.steem
+beem\.hive
 ===========
 
-.. automodule:: beem.steem
+.. automodule:: beem.hive
     :members:
     :undoc-members:
     :show-inheritance:

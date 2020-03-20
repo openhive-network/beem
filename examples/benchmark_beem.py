@@ -10,7 +10,7 @@ import logging
 
 from beem.blockchain import Blockchain
 from beem.block import Block
-from beem.steem import Steem
+from beem.hive import Hive
 from beem.utils import parse_time, formatTimedelta
 from beem.nodelist import NodeList
 log = logging.getLogger(__name__)
@@ -22,23 +22,23 @@ if __name__ == "__main__":
     how_many_hours = 1
     nodes = NodeList()
     if node_setup == 0:
-        stm = Steem(node=nodes.get_nodes(normal=True, wss=True), num_retries=10)
+        stm = Hive(node=nodes.get_nodes(normal=True, wss=True), num_retries=10)
         max_batch_size = None
         threading = False
         thread_num = 8
     elif node_setup == 1:
-        stm = Steem(node=nodes.get_nodes(normal=True, wss=True), num_retries=10)
+        stm = Hive(node=nodes.get_nodes(normal=True, wss=True), num_retries=10)
         max_batch_size = None
         threading = True
         thread_num = 16
     elif node_setup == 2:
-        stm = Steem(node=nodes.get_nodes(appbase=False, https=False), num_retries=10)
+        stm = Hive(node=nodes.get_nodes(appbase=False, https=False), num_retries=10)
         max_batch_size = None
         threading = True
         thread_num = 16
-    blockchain = Blockchain(steem_instance=stm)
+    blockchain = Blockchain(hive_instance=stm)
     last_block_id = 19273700
-    last_block = Block(last_block_id, steem_instance=stm)
+    last_block = Block(last_block_id, hive_instance=stm)
     startTime = datetime.now()
 
     stopTime = last_block.time() + timedelta(seconds=how_many_hours * 60 * 60)
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     total_transaction = 0
 
     start_time = time.time()
-    last_node = blockchain.steem.rpc.url
+    last_node = blockchain.hive.rpc.url
     print("Current node:", last_node)
     for entry in blockchain.blocks(start=last_block_id, max_batch_size=max_batch_size, threading=threading, thread_num=thread_num, thread_limit=1200):
         block_no = entry.identifier
@@ -83,8 +83,8 @@ if __name__ == "__main__":
                 avspeed = int((last_block_id - 19273700) * 1000 / total_duration) * 1.0 / 1000
                 avtran = total_transaction / (last_block_id - 19273700)
                 ltime = now
-                if last_node != blockchain.steem.rpc.url:
-                    last_node = blockchain.steem.rpc.url
+                if last_node != blockchain.hive.rpc.url:
+                    last_node = blockchain.hive.rpc.url
                     print("Current node:", last_node)
                 print("* 100 blocks processed in %.2f seconds. Speed %.2f. Avg: %.2f. Avg.Trans:"
                       "%.2f Count: %d Block minutes: %d" % (duration, speed, avspeed, avtran, cnt, cnt * 3 / 60))

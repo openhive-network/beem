@@ -1,47 +1,47 @@
 Quickstart
 ==========
 
-Steem
+Hive
 -----
-The steem object is the connection to the Steem blockchain.
+The hive object is the connection to the Hive blockchain.
 By creating this object different options can be set.
 
 .. note:: All init methods of beem classes can be given
-          the ``steem_instance=`` parameter to assure that
-          all objects use the same steem object. When the
-          ``steem_instance=`` parameter is not used, the 
-          steem object is taken from get_shared_steem_instance().
+          the ``hive_instance=`` parameter to assure that
+          all objects use the same hive object. When the
+          ``hive_instance=`` parameter is not used, the 
+          hive object is taken from get_shared_hive_instance().
 
-          :func:`beem.instance.shared_steem_instance` returns a global instance of steem.
-          It can be set by :func:`beem.instance.set_shared_steem_instance` otherwise it is created
+          :func:`beem.instance.shared_hive_instance` returns a global instance of hive.
+          It can be set by :func:`beem.instance.set_shared_hive_instance` otherwise it is created
           on the first call.
 
 .. code-block:: python
 
-   from beem import Steem
+   from beem import Hive
    from beem.account import Account
-   stm = Steem()
-   account = Account("test", steem_instance=stm)
+   stm = Hive()
+   account = Account("test", hive_instance=stm)
 
 .. code-block:: python
 
-   from beem import Steem
+   from beem import Hive
    from beem.account import Account
-   from beem.instance import set_shared_steem_instance
-   stm = Steem()
-   set_shared_steem_instance(stm)
+   from beem.instance import set_shared_hive_instance
+   stm = Hive()
+   set_shared_hive_instance(stm)
    account = Account("test")
 
 Wallet and Keys
 ---------------
 Each account has the following keys:
 
-* Posting key (allows accounts to post, vote, edit, resteem and follow/mute)
+* Posting key (allows accounts to post, vote, edit, rehive and follow/mute)
 * Active key (allows accounts to transfer, power up/down, voting for witness, ...)
 * Memo key (Can be used to encrypt/decrypt memos)
 * Owner key (The most important key, should not be used with beem)
 
-Outgoing operation, which will be stored in the steem blockchain, have to be
+Outgoing operation, which will be stored in the hive blockchain, have to be
 signed by a private key. E.g. Comment or Vote operation need to be signed by the posting key
 of the author or upvoter. Private keys can be provided to beem temporary or can be
 stored encrypted in a sql-database (wallet).
@@ -52,34 +52,34 @@ stored encrypted in a sql-database (wallet).
 
 Creating a wallet
 ~~~~~~~~~~~~~~~~~
-``steem.wallet.wipe(True)`` is only necessary when there was already an wallet created.
+``hive.wallet.wipe(True)`` is only necessary when there was already an wallet created.
 
 .. code-block:: python
 
-   from beem import Steem
-   steem = Steem()
-   steem.wallet.wipe(True)
-   steem.wallet.unlock("wallet-passphrase")
+   from beem import Hive
+   hive = Hive()
+   hive.wallet.wipe(True)
+   hive.wallet.unlock("wallet-passphrase")
 
 Adding keys to the wallet
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: python
 
-   from beem import Steem
-   steem = Steem()
-   steem.wallet.unlock("wallet-passphrase")
-   steem.wallet.addPrivateKey("xxxxxxx")
-   steem.wallet.addPrivateKey("xxxxxxx")
+   from beem import Hive
+   hive = Hive()
+   hive.wallet.unlock("wallet-passphrase")
+   hive.wallet.addPrivateKey("xxxxxxx")
+   hive.wallet.addPrivateKey("xxxxxxx")
 
 Using the keys in the wallet
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
-   from beem import Steem
-   steem = Steem()
-   steem.wallet.unlock("wallet-passphrase")
-   account = Account("test", steem_instance=steem)
+   from beem import Hive
+   hive = Hive()
+   hive.wallet.unlock("wallet-passphrase")
+   account = Account("test", hive_instance=hive)
    account.transfer("<to>", "<amount>", "<asset>", "<memo>")
 
 Private keys can also set temporary
@@ -87,9 +87,9 @@ Private keys can also set temporary
 
 .. code-block:: python
 
-   from beem import Steem
-   steem = Steem(keys=["xxxxxxxxx"])
-   account = Account("test", steem_instance=steem)
+   from beem import Hive
+   hive = Hive(keys=["xxxxxxxxx"])
+   account = Account("test", hive_instance=hive)
    account.transfer("<to>", "<amount>", "<asset>", "<memo>")
 
 Receiving information about blocks, accounts, votes, comments, market and witness
@@ -149,7 +149,7 @@ Access the market
 .. code-block:: python
 
    from beem.market import Market
-   market = Market("SBD:STEEM")
+   market = Market("HBD:HIVE")
    print(market.ticker())
 
 Access a witness
@@ -167,40 +167,40 @@ Sending a Transfer
 
 .. code-block:: python
 
-   from beem import Steem
-   steem = Steem()
-   steem.wallet.unlock("wallet-passphrase")
-   account = Account("test", steem_instance=steem)
-   account.transfer("null", 1, "SBD", "test")
+   from beem import Hive
+   hive = Hive()
+   hive.wallet.unlock("wallet-passphrase")
+   account = Account("test", hive_instance=hive)
+   account.transfer("null", 1, "HBD", "test")
 
 Upvote a post
 
 .. code-block:: python
 
    from beem.comment import Comment
-   from beem import Steem
-   steem = Steem()
-   steem.wallet.unlock("wallet-passphrase")
-   comment = Comment("@gtg/ffdhu-gtg-witness-log", steem_instance=steem)
+   from beem import Hive
+   hive = Hive()
+   hive.wallet.unlock("wallet-passphrase")
+   comment = Comment("@gtg/ffdhu-gtg-witness-log", hive_instance=hive)
    comment.upvote(weight=10, voter="test")
 
 Publish a post to the blockchain
 
 .. code-block:: python
 
-   from beem import Steem
-   steem = Steem()
-   steem.wallet.unlock("wallet-passphrase")
-   steem.post("title", "body", author="test", tags=["a", "b", "c", "d", "e"], self_vote=True)
+   from beem import Hive
+   hive = Hive()
+   hive.wallet.unlock("wallet-passphrase")
+   hive.post("title", "body", author="test", tags=["a", "b", "c", "d", "e"], self_vote=True)
 
-Sell STEEM on the market
+Sell HIVE on the market
 
 .. code-block:: python
 
    from beem.market import Market
-   from beem import Steem
-   steem.wallet.unlock("wallet-passphrase")
-   market = Market("SBD:STEEM", steem_instance=steem)
+   from beem import Hive
+   hive.wallet.unlock("wallet-passphrase")
+   market = Market("HBD:HIVE", hive_instance=hive)
    print(market.ticker())
-   market.steem.wallet.unlock("wallet-passphrase")
-   print(market.sell(300, 100))  # sell 100 STEEM for 300 STEEM/SBD
+   market.hive.wallet.unlock("wallet-passphrase")
+   print(market.sell(300, 100))  # sell 100 HIVE for 300 HIVE/HBD

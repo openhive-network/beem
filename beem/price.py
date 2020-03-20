@@ -7,7 +7,7 @@ from builtins import str
 from future.utils import python_2_unicode_compatible
 from beemgraphenebase.py23 import bytes_types, integer_types, string_types, text_type
 from fractions import Fraction
-from beem.instance import shared_steem_instance
+from beem.instance import shared_hive_instance
 from .exceptions import InvalidAssetException
 from .account import Account
 from .amount import Amount, quantize
@@ -34,7 +34,7 @@ class Price(dict):
         :param list args: Allows to deal with different representations of a price
         :param Asset base: Base asset
         :param Asset quote: Quote asset
-        :param Steem steem_instance: Steem instance
+        :param Hive hive_instance: Hive instance
         :returns: All data required to represent a price
         :rtype: dictionary
 
@@ -52,14 +52,14 @@ class Price(dict):
 
         This allows instanciations like:
 
-        * ``Price("0.315 SBD/STEEM")``
-        * ``Price(0.315, base="SBD", quote="STEEM")``
-        * ``Price(0.315, base=Asset("SBD"), quote=Asset("STEEM"))``
-        * ``Price({"base": {"amount": 1, "asset_id": "SBD"}, "quote": {"amount": 10, "asset_id": "SBD"}})``
-        * ``Price(quote="10 STEEM", base="1 SBD")``
-        * ``Price("10 STEEM", "1 SBD")``
-        * ``Price(Amount("10 STEEM"), Amount("1 SBD"))``
-        * ``Price(1.0, "SBD/STEEM")``
+        * ``Price("0.315 HBD/HIVE")``
+        * ``Price(0.315, base="HBD", quote="HIVE")``
+        * ``Price(0.315, base=Asset("HBD"), quote=Asset("HIVE"))``
+        * ``Price({"base": {"amount": 1, "asset_id": "HBD"}, "quote": {"amount": 10, "asset_id": "HBD"}})``
+        * ``Price(quote="10 HIVE", base="1 HBD")``
+        * ``Price("10 HIVE", "1 HBD")``
+        * ``Price(Amount("10 HIVE"), Amount("1 HBD"))``
+        * ``Price(1.0, "HBD/HIVE")``
 
         Instances of this class can be used in regular mathematical expressions
         (``+-*/%``) such as:
@@ -67,10 +67,10 @@ class Price(dict):
         .. code-block:: python
 
             >>> from beem.price import Price
-            >>> Price("0.3314 SBD/STEEM") * 2
-            0.662804 SBD/STEEM
-            >>> Price(0.3314, "SBD", "STEEM")
-            0.331402 SBD/STEEM
+            >>> Price("0.3314 HBD/HIVE") * 2
+            0.662804 HBD/HIVE
+            >>> Price(0.3314, "HBD", "HIVE")
+            0.331402 HBD/HIVE
 
     """
     def __init__(
@@ -79,54 +79,54 @@ class Price(dict):
         base=None,
         quote=None,
         base_asset=None,  # to identify sell/buy
-        steem_instance=None
+        hive_instance=None
     ):
 
-        self.steem = steem_instance or shared_steem_instance()
+        self.hive = hive_instance or shared_hive_instance()
         if price == "":
             price = None
         if (price is not None and isinstance(price, string_types) and not base and not quote):
             import re
             price, assets = price.split(" ")
             base_symbol, quote_symbol = assets_from_string(assets)
-            base = Asset(base_symbol, steem_instance=self.steem)
-            quote = Asset(quote_symbol, steem_instance=self.steem)
+            base = Asset(base_symbol, hive_instance=self.hive)
+            quote = Asset(quote_symbol, hive_instance=self.hive)
             frac = Fraction(float(price)).limit_denominator(10 ** base["precision"])
-            self["quote"] = Amount(amount=frac.denominator, asset=quote, steem_instance=self.steem)
-            self["base"] = Amount(amount=frac.numerator, asset=base, steem_instance=self.steem)
+            self["quote"] = Amount(amount=frac.denominator, asset=quote, hive_instance=self.hive)
+            self["base"] = Amount(amount=frac.numerator, asset=base, hive_instance=self.hive)
 
         elif (price is not None and isinstance(price, dict) and
                 "base" in price and
                 "quote" in price):
             if "price" in price:
                 raise AssertionError("You cannot provide a 'price' this way")
-            # Regular 'price' objects according to steem-core
+            # Regular 'price' objects according to hive-core
             # base_id = price["base"]["asset_id"]
             # if price["base"]["asset_id"] == base_id:
-            self["base"] = Amount(price["base"], steem_instance=self.steem)
-            self["quote"] = Amount(price["quote"], steem_instance=self.steem)
+            self["base"] = Amount(price["base"], hive_instance=self.hive)
+            self["quote"] = Amount(price["quote"], hive_instance=self.hive)
             # else:
-            #    self["quote"] = Amount(price["base"], steem_instance=self.steem)
-            #    self["base"] = Amount(price["quote"], steem_instance=self.steem)
+            #    self["quote"] = Amount(price["base"], hive_instance=self.hive)
+            #    self["base"] = Amount(price["quote"], hive_instance=self.hive)
 
         elif (price is not None and isinstance(base, Asset) and isinstance(quote, Asset)):
             frac = Fraction(float(price)).limit_denominator(10 ** base["precision"])
-            self["quote"] = Amount(amount=frac.denominator, asset=quote, steem_instance=self.steem)
-            self["base"] = Amount(amount=frac.numerator, asset=base, steem_instance=self.steem)
+            self["quote"] = Amount(amount=frac.denominator, asset=quote, hive_instance=self.hive)
+            self["base"] = Amount(amount=frac.numerator, asset=base, hive_instance=self.hive)
 
         elif (price is not None and isinstance(base, string_types) and isinstance(quote, string_types)):
-            base = Asset(base, steem_instance=self.steem)
-            quote = Asset(quote, steem_instance=self.steem)
+            base = Asset(base, hive_instance=self.hive)
+            quote = Asset(quote, hive_instance=self.hive)
             frac = Fraction(float(price)).limit_denominator(10 ** base["precision"])
-            self["quote"] = Amount(amount=frac.denominator, asset=quote, steem_instance=self.steem)
-            self["base"] = Amount(amount=frac.numerator, asset=base, steem_instance=self.steem)
+            self["quote"] = Amount(amount=frac.denominator, asset=quote, hive_instance=self.hive)
+            self["base"] = Amount(amount=frac.numerator, asset=base, hive_instance=self.hive)
 
         elif (price is None and isinstance(base, string_types) and isinstance(quote, string_types)):
-            self["quote"] = Amount(quote, steem_instance=self.steem)
-            self["base"] = Amount(base, steem_instance=self.steem)
+            self["quote"] = Amount(quote, hive_instance=self.hive)
+            self["base"] = Amount(base, hive_instance=self.hive)
         elif (price is not None and isinstance(price, string_types) and isinstance(base, string_types)):
-            self["quote"] = Amount(price, steem_instance=self.steem)
-            self["base"] = Amount(base, steem_instance=self.steem)
+            self["quote"] = Amount(price, hive_instance=self.hive)
+            self["base"] = Amount(base, hive_instance=self.hive)
         # len(args) > 1
 
         elif isinstance(price, Amount) and isinstance(base, Amount):
@@ -141,11 +141,11 @@ class Price(dict):
                 isinstance(base, string_types)):
             import re
             base_symbol, quote_symbol = assets_from_string(base)
-            base = Asset(base_symbol, steem_instance=self.steem)
-            quote = Asset(quote_symbol, steem_instance=self.steem)
+            base = Asset(base_symbol, hive_instance=self.hive)
+            quote = Asset(quote_symbol, hive_instance=self.hive)
             frac = Fraction(float(price)).limit_denominator(10 ** base["precision"])
-            self["quote"] = Amount(amount=frac.denominator, asset=quote, steem_instance=self.steem)
-            self["base"] = Amount(amount=frac.numerator, asset=base, steem_instance=self.steem)
+            self["quote"] = Amount(amount=frac.denominator, asset=quote, hive_instance=self.hive)
+            self["base"] = Amount(amount=frac.numerator, asset=base, hive_instance=self.hive)
 
         else:
             raise ValueError("Couldn't parse 'Price'.")
@@ -164,7 +164,7 @@ class Price(dict):
             None,
             base=self["base"].copy(),
             quote=self["quote"].copy(),
-            steem_instance=self.steem)
+            hive_instance=self.hive)
 
     def _safedivide(self, a, b):
         if b != 0.0:
@@ -183,8 +183,8 @@ class Price(dict):
             .. code-block:: python
 
                 >>> from beem.price import Price
-                >>> Price("0.3314 SBD/STEEM").as_base("STEEM")
-                3.017483 STEEM/SBD
+                >>> Price("0.3314 HBD/HIVE").as_base("HIVE")
+                3.017483 HIVE/HBD
 
         """
         if base == self["base"]["symbol"]:
@@ -202,8 +202,8 @@ class Price(dict):
             .. code-block:: python
 
                 >>> from beem.price import Price
-                >>> Price("0.3314 SBD/STEEM").as_quote("SBD")
-                3.017483 STEEM/SBD
+                >>> Price("0.3314 HBD/HIVE").as_quote("HBD")
+                3.017483 HIVE/HBD
 
         """
         if quote == self["quote"]["symbol"]:
@@ -214,13 +214,13 @@ class Price(dict):
             raise InvalidAssetException
 
     def invert(self):
-        """ Invert the price (e.g. go from ``SBD/STEEM`` into ``STEEM/SBD``)
+        """ Invert the price (e.g. go from ``HBD/HIVE`` into ``HIVE/HBD``)
 
             .. code-block:: python
 
                 >>> from beem.price import Price
-                >>> Price("0.3314 SBD/STEEM").invert()
-                3.017483 STEEM/SBD
+                >>> Price("0.3314 HBD/HIVE").invert()
+                3.017483 HIVE/HBD
 
         """
         tmp = self["quote"]
@@ -270,21 +270,21 @@ class Price(dict):
             if self["quote"]["symbol"] == other["base"]["symbol"]:
                 a["base"] = Amount(
                     float(self["base"]) * float(other["base"]), self["base"]["symbol"],
-                    steem_instance=self.steem
+                    hive_instance=self.hive
                 )
                 a["quote"] = Amount(
                     float(self["quote"]) * float(other["quote"]), other["quote"]["symbol"],
-                    steem_instance=self.steem
+                    hive_instance=self.hive
                 )
             # a/b * c/a =  c/b
             elif self["base"]["symbol"] == other["quote"]["symbol"]:
                 a["base"] = Amount(
                     float(self["base"]) * float(other["base"]), other["base"]["symbol"],
-                    steem_instance=self.steem
+                    hive_instance=self.hive
                 )
                 a["quote"] = Amount(
                     float(self["quote"]) * float(other["quote"]), self["quote"]["symbol"],
-                    steem_instance=self.steem
+                    hive_instance=self.hive
                 )
             else:
                 raise ValueError("Wrong rotation of prices")
@@ -321,11 +321,11 @@ class Price(dict):
                 raise InvalidAssetException
             a["base"] = Amount(
                 float(self["base"].amount / other["base"].amount), other["quote"]["symbol"],
-                steem_instance=self.steem
+                hive_instance=self.hive
             )
             a["quote"] = Amount(
                 float(self["quote"].amount / other["quote"].amount), self["quote"]["symbol"],
-                steem_instance=self.steem
+                hive_instance=self.hive
             )
         elif isinstance(other, Amount):
             if not other["asset"] == self["quote"]["asset"]:
@@ -409,7 +409,7 @@ class Price(dict):
         return Market(
             base=self["base"]["asset"],
             quote=self["quote"]["asset"],
-            steem_instance=self.steem
+            hive_instance=self.hive
         )
 
 
@@ -419,7 +419,7 @@ class Order(Price):
         ratio of base and quote) but instead has those amounts represent the
         amounts of an actual order!
 
-        :param Steem steem_instance: Steem instance
+        :param Hive hive_instance: Hive instance
 
         .. note::
 
@@ -427,9 +427,9 @@ class Order(Price):
                 'deleted' key which is set to ``True`` and all other
                 data be ``None``.
     """
-    def __init__(self, base, quote=None, steem_instance=None, **kwargs):
+    def __init__(self, base, quote=None, hive_instance=None, **kwargs):
 
-        self.steem = steem_instance or shared_steem_instance()
+        self.hive = hive_instance or shared_hive_instance()
 
         if (
             isinstance(base, dict) and
@@ -443,8 +443,8 @@ class Order(Price):
             "amount_to_sell" in base
         ):
             super(Order, self).__init__(
-                Amount(base["min_to_receive"], steem_instance=self.steem),
-                Amount(base["amount_to_sell"], steem_instance=self.steem),
+                Amount(base["min_to_receive"], hive_instance=self.hive),
+                Amount(base["amount_to_sell"], hive_instance=self.hive),
             )
             self["id"] = base.get("id")
         elif isinstance(base, Amount) and isinstance(quote, Amount):
@@ -476,23 +476,23 @@ class FilledOrder(Price):
         ratio of base and quote) but instead has those amounts represent the
         amounts of an actually filled order!
 
-        :param Steem steem_instance: Steem instance
+        :param Hive hive_instance: Hive instance
 
         .. note:: Instances of this class come with an additional ``date`` key
                   that shows when the order has been filled!
     """
 
-    def __init__(self, order, steem_instance=None, **kwargs):
+    def __init__(self, order, hive_instance=None, **kwargs):
 
-        self.steem = steem_instance or shared_steem_instance()
+        self.hive = hive_instance or shared_hive_instance()
         if isinstance(order, dict) and "current_pays" in order and "open_pays" in order:
             # filled orders from account history
             if "op" in order:
                 order = order["op"]
 
             super(FilledOrder, self).__init__(
-                Amount(order["open_pays"], steem_instance=self.steem),
-                Amount(order["current_pays"], steem_instance=self.steem),
+                Amount(order["open_pays"], hive_instance=self.hive),
+                Amount(order["current_pays"], hive_instance=self.hive),
             )
             if "date" in order:
                 self["date"] = formatTimeString(order["date"])

@@ -15,7 +15,7 @@ from beem.witness import Witness
 from beembase import operations
 from beem.transactionbuilder import TransactionBuilder
 from beemgraphenebase.account import PasswordKey, PrivateKey, PublicKey
-from beem.steem import Steem
+from beem.hive import Hive
 from beem.utils import parse_time, formatTimedelta
 from beemapi.exceptions import NumRetriesReached
 from beem.nodelist import NodeList
@@ -28,17 +28,17 @@ wif = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
 
 
 if __name__ == "__main__":
-    stm_online = Steem()
+    stm_online = Hive()
     ref_block_num, ref_block_prefix = getBlockParams(stm_online)
     print("ref_block_num %d - ref_block_prefix %d" % (ref_block_num, ref_block_prefix))
 
-    stm = Steem(offline=True)
+    stm = Hive(offline=True)
 
     op = operations.Transfer({'from': 'beembot',
                               'to': 'holger80',
-                              'amount': "0.001 SBD",
+                              'amount': "0.001 HBD",
                               'memo': ""})
-    tb = TransactionBuilder(steem_instance=stm)
+    tb = TransactionBuilder(hive_instance=stm)
 
     tb.appendOps([op])
     tb.appendWif(wif)

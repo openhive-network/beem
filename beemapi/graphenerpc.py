@@ -112,10 +112,10 @@ class GrapheneRPC(object):
         .. code-block:: python
 
             from beemapi.graphenerpc import GrapheneRPC
-            ws = GrapheneRPC("wss://steemd.pevo.science","","")
+            ws = GrapheneRPC("wss://hived.pevo.science","","")
             print(ws.get_account_count())
 
-            ws = GrapheneRPC("https://api.steemit.com","","")
+            ws = GrapheneRPC("https://api.hiveit.com","","")
             print(ws.get_account_count())
 
     .. note:: This class allows to call methods available via

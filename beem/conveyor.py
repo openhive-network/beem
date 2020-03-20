@@ -11,7 +11,7 @@ import requests
 import struct
 from datetime import datetime
 from binascii import hexlify
-from .instance import shared_steem_instance
+from .instance import shared_hive_instance
 from .account import Account
 from beemgraphenebase.py23 import py23_bytes
 from beemgraphenebase.ecdsasig import sign_message
@@ -22,8 +22,8 @@ except ImportError:
 
 
 class Conveyor(object):
-    """ Class to access Steemit Conveyor instances:
-        https://github.com/steemit/conveyor
+    """ Class to access Hiveit Conveyor instances:
+        https://github.com/hiveit/conveyor
 
         Description from the official documentation:
 
@@ -42,34 +42,34 @@ class Conveyor(object):
           consisting of a post title and a body.
 
         The underlying RPC authentication and request signing procedure is
-        described here: https://github.com/steemit/rpc-auth
+        described here: https://github.com/hiveit/rpc-auth
 
     """
 
-    def __init__(self, url="https://conveyor.steemit.com",
-                 steem_instance=None):
+    def __init__(self, url="https://conveyor.hiveit.com",
+                 hive_instance=None):
         """ Initialize a Conveyor instance
             :param str url: (optional) URL to the Conveyor API, defaults to
-                https://conveyor.steemit.com
-            :param beem.steem.Steem steem_instance: Steem instance
+                https://conveyor.hiveit.com
+            :param beem.hive.Hive hive_instance: Hive instance
 
         """
 
         self.url = url
-        self.steem = steem_instance or shared_steem_instance()
+        self.hive = hive_instance or shared_hive_instance()
         self.id = 0
         self.ENCODING = 'utf-8'
         self.TIMEFORMAT = '%Y-%m-%dT%H:%M:%S.%f'
-        self.K = hashlib.sha256(py23_bytes('steem_jsonrpc_auth',
+        self.K = hashlib.sha256(py23_bytes('hive_jsonrpc_auth',
                                            self.ENCODING)).digest()
 
     def prehash_message(self, timestamp, account, method, params, nonce):
         """ Prepare a hash for the Conveyor API request with SHA256 according
-            to https://github.com/steemit/rpc-auth
+            to https://github.com/hiveit/rpc-auth
             Hashing of `second` is then done inside `ecdsasig.sign_message()`.
 
             :param str timestamp: valid iso8601 datetime ending in "Z"
-            :param str account: valid steem blockchain account name
+            :param str account: valid hive blockchain account name
             :param str method: Conveyor method name to be called
             :param bytes param: base64 encoded request parameters
             :param bytes nonce: random 8 bytes
@@ -85,7 +85,7 @@ class Conveyor(object):
             :param str account: account name
             :param str method: Conveyor method name to be called
             :param dict params: request parameters as `dict`
-            :param str key: Steem posting key for signing
+            :param str key: Hive posting key for signing
 
         """
         params_bytes = py23_bytes(json.dumps(params), self.ENCODING)
@@ -127,17 +127,17 @@ class Conveyor(object):
             :params dict params: request parameters as `dict`
 
         """
-        account = Account(account, steem_instance=self.steem)
+        account = Account(account, hive_instance=self.hive)
         if signing_account is None:
             signer = account
         else:
-            signer = Account(signing_account, steem_instance=self.steem)
+            signer = Account(signing_account, hive_instance=self.hive)
         if "posting" not in signer:
             signer.refresh()
         if "posting" not in signer:
             raise AssertionError("Could not access posting permission")
         for authority in signer["posting"]["key_auths"]:
-            posting_wif = self.steem.wallet.getPrivateKeyForPublicKey(
+            posting_wif = self.hive.wallet.getPrivateKeyForPublicKey(
                 authority[0])
         return self._request(account['name'], method, params,
                              posting_wif)
@@ -154,14 +154,14 @@ class Conveyor(object):
 
             .. code-block:: python
 
-                from beem import Steem
+                from beem import Hive
                 from beem.conveyor import Conveyor
-                s = Steem(keys=["5JPOSTINGKEY"])
-                c = Conveyor(steem_instance=s)
+                s = Hive(keys=["5JPOSTINGKEY"])
+                c = Conveyor(hive_instance=s)
                 print(c.get_user_data('accountname'))
 
         """
-        account = Account(account, steem_instance=self.steem)
+        account = Account(account, hive_instance=self.hive)
         user_data = self._conveyor_method(account, signing_account,
                                           "conveyor.get_user_data",
                                           [account['name']])
@@ -183,10 +183,10 @@ class Conveyor(object):
 
             .. code-block:: python
 
-                from beem import Steem
+                from beem import Hive
                 from beem.conveyor import Conveyor
-                s = Steem(keys=["5JADMINPOSTINGKEY"])
-                c = Conveyor(steem_instance=s)
+                s = Hive(keys=["5JADMINPOSTINGKEY"])
+                c = Conveyor(hive_instance=s)
                 userdata = {'email': 'foo@bar.com', 'phone':'+123456789'}
                 c.set_user_data('accountname', userdata, 'adminaccountname')
 
@@ -207,14 +207,14 @@ class Conveyor(object):
 
             .. code-block:: python
 
-                from beem import Steem
+                from beem import Hive
                 from beem.conveyor import Conveyor
-                s = Steem(keys=["5JPOSTINGKEY"])
-                c = Conveyor(steem_instance=s)
+                s = Hive(keys=["5JPOSTINGKEY"])
+                c = Conveyor(hive_instance=s)
                 print(c.get_feature_flags('accountname'))
 
         """
-        account = Account(account, steem_instance=self.steem)
+        account = Account(account, hive_instance=self.hive)
         feature_flags = self._conveyor_method(account, signing_account,
                                               "conveyor.get_feature_flags",
                                               [account['name']])
@@ -236,14 +236,14 @@ class Conveyor(object):
 
             .. code-block:: python
 
-                from beem import Steem
+                from beem import Hive
                 from beem.conveyor import Conveyor
-                s = Steem(keys=["5JPOSTINGKEY"])
-                c = Conveyor(steem_instance=s)
+                s = Hive(keys=["5JPOSTINGKEY"])
+                c = Conveyor(hive_instance=s)
                 print(c.get_feature_flag('accountname', 'accepted_tos'))
 
         """
-        account = Account(account, steem_instance=self.steem)
+        account = Account(account, hive_instance=self.hive)
         return self._conveyor_method(account, signing_account,
                                      "conveyor.get_feature_flag",
                                      [account['name'], flag])
@@ -256,7 +256,7 @@ class Conveyor(object):
             :param str body: draft post body
 
         """
-        account = Account(account, steem_instance=self.steem)
+        account = Account(account, hive_instance=self.hive)
         draft = {'title': title, 'body': body}
         return self._conveyor_method(account, None,
                                      "conveyor.save_draft",
@@ -279,7 +279,7 @@ class Conveyor(object):
                 }
 
         """
-        account = Account(account, steem_instance=self.steem)
+        account = Account(account, hive_instance=self.hive)
         return self._conveyor_method(account, None,
                                      "conveyor.list_drafts",
                                      [account['name']])
@@ -292,7 +292,7 @@ class Conveyor(object):
                 `list_drafts`
 
         """
-        account = Account(account, steem_instance=self.steem)
+        account = Account(account, hive_instance=self.hive)
         return self._conveyor_method(account, None,
                                      "conveyor.remove_draft",
                                      [account['name'], uuid])

@@ -7,7 +7,7 @@ import sys
 from datetime import timedelta
 import time
 import io
-from beem.steem import Steem
+from beem.hive import Hive
 import logging
 from prettytable import PrettyTable
 log = logging.getLogger(__name__)
@@ -15,11 +15,11 @@ logging.basicConfig(level=logging.INFO)
 
 
 if __name__ == "__main__":
-    stm = Steem(node="https://api.steemit.com")
-    # stm = Steem(node="https://testnet.steemitdev.com")
-    # stm = Steem(node="wss://appbasetest.timcliff.com")
-    # stm = Steem(node="https://api.steemitstage.com")
-    # stm = Steem(node="https://api.steemitdev.com")
+    stm = Hive(node="https://api.hiveit.com")
+    # stm = Hive(node="https://testnet.hiveitdev.com")
+    # stm = Hive(node="wss://appbasetest.timcliff.com")
+    # stm = Hive(node="https://api.hiveitstage.com")
+    # stm = Hive(node="https://api.hiveitdev.com")
     all_calls = stm.rpc.get_methods(api="jsonrpc")
     t = PrettyTable(["method", "args", "ret"])
     t.align = "l"

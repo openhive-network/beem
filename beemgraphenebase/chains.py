@@ -4,33 +4,33 @@ from __future__ import print_function
 from __future__ import unicode_literals
 default_prefix = "STM"
 known_chains = {
-    "STEEMAPPBASE": {
+    "HIVEAPPBASE": {
         "chain_id": "0" * int(256 / 4),
         "min_version": '0.19.10',
         "prefix": "STM",
         "chain_assets": [
-            {"asset": "@@000000013", "symbol": "SBD", "precision": 3, "id": 0},
-            {"asset": "@@000000021", "symbol": "STEEM", "precision": 3, "id": 1},
+            {"asset": "@@000000013", "symbol": "HBD", "precision": 3, "id": 0},
+            {"asset": "@@000000021", "symbol": "HIVE", "precision": 3, "id": 1},
             {"asset": "@@000000037", "symbol": "VESTS", "precision": 6, "id": 2}
         ],
     },
-    "STEEM": {
+    "HIVE": {
         "chain_id": "0" * int(256 / 4),
         "min_version": '0.19.5',
         "prefix": "STM",
         "chain_assets": [
-            {"asset": "SBD", "symbol": "SBD", "precision": 3, "id": 0},
-            {"asset": "STEEM", "symbol": "STEEM", "precision": 3, "id": 1},
+            {"asset": "HBD", "symbol": "HBD", "precision": 3, "id": 0},
+            {"asset": "HIVE", "symbol": "HIVE", "precision": 3, "id": 1},
             {"asset": "VESTS", "symbol": "VESTS", "precision": 6, "id": 2}
         ],
     },
-    "STEEMZERO": {
+    "HIVEZERO": {
         "chain_id": "0" * int(256 / 4),
         "min_version": '0.0.0',
         "prefix": "STM",
         "chain_assets": [
-            {"asset": "SBD", "symbol": "SBD", "precision": 3, "id": 0},
-            {"asset": "STEEM", "symbol": "STEEM", "precision": 3, "id": 1},
+            {"asset": "HBD", "symbol": "HBD", "precision": 3, "id": 0},
+            {"asset": "HIVE", "symbol": "HIVE", "precision": 3, "id": 1},
             {"asset": "VESTS", "symbol": "VESTS", "precision": 6, "id": 2}
         ],
     },
@@ -39,8 +39,8 @@ known_chains = {
         "min_version": '0.20.0',
         "prefix": "STX",
         "chain_assets": [
-            {"asset": "@@000000013", "symbol": "SBD", "precision": 3, "id": 0},
-            {"asset": "@@000000021", "symbol": "STEEM", "precision": 3, "id": 1},
+            {"asset": "@@000000013", "symbol": "HBD", "precision": 3, "id": 0},
+            {"asset": "@@000000021", "symbol": "HIVE", "precision": 3, "id": 1},
             {"asset": "@@000000037", "symbol": "VESTS", "precision": 6, "id": 2}
         ],
     },
@@ -60,8 +60,8 @@ known_chains = {
         "min_version": '0.0.0',
         "prefix": "GLS",
         "chain_assets": [
-            {"asset": "SBD", "symbol": "GBG", "precision": 3, "id": 0},
-            {"asset": "STEEM", "symbol": "GOLOS", "precision": 3, "id": 1},
+            {"asset": "HBD", "symbol": "GBG", "precision": 3, "id": 0},
+            {"asset": "HIVE", "symbol": "GOLOS", "precision": 3, "id": 1},
             {"asset": "VESTS", "symbol": "GESTS", "precision": 6, "id": 2}
         ],
     },
@@ -70,7 +70,7 @@ known_chains = {
         "min_version": "0.0.0",
         "prefix": "VIT",
         "chain_assets": [
-            {"asset": "STEEM", "symbol": "VIT", "precision": 3, "id": 1},
+            {"asset": "HIVE", "symbol": "VIT", "precision": 3, "id": 1},
             {"asset": "VESTS", "symbol": "VESTS", "precision": 6, "id": 2}
         ],
     },
@@ -79,8 +79,8 @@ known_chains = {
         "min_version": "0.19.3",
         "prefix": "WKA",
         "chain_assets": [
-            {"asset": "SBD", "symbol": "WKD", "precision": 3, "id": 0},
-            {"asset": "STEEM", "symbol": "WEKU", "precision": 3, "id": 1},
+            {"asset": "HBD", "symbol": "WKD", "precision": 3, "id": 0},
+            {"asset": "HIVE", "symbol": "WEKU", "precision": 3, "id": 1},
             {"asset": "VESTS", "symbol": "VESTS", "precision": 6, "id": 2}
         ],
     },
@@ -99,8 +99,8 @@ known_chains = {
         "min_version": "0.19.6",
         "prefix": "EUR",
         "chain_assets": [
-            {"asset": "SBD", "symbol": "EUR", "precision": 3, "id": 0},
-            {"asset": "STEEM", "symbol": "EFTG", "precision": 3, "id": 1},
+            {"asset": "HBD", "symbol": "EUR", "precision": 3, "id": 0},
+            {"asset": "HIVE", "symbol": "EFTG", "precision": 3, "id": 1},
             {"asset": "VESTS", "symbol": "VESTS", "precision": 6, "id": 2}
         ],
     },
@@ -119,7 +119,7 @@ known_chains = {
         "min_version": "0.0.0",
         "prefix": "WLS",
         "chain_assets": [
-            {"asset": "STEEM", "symbol": "WLS", "precision": 3, "id": 1},
+            {"asset": "HIVE", "symbol": "WLS", "precision": 3, "id": 1},
             {"asset": "VESTS", "symbol": "VESTS", "precision": 6, "id": 2}
         ],
     },

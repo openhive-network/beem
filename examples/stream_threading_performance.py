@@ -10,7 +10,7 @@ import logging
 
 from beem.blockchain import Blockchain
 from beem.block import Block
-from beem.steem import Steem
+from beem.hive import Hive
 from beem.utils import parse_time, formatTimedelta
 from beem.nodelist import NodeList
 log = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 def stream_votes(stm, threading, thread_num):
-    b = Blockchain(steem_instance=stm)
+    b = Blockchain(hive_instance=stm)
     opcount = 0
     start_time = time.time()
     for op in b.stream(start=23483000, stop=23483200, threading=threading, thread_num=thread_num,
@@ -43,8 +43,8 @@ if __name__ == "__main__":
 
     vote_result = []
     duration = []
-    stm_wss = Steem(node=node_list_wss, timeout=timeout)
-    stm_https = Steem(node=node_list_https, timeout=timeout)
+    stm_wss = Hive(node=node_list_wss, timeout=timeout)
+    stm_https = Hive(node=node_list_https, timeout=timeout)
     print("Without threading wss")
     opcount_wot_wss, total_duration_wot_wss = stream_votes(stm_wss, False, 8)
     print("Without threading https")
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     if threading:
         print("\n Threading with %d threads is activated now." % thread_num)
 
-    stm = Steem(node=node_list_wss, timeout=timeout)
+    stm = Hive(node=node_list_wss, timeout=timeout)
     opcount_wss, total_duration_wss = stream_votes(stm, threading, thread_num)
     opcount_https, total_duration_https = stream_votes(stm, threading, thread_num)
     print("Finished!")

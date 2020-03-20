@@ -8,7 +8,7 @@ import re
 import time
 import math
 import json
-from beem.instance import shared_steem_instance
+from beem.instance import shared_hive_instance
 from beem.account import Account
 import logging
 log = logging.getLogger(__name__)
@@ -27,24 +27,24 @@ class NodeList(list):
     def __init__(self):
         nodes = [
             {
-                "url": "https://api.steemit.com",
+                "url": "https://api.hiveit.com",
                 "version": "0.20.2",
                 "type": "appbase-limited",
-                "owner": "steemit",
+                "owner": "hiveit",
                 "score": 50
             },
             {
-                "url": "https://steemd-appbase.steemit.com",
+                "url": "https://hived-appbase.hiveit.com",
                 "version": "0.20.2",
                 "type": "appbase",
-                "owner": "steemit",
+                "owner": "hiveit",
                 "score": -10
             },
             {
-                "url": "wss://steemd-appbase.steemit.com",
+                "url": "wss://hived-appbase.hiveit.com",
                 "version": "0.20.2",
                 "type": "appbase",
-                "owner": "steemit",
+                "owner": "hiveit",
                 "score": -10
             },
             {
@@ -62,49 +62,49 @@ class NodeList(list):
                 "score": 10
             },
             {
-                "url": "https://api.steem.house",
+                "url": "https://api.hive.house",
                 "version": "0.20.2",
                 "type": "appbase",
                 "owner": "gtg",
                 "score": 10
             },
             {
-                "url": "https://api.steemitdev.com",
+                "url": "https://api.hiveitdev.com",
                 "version": "0.19.11",
                 "type": "appbase-dev",
-                "owner": "steemit",
+                "owner": "hiveit",
                 "score": 10
             },
             {
-                "url": "https://api.steemitstage.com",
+                "url": "https://api.hiveitstage.com",
                 "version": "0.19.11",
                 "type": "appbase-dev",
-                "owner": "steemit",
+                "owner": "hiveit",
                 "score": 10
             },
             {
-                "url": "wss://rpc.steemviz.com",
+                "url": "wss://rpc.hiveviz.com",
                 "version": "0.19.12",
                 "type": "appbase",
                 "owner": "ausbitbank",
                 "score": -10
             },
             {
-                "url": "https://rpc.steemviz.com",
+                "url": "https://rpc.hiveviz.com",
                 "version": "0.19.12",
                 "type": "appbase",
                 "owner": "ausbitbank",
                 "score": -10
             },
             {
-                "url": "wss://steemd.privex.io",
+                "url": "wss://hived.privex.io",
                 "version": "0.20.2",
                 "type": "appbase",
                 "owner": "privex",
                 "score": -10
             },
             {
-                "url": "https://steemd.privex.io",
+                "url": "https://hived.privex.io",
                 "version": "0.20.2",
                 "type": "appbase",
                 "owner": "privex",
@@ -125,42 +125,42 @@ class NodeList(list):
                 "score": -20
             },
             {
-                "url": "wss://gtg.steem.house:8090",
+                "url": "wss://gtg.hive.house:8090",
                 "version": "0.19.12",
                 "type": "appbase",
                 "owner": "gtg",
                 "score": -10
             },
             {
-                "url": "https://gtg.steem.house:8090",
+                "url": "https://gtg.hive.house:8090",
                 "version": "0.19.12",
                 "type": "appbase",
                 "owner": "gtg",
                 "score": -10
             },
             {
-                "url": "wss://steemd.pevo.science",
+                "url": "wss://hived.pevo.science",
                 "version": "0.19.2",
                 "type": "normal",
                 "owner": "pharesim",
                 "score": -10
             },
             {
-                "url": "https://steemd.pevo.science",
+                "url": "https://hived.pevo.science",
                 "version": "0.19.6",
                 "type": "normal",
                 "owner": "pharesim",
                 "score": -10
             },
             {
-                "url": "wss://rpc.steemliberator.com",
+                "url": "wss://rpc.hiveliberator.com",
                 "version": "0.19.12",
                 "type": "appbase",
                 "owner": "netuoso",
                 "score": -10
             },
             {
-                "url": "https://rpc.steemliberator.com",
+                "url": "https://rpc.hiveliberator.com",
                 "version": "0.19.12",
                 "type": "appbase",
                 "owner": "netuoso",
@@ -181,28 +181,28 @@ class NodeList(list):
                 "score": -10
             },
             {
-                "url": "wss://steemd.steemgigs.org",
+                "url": "wss://hived.hivegigs.org",
                 "version": "0.19.6",
                 "type": "normal",
-                "owner": "steemgigs",
+                "owner": "hivegigs",
                 "score": -10
             },
             {
-                "url": "https://steemd.steemgigs.org",
+                "url": "https://hived.hivegigs.org",
                 "version": "0.19.6",
                 "type": "normal",
-                "owner": "steemgigs",
+                "owner": "hivegigs",
                 "score": -10
             },
             {
-                "url": "wss://steemd.minnowsupportproject.org",
+                "url": "wss://hived.minnowsupportproject.org",
                 "version": "0.19.11",
                 "type": "appbase",
                 "owner": "followbtcnews",
                 "score": -10
             },
             {
-                "url": "https://steemd.minnowsupportproject.org",
+                "url": "https://hived.minnowsupportproject.org",
                 "version": "0.19.12",
                 "type": "appbase",
                 "owner": "followbtcnews",
@@ -230,64 +230,64 @@ class NodeList(list):
                 "score": 50
             },            
             {
-                "url": "https://rpc.curiesteem.com",
+                "url": "https://rpc.curiehive.com",
                 "version": "0.20.2",
                 "type": "appbase",
                 "owner": "curie",
                 "score": -10
             },
             {
-                "url": "wss://rpc.curiesteem.com",
+                "url": "wss://rpc.curiehive.com",
                 "version": "0.20.2",
                 "type": "appbase",
                 "owner": "curie",
                 "score": -10
             },
             {
-                "url": "https://rpc.usesteem.com",
+                "url": "https://rpc.usehive.com",
                 "version": "0.20.8",
                 "type": "appbase",
                 "owner": "themarkymark",
                 "score": 90
             },            
             {
-                "url": "wss://testnet.steem.vc",
+                "url": "wss://testnet.hive.vc",
                 "version": "0.19.2",
                 "type": "testnet",
                 "owner": "almost-digital",
                 "score": 20
             },
             {
-                "url": "ws://testnet.steem.vc",
+                "url": "ws://testnet.hive.vc",
                 "version": "0.19.2",
                 "type": "testnet",
                 "owner": "almost-digital",
                 "score": 5
             },
             {
-                "url": "https://testnet.steem.vc",
+                "url": "https://testnet.hive.vc",
                 "version": "0.19.2",
                 "type": "testnet",
                 "owner": "almost-digital",
                 "score": 10
             },
             {
-                "url": "http://testnet.steem.vc",
+                "url": "http://testnet.hive.vc",
                 "version": "0.19.2",
                 "type": "testnet",
                 "owner": "almost-digital",
                 "score": 5
             },
             {
-                "url": "https://testnet.steemitdev.com",
+                "url": "https://testnet.hiveitdev.com",
                 "version": "0.21.0",
                 "type": "testnet-dev",
-                "owner": "steemit",
+                "owner": "hiveit",
                 "score": 5
             }]
         super(NodeList, self).__init__(nodes)
 
-    def update_nodes(self, weights=None, steem_instance=None):
+    def update_nodes(self, weights=None, hive_instance=None):
         """ Reads metadata from fullnodeupdate and recalculates the nodes score
 
             :param list/dict weight: can be used to weight the different benchmarks
@@ -302,17 +302,17 @@ class NodeList(list):
                 weights = {'block': 0.1, 'history': 0.1, 'apicall': 1, 'config': 1}
                 nl.update_nodes(weights)
         """
-        steem = steem_instance or shared_steem_instance()
+        hive = hive_instance or shared_hive_instance()
         metadata = None
         account = None
         cnt = 0
         while metadata is None and cnt < 5:
             cnt += 1
             try:
-                account = Account("fullnodeupdate", steem_instance=steem)
+                account = Account("fullnodeupdate", hive_instance=hive)
                 metadata = json.loads(account["json_metadata"])
             except:
-                steem.rpc.next()
+                hive.rpc.next()
                 account = None
                 metadata = None
         if metadata is None:

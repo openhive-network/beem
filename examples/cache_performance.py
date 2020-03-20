@@ -10,7 +10,7 @@ import logging
 
 from beem.blockchain import Blockchain
 from beem.block import Block
-from beem.steem import Steem
+from beem.hive import Hive
 from beem.utils import parse_time, formatTimedelta
 from beem.nodelist import NodeList
 log = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 def stream_votes(stm, threading, thread_num):
-    b = Blockchain(steem_instance=stm)
+    b = Blockchain(hive_instance=stm)
     opcount = 0
     start_time = time.time()
     for op in b.stream(start=23483000, stop=23485000, threading=threading, thread_num=thread_num,
@@ -43,8 +43,8 @@ if __name__ == "__main__":
     vote_result = []
     duration = []
 
-    stm = Steem(node=node_list, timeout=timeout)
-    b = Blockchain(steem_instance=stm)
+    stm = Hive(node=node_list, timeout=timeout)
+    b = Blockchain(hive_instance=stm)
     block = b.get_current_block()
     block.set_cache_auto_clean(False)
     opcount, total_duration = stream_votes(stm, threading, thread_num)

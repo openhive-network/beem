@@ -8,40 +8,40 @@ import beem as stm
 
 
 class SharedInstance(object):
-    """Singelton for the Steem Instance"""
+    """Singelton for the Hive Instance"""
     instance = None
     config = {}
 
 
-def shared_steem_instance():
+def shared_hive_instance():
     """ This method will initialize ``SharedInstance.instance`` and return it.
         The purpose of this method is to have offer single default
-        steem instance that can be reused by multiple classes.
+        hive instance that can be reused by multiple classes.
 
         .. code-block:: python
 
             from beem.account import Account
-            from beem.instance import shared_steem_instance
+            from beem.instance import shared_hive_instance
 
             account = Account("test")
             # is equivalent with
-            account = Account("test", steem_instance=shared_steem_instance())
+            account = Account("test", hive_instance=shared_hive_instance())
 
     """
     if not SharedInstance.instance:
         clear_cache()
-        SharedInstance.instance = stm.Steem(**SharedInstance.config)
+        SharedInstance.instance = stm.Hive(**SharedInstance.config)
     return SharedInstance.instance
 
 
-def set_shared_steem_instance(steem_instance):
-    """ This method allows us to override default steem instance for all users of
+def set_shared_hive_instance(hive_instance):
+    """ This method allows us to override default hive instance for all users of
         ``SharedInstance.instance``.
 
-        :param Steem steem_instance: Steem instance
+        :param Hive hive_instance: Hive instance
     """
     clear_cache()
-    SharedInstance.instance = steem_instance
+    SharedInstance.instance = hive_instance
 
 
 def clear_cache():
@@ -53,7 +53,7 @@ def clear_cache():
 
 def set_shared_config(config):
     """ This allows to set a config that will be used when calling
-        ``shared_steem_instance`` and allows to define the configuration
+        ``shared_hive_instance`` and allows to define the configuration
         without requiring to actually create an instance
     """
     if not isinstance(config, dict):

@@ -3,8 +3,8 @@ import sys
 import datetime as dt
 from beem.amount import Amount
 from beem.utils import parse_time, formatTimeString, addTzInfo
-from beem.instance import set_shared_steem_instance
-from beem import Steem
+from beem.instance import set_shared_hive_instance
+from beem import Hive
 from beem.snapshot import AccountSnapshot
 import matplotlib as mpl
 # mpl.use('Agg')

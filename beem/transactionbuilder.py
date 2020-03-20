@@ -9,7 +9,7 @@ import logging
 from beemgraphenebase.py23 import bytes_types, integer_types, string_types, text_type
 from .account import Account
 from .utils import formatTimeFromNow
-from .steemconnect import SteemConnect
+from .hiveconnect import HiveConnect
 from beembase.objects import Operation
 from beemgraphenebase.account import PrivateKey, PublicKey
 from beembase.signedtransactions import Signed_Transaction
@@ -21,7 +21,7 @@ from .exceptions import (
     WalletLocked,
     OfflineHasNoRPCException
 )
-from beem.instance import shared_steem_instance
+from beem.instance import shared_hive_instance
 log = logging.getLogger(__name__)
 
 
@@ -34,17 +34,17 @@ class TransactionBuilder(dict):
         :param dict tx: transaction (Optional). If not set, the new transaction is created.
         :param int expiration: Delay in seconds until transactions are supposed
             to expire *(optional)* (default is 30)
-        :param Steem steem_instance: If not set, shared_steem_instance() is used
+        :param Hive hive_instance: If not set, shared_hive_instance() is used
 
         .. testcode::
 
            from beem.transactionbuilder import TransactionBuilder
            from beembase.operations import Transfer
-           from beem import Steem
+           from beem import Hive
            wif = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
-           stm = Steem(nobroadcast=True, keys={'active': wif})
-           tx = TransactionBuilder(steem_instance=stm)
-           transfer = {"from": "test", "to": "test1", "amount": "1 STEEM", "memo": ""}
+           stm = Hive(nobroadcast=True, keys={'active': wif})
+           tx = TransactionBuilder(hive_instance=stm)
+           transfer = {"from": "test", "to": "test1", "amount": "1 HIVE", "memo": ""}
            tx.appendOps(Transfer(transfer))
            tx.appendSigner("test", "active") # or tx.appendWif(wif)
            signed_tx = tx.sign()
@@ -55,10 +55,10 @@ class TransactionBuilder(dict):
         self,
         tx={},
         use_condenser_api=True,
-        steem_instance=None,
+        hive_instance=None,
         **kwargs
     ):
-        self.steem = steem_instance or shared_steem_instance()
+        self.hive = hive_instance or shared_hive_instance()
         self.clear()
         if tx and isinstance(tx, dict):
             super(TransactionBuilder, self).__init__(tx)
@@ -68,7 +68,7 @@ class TransactionBuilder(dict):
         else:
             self._require_reconstruction = True
         self._use_condenser_api = use_condenser_api
-        self.set_expiration(kwargs.get("expiration", self.steem.expiration))
+        self.set_expiration(kwargs.get("expiration", self.hive.expiration))
 
     def set_expiration(self, p):
         """Set expiration date"""
@@ -80,12 +80,12 @@ class TransactionBuilder(dict):
 
     def list_operations(self):
         """List all ops"""
-        if self.steem.is_connected() and self.steem.rpc.get_use_appbase():
+        if self.hive.is_connected() and self.hive.rpc.get_use_appbase():
             # appbase disabled by now
             appbase = not self._use_condenser_api
         else:
             appbase = False
-        return [Operation(o, appbase=appbase, prefix=self.steem.prefix) for o in self.ops]
+        return [Operation(o, appbase=appbase, prefix=self.hive.prefix) for o in self.ops]
 
     def _is_signed(self):
         """Check if signatures exists"""
@@ -127,7 +127,7 @@ class TransactionBuilder(dict):
             self.constructTx()
         json_dict = dict(self)
         if with_prefix:
-            json_dict["prefix"] = self.steem.prefix
+            json_dict["prefix"] = self.hive.prefix
         return json_dict
 
     def appendOps(self, ops, append_to=None):
@@ -146,25 +146,25 @@ class TransactionBuilder(dict):
             and permission is supposed to sign the transaction
             It is possible to add more than one signer.
         """
-        if not self.steem.is_connected():
+        if not self.hive.is_connected():
             return
         if permission not in ["active", "owner", "posting"]:
             raise AssertionError("Invalid permission")
-        account = Account(account, steem_instance=self.steem)
+        account = Account(account, hive_instance=self.hive)
         if permission not in account:
-            account = Account(account, steem_instance=self.steem, lazy=False, full=True)
+            account = Account(account, hive_instance=self.hive, lazy=False, full=True)
             account.clear_cache()
             account.refresh()
         if permission not in account:
-            account = Account(account, steem_instance=self.steem)
+            account = Account(account, hive_instance=self.hive)
         if permission not in account:
             raise AssertionError("Could not access permission")
 
         required_treshold = account[permission]["weight_threshold"]
-        if self.steem.wallet.locked():
+        if self.hive.wallet.locked():
             raise WalletLocked()
-        if self.steem.use_sc2 and self.steem.steemconnect is not None:
-            self.steem.steemconnect.set_username(account["name"], permission)
+        if self.hive.use_sc2 and self.hive.hiveconnect is not None:
+            self.hive.hiveconnect.set_username(account["name"], permission)
             return
 
         def fetchkeys(account, perm, level=0):
@@ -173,7 +173,7 @@ class TransactionBuilder(dict):
             r = []
             for authority in account[perm]["key_auths"]:
                 try:
-                    wif = self.steem.wallet.getPrivateKeyForPublicKey(
+                    wif = self.hive.wallet.getPrivateKeyForPublicKey(
                         authority[0])
                     if wif:
                         r.append([wif, authority[1]])
@@ -186,7 +186,7 @@ class TransactionBuilder(dict):
                 # go one level deeper
                 for authority in account[perm]["account_auths"]:
                     auth_account = Account(
-                        authority[0], steem_instance=self.steem)
+                        authority[0], hive_instance=self.hive)
                     r.extend(fetchkeys(auth_account, perm, level + 1))
 
             return r
@@ -195,7 +195,7 @@ class TransactionBuilder(dict):
             # is the account an instance of public key?
             if isinstance(account, PublicKey):
                 self.wifs.add(
-                    self.steem.wallet.getPrivateKeyForPublicKey(
+                    self.hive.wallet.getPrivateKeyForPublicKey(
                         str(account)
                     )
                 )
@@ -225,7 +225,7 @@ class TransactionBuilder(dict):
         """
         if wif:
             try:
-                PrivateKey(wif, prefix=self.steem.prefix)
+                PrivateKey(wif, prefix=self.hive.prefix)
                 self.wifs.add(wif)
             except:
                 raise InvalidWifError
@@ -240,7 +240,7 @@ class TransactionBuilder(dict):
 
         """
         ops = list()
-        if self.steem.is_connected() and self.steem.rpc.get_use_appbase():
+        if self.hive.is_connected() and self.hive.rpc.get_use_appbase():
             # appbase disabled by now
             # broadcasting does not work at the moment
             appbase = not self._use_condenser_api
@@ -248,22 +248,22 @@ class TransactionBuilder(dict):
             appbase = False
         for op in self.ops:
             # otherwise, we simply wrap ops into Operations
-            ops.extend([Operation(op, appbase=appbase, prefix=self.steem.prefix)])
+            ops.extend([Operation(op, appbase=appbase, prefix=self.hive.prefix)])
 
         # We no wrap everything into an actual transaction
         expiration = formatTimeFromNow(
-            self.expiration or self.steem.expiration
+            self.expiration or self.hive.expiration
         )
         if ref_block_num is None or ref_block_prefix is None:
             ref_block_num, ref_block_prefix = transactions.getBlockParams(
-                self.steem.rpc)
+                self.hive.rpc)
         self.tx = Signed_Transaction(
             ref_block_prefix=ref_block_prefix,
             expiration=expiration,
             operations=ops,
             ref_block_num=ref_block_num,
-            custom_chains=self.steem.custom_chains,
-            prefix=self.steem.prefix
+            custom_chains=self.hive.custom_chains,
+            prefix=self.hive.prefix
         )
 
         super(TransactionBuilder, self).update(self.tx.json())
@@ -286,26 +286,26 @@ class TransactionBuilder(dict):
             self.constructTx()
         if "operations" not in self or not self["operations"]:
             return
-        if self.steem.use_sc2:
+        if self.hive.use_sc2:
             return
         # We need to set the default prefix, otherwise pubkeys are
         # presented wrongly!
-        if self.steem.rpc is not None:
+        if self.hive.rpc is not None:
             operations.default_prefix = (
-                self.steem.chain_params["prefix"])
+                self.hive.chain_params["prefix"])
         elif "blockchain" in self:
             operations.default_prefix = self["blockchain"]["prefix"]
 
         try:
             signedtx = Signed_Transaction(**self.json(with_prefix=True))
-            signedtx.add_custom_chains(self.steem.custom_chains)
+            signedtx.add_custom_chains(self.hive.custom_chains)
         except:
             raise ValueError("Invalid TransactionBuilder Format")
 
         if not any(self.wifs):
             raise MissingKeyError
 
-        signedtx.sign(self.wifs, chain=self.steem.chain_params)
+        signedtx.sign(self.wifs, chain=self.hive.chain_params)
         self["signatures"].extend(signedtx.json().get("signatures"))
         return signedtx
 
@@ -313,12 +313,12 @@ class TransactionBuilder(dict):
         """ Verify the authority of the signed transaction
         """
         try:
-            self.steem.rpc.set_next_node_on_empty_reply(False)
-            if self.steem.rpc.get_use_appbase():
+            self.hive.rpc.set_next_node_on_empty_reply(False)
+            if self.hive.rpc.get_use_appbase():
                 args = {'trx': self.json()}
             else:
                 args = self.json()
-            ret = self.steem.rpc.verify_authority(args, api="database")
+            ret = self.hive.rpc.verify_authority(args, api="database")
             if not ret:
                 raise InsufficientAuthorityError
             elif isinstance(ret, dict) and "valid" in ret and not ret["valid"]:
@@ -329,14 +329,14 @@ class TransactionBuilder(dict):
     def get_potential_signatures(self):
         """ Returns public key from signature
         """
-        if not self.steem.is_connected():
+        if not self.hive.is_connected():
             raise OfflineHasNoRPCException("No RPC available in offline mode!")
-        self.steem.rpc.set_next_node_on_empty_reply(False)
-        if self.steem.rpc.get_use_appbase():
+        self.hive.rpc.set_next_node_on_empty_reply(False)
+        if self.hive.rpc.get_use_appbase():
             args = {'trx': self.json()}
         else:
             args = self.json()
-        ret = self.steem.rpc.get_potential_signatures(args, api="database")
+        ret = self.hive.rpc.get_potential_signatures(args, api="database")
         if 'keys' in ret:
             ret = ret["keys"]
         return ret
@@ -344,14 +344,14 @@ class TransactionBuilder(dict):
     def get_transaction_hex(self):
         """ Returns a hex value of the transaction
         """
-        if not self.steem.is_connected():
+        if not self.hive.is_connected():
             raise OfflineHasNoRPCException("No RPC available in offline mode!")
-        self.steem.rpc.set_next_node_on_empty_reply(False)
-        if self.steem.rpc.get_use_appbase():
+        self.hive.rpc.set_next_node_on_empty_reply(False)
+        if self.hive.rpc.get_use_appbase():
             args = {'trx': self.json()}
         else:
             args = self.json()
-        ret = self.steem.rpc.get_transaction_hex(args, api="database")
+        ret = self.hive.rpc.get_transaction_hex(args, api="database")
         if 'hex' in ret:
             ret = ret["hex"]
         return ret
@@ -359,19 +359,19 @@ class TransactionBuilder(dict):
     def get_required_signatures(self, available_keys=list()):
         """ Returns public key from signature
         """
-        if not self.steem.is_connected():
+        if not self.hive.is_connected():
             raise OfflineHasNoRPCException("No RPC available in offline mode!")
-        self.steem.rpc.set_next_node_on_empty_reply(False)
-        if self.steem.rpc.get_use_appbase():
+        self.hive.rpc.set_next_node_on_empty_reply(False)
+        if self.hive.rpc.get_use_appbase():
             args = {'trx': self.json(), 'available_keys': available_keys}
-            ret = self.steem.rpc.get_required_signatures(args, api="database")
+            ret = self.hive.rpc.get_required_signatures(args, api="database")
         else:
-            ret = self.steem.rpc.get_required_signatures(self.json(), available_keys, api="database")
+            ret = self.hive.rpc.get_required_signatures(self.json(), available_keys, api="database")
 
         return ret
 
     def broadcast(self, max_block_age=-1):
-        """ Broadcast a transaction to the steem network
+        """ Broadcast a transaction to the hive network
             Returns the signed transaction and clears itself
             after broadast
 
@@ -388,7 +388,7 @@ class TransactionBuilder(dict):
         if "operations" not in self or not self["operations"]:
             return
         ret = self.json()
-        if self.steem.is_connected() and self.steem.rpc.get_use_appbase():
+        if self.hive.is_connected() and self.hive.rpc.get_use_appbase():
             # Returns an internal Error at the moment
             if not self._use_condenser_api:
                 args = {'trx': self.json(), 'max_block_age': max_block_age}
@@ -400,22 +400,22 @@ class TransactionBuilder(dict):
             args = self.json()
             broadcast_api = "network_broadcast"
 
-        if self.steem.nobroadcast:
+        if self.hive.nobroadcast:
             log.info("Not broadcasting anything!")
             self.clear()
             return ret
         # Broadcast
         try:
-            self.steem.rpc.set_next_node_on_empty_reply(False)
-            if self.steem.use_sc2:
-                ret = self.steem.steemconnect.broadcast(self["operations"])
-            elif self.steem.blocking:
-                ret = self.steem.rpc.broadcast_transaction_synchronous(
+            self.hive.rpc.set_next_node_on_empty_reply(False)
+            if self.hive.use_sc2:
+                ret = self.hive.hiveconnect.broadcast(self["operations"])
+            elif self.hive.blocking:
+                ret = self.hive.rpc.broadcast_transaction_synchronous(
                     args, api=broadcast_api)
                 if "trx" in ret:
                     ret.update(**ret.get("trx"))
             else:
-                self.steem.rpc.broadcast_transaction(
+                self.hive.rpc.broadcast_transaction(
                     args, api=broadcast_api)
         except Exception as e:
             # log.error("Could Not broadcasting anything!")
@@ -451,14 +451,14 @@ class TransactionBuilder(dict):
         """
         if not self._is_constructed() or (self._is_constructed() and reconstruct_tx):
             self.constructTx()
-        self["blockchain"] = self.steem.chain_params
+        self["blockchain"] = self.hive.chain_params
 
         if isinstance(account, PublicKey):
             self["missing_signatures"] = [
                 str(account)
             ]
         else:
-            accountObj = Account(account, steem_instance=self.steem)
+            accountObj = Account(account, hive_instance=self.hive)
             authority = accountObj[permission]
             # We add a required_authorities to be able to identify
             # how to sign later. This is an array, because we
@@ -467,7 +467,7 @@ class TransactionBuilder(dict):
                 accountObj["name"]: authority
             }})
             for account_auth in authority["account_auths"]:
-                account_auth_account = Account(account_auth[0], steem_instance=self.steem)
+                account_auth_account = Account(account_auth[0], hive_instance=self.hive)
                 self["required_authorities"].update({
                     account_auth[0]: account_auth_account.get(permission)
                 })
@@ -478,7 +478,7 @@ class TransactionBuilder(dict):
             ]
             # Add one recursion of keys from account_auths:
             for account_auth in authority["account_auths"]:
-                account_auth_account = Account(account_auth[0], steem_instance=self.steem)
+                account_auth_account = Account(account_auth[0], hive_instance=self.hive)
                 self["missing_signatures"].extend(
                     [x[0] for x in account_auth_account[permission]["key_auths"]]
                 )
@@ -491,7 +491,7 @@ class TransactionBuilder(dict):
         missing_signatures = self.get("missing_signatures", [])
         for pub in missing_signatures:
             try:
-                wif = self.steem.wallet.getPrivateKeyForPublicKey(pub)
+                wif = self.hive.wallet.getPrivateKeyForPublicKey(pub)
                 if wif:
                     self.appendWif(wif)
             except MissingKeyError:

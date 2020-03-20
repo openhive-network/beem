@@ -1,14 +1,14 @@
 from flask import Flask, request
-from beem.steemconnect import SteemConnect
+from beem.hiveconnect import HiveConnect
 import getpass
 
 app = Flask(__name__)
 
 
-c = SteemConnect(client_id="beem.app", scope="login,vote,custom_json", get_refresh_token=False)
+c = HiveConnect(client_id="beem.app", scope="login,vote,custom_json", get_refresh_token=False)
 # replace test with our wallet password
 wallet_password = getpass.getpass('Wallet-Password:')
-c.steem.wallet.unlock(wallet_password)
+c.hive.wallet.unlock(wallet_password)
 
 
 @app.route('/')
@@ -16,7 +16,7 @@ def index():
     login_url = c.get_login_url(
         "http://localhost:5000/welcome",
     )
-    return "<a href='%s'>Login with SteemConnect</a>" % login_url
+    return "<a href='%s'>Login with HiveConnect</a>" % login_url
 
 
 @app.route('/welcome')
@@ -32,7 +32,7 @@ def welcome():
         c.set_access_token(access_token)
         name = c.me()["name"]
 
-    if name in c.steem.wallet.getPublicNames():
-        c.steem.wallet.removeTokenFromPublicName(name)
-    c.steem.wallet.addToken(name, access_token)
+    if name in c.hive.wallet.getPublicNames():
+        c.hive.wallet.removeTokenFromPublicName(name)
+    c.hive.wallet.addToken(name, access_token)
     return "Welcome <strong>%s</strong>!" % name

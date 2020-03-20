@@ -269,7 +269,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   (master_doc, 'beem', 'beem Documentation',
-   author, 'beem', 'python library for steem',
+   author, 'beem', 'python library for hive',
    'Miscellaneous'),
 ]
 

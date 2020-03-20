@@ -10,7 +10,7 @@ import logging
 import pytz
 import math
 from datetime import datetime, date, time
-from .instance import shared_steem_instance
+from .instance import shared_hive_instance
 from .account import Account
 from .amount import Amount
 from .price import Price
@@ -19,7 +19,7 @@ from .blockchainobject import BlockchainObject
 from .exceptions import ContentDoesNotExistsException, VotingInvalidOnArchivedPost
 from beembase import operations
 from beemgraphenebase.py23 import py23_bytes, bytes_types, integer_types, string_types, text_type
-from beem.constants import STEEM_REVERSE_AUCTION_WINDOW_SECONDS_HF6, STEEM_REVERSE_AUCTION_WINDOW_SECONDS_HF20, STEEM_100_PERCENT, STEEM_1_PERCENT, STEEM_REVERSE_AUCTION_WINDOW_SECONDS_HF21
+from beem.constants import HIVE_REVERSE_AUCTION_WINDOW_SECONDS_HF6, HIVE_REVERSE_AUCTION_WINDOW_SECONDS_HF20, HIVE_100_PERCENT, HIVE_1_PERCENT, HIVE_REVERSE_AUCTION_WINDOW_SECONDS_HF21
 log = logging.getLogger(__name__)
 
 
@@ -29,16 +29,16 @@ class Comment(BlockchainObject):
         :param str authorperm: identifier to post/comment in the form of
             ``@author/permlink``
         :param boolean use_tags_api: when set to False, list_comments from the database_api is used
-        :param Steem steem_instance: :class:`beem.steem.Steem` instance to use when accessing a RPC
+        :param Hive hive_instance: :class:`beem.hive.Hive` instance to use when accessing a RPC
 
 
         .. code-block:: python
 
         >>> from beem.comment import Comment
         >>> from beem.account import Account
-        >>> from beem import Steem
-        >>> stm = Steem()
-        >>> acc = Account("gtg", steem_instance=stm)
+        >>> from beem import Hive
+        >>> stm = Hive()
+        >>> acc = Account("gtg", hive_instance=stm)
         >>> authorperm = acc.get_blog(limit=1)[0]["authorperm"]
         >>> c = Comment(authorperm)
         >>> postdate = c["created"]
@@ -53,12 +53,12 @@ class Comment(BlockchainObject):
         use_tags_api=True,
         full=True,
         lazy=False,
-        steem_instance=None
+        hive_instance=None
     ):
         self.full = full
         self.lazy = lazy
         self.use_tags_api = use_tags_api
-        self.steem = steem_instance or shared_steem_instance()
+        self.hive = hive_instance or shared_hive_instance()
         if isinstance(authorperm, string_types) and authorperm != "":
             [author, permlink] = resolve_authorperm(authorperm)
             self["id"] = 0
@@ -73,7 +73,7 @@ class Comment(BlockchainObject):
             id_item="authorperm",
             lazy=lazy,
             full=full,
-            steem_instance=steem_instance
+            hive_instance=hive_instance
         )
 
     def _parse_json_data(self, comment):
@@ -85,7 +85,7 @@ class Comment(BlockchainObject):
             if p in comment and isinstance(comment.get(p), string_types):
                 comment[p] = formatTimeString(comment.get(p, "1970-01-01T00:00:00"))
         # Parse Amounts
-        sbd_amounts = [
+        hbd_amounts = [
             "total_payout_value",
             "max_accepted_payout",
             "pending_payout_value",
@@ -93,9 +93,9 @@ class Comment(BlockchainObject):
             "total_pending_payout_value",
             "promoted",
         ]
-        for p in sbd_amounts:
+        for p in hbd_amounts:
             if p in comment and isinstance(comment.get(p), (string_types, list, dict)):
-                comment[p] = Amount(comment.get(p, "0.000 %s" % (self.steem.sbd_symbol)), steem_instance=self.steem)
+                comment[p] = Amount(comment.get(p, "0.000 %s" % (self.hive.hbd_symbol)), hive_instance=self.hive)
 
         # turn json_metadata into python dict
         meta_str = comment.get("json_metadata", "{}")
@@ -143,29 +143,29 @@ class Comment(BlockchainObject):
     def refresh(self):
         if self.identifier == "":
             return
-        if not self.steem.is_connected():
+        if not self.hive.is_connected():
             return
         [author, permlink] = resolve_authorperm(self.identifier)
-        self.steem.rpc.set_next_node_on_empty_reply(True)
-        if self.steem.rpc.get_use_appbase():
+        self.hive.rpc.set_next_node_on_empty_reply(True)
+        if self.hive.rpc.get_use_appbase():
             try:
                 if self.use_tags_api:
-                    content = self.steem.rpc.get_discussion({'author': author, 'permlink': permlink}, api="tags")
+                    content = self.hive.rpc.get_discussion({'author': author, 'permlink': permlink}, api="tags")
                 else:
-                    content =self.steem.rpc.list_comments({"start": [author, permlink], "limit": 1, "order": "by_permlink"}, api="database")
+                    content =self.hive.rpc.list_comments({"start": [author, permlink], "limit": 1, "order": "by_permlink"}, api="database")
                 if content is not None and "comments" in content:
                     content =content["comments"]
                 if isinstance(content, list) and len(content) >0:
                     content =content[0]
             except:
-                content = self.steem.rpc.get_content(author, permlink)
+                content = self.hive.rpc.get_content(author, permlink)
         else:
-            content = self.steem.rpc.get_content(author, permlink)
+            content = self.hive.rpc.get_content(author, permlink)
         if not content or not content['author'] or not content['permlink']:
             raise ContentDoesNotExistsException(self.identifier)
         content = self._parse_json_data(content)
         content["authorperm"] = construct_authorperm(content['author'], content['permlink'])
-        super(Comment, self).__init__(content, id_item="authorperm", lazy=self.lazy, full=self.full, steem_instance=self.steem)
+        super(Comment, self).__init__(content, id_item="authorperm", lazy=self.lazy, full=self.full, hive_instance=self.hive)
 
     def json(self):
         output = self.copy()
@@ -188,7 +188,7 @@ class Comment(BlockchainObject):
                     output[p] = formatTimeString(p_date)
                 else:
                     output[p] = p_date
-        sbd_amounts = [
+        hbd_amounts = [
             "total_payout_value",
             "max_accepted_payout",
             "pending_payout_value",
@@ -196,7 +196,7 @@ class Comment(BlockchainObject):
             "total_pending_payout_value",
             "promoted",
         ]
-        for p in sbd_amounts:
+        for p in hbd_amounts:
             if p in output and isinstance(output[p], Amount):
                 output[p] = output[p].json()
         parse_int = [
@@ -298,20 +298,20 @@ class Comment(BlockchainObject):
 
     @property
     def reward(self):
-        """ Return the estimated total SBD reward.
+        """ Return the estimated total HBD reward.
         """
-        a_zero = Amount(0, self.steem.sbd_symbol, steem_instance=self.steem)
-        author = Amount(self.get("total_payout_value", a_zero), steem_instance=self.steem)
-        curator = Amount(self.get("curator_payout_value", a_zero), steem_instance=self.steem)
-        pending = Amount(self.get("pending_payout_value", a_zero), steem_instance=self.steem)
+        a_zero = Amount(0, self.hive.hbd_symbol, hive_instance=self.hive)
+        author = Amount(self.get("total_payout_value", a_zero), hive_instance=self.hive)
+        curator = Amount(self.get("curator_payout_value", a_zero), hive_instance=self.hive)
+        pending = Amount(self.get("pending_payout_value", a_zero), hive_instance=self.hive)
         return author + curator + pending
 
     def is_pending(self):
         """ Returns if the payout is pending (the post/comment
             is younger than 7 days)
         """
-        a_zero = Amount(0, self.steem.sbd_symbol, steem_instance=self.steem)
-        total = Amount(self.get("total_payout_value", a_zero), steem_instance=self.steem)
+        a_zero = Amount(0, self.hive.hbd_symbol, hive_instance=self.hive)
+        total = Amount(self.get("total_payout_value", a_zero), hive_instance=self.hive)
         post_age_days = self.time_elapsed().total_seconds() / 60 / 60 / 24
         return post_age_days < 7.0 and float(total) == 0
 
@@ -321,34 +321,34 @@ class Comment(BlockchainObject):
         utc = pytz.timezone('UTC')
         return utc.localize(datetime.utcnow()) - self['created']
 
-    def curation_penalty_compensation_SBD(self):
+    def curation_penalty_compensation_HBD(self):
         """ Returns The required post payout amount after 15 minutes
             which will compentsate the curation penalty, if voting earlier than 15 minutes
         """
         self.refresh()
-        if self.steem.hardfork >= 21:
-            reverse_auction_window_seconds = STEEM_REVERSE_AUCTION_WINDOW_SECONDS_HF21
-        elif self.steem.hardfork >= 20:
-            reverse_auction_window_seconds = STEEM_REVERSE_AUCTION_WINDOW_SECONDS_HF20
+        if self.hive.hardfork >= 21:
+            reverse_auction_window_seconds = HIVE_REVERSE_AUCTION_WINDOW_SECONDS_HF21
+        elif self.hive.hardfork >= 20:
+            reverse_auction_window_seconds = HIVE_REVERSE_AUCTION_WINDOW_SECONDS_HF20
         else:
-            reverse_auction_window_seconds = STEEM_REVERSE_AUCTION_WINDOW_SECONDS_HF6
+            reverse_auction_window_seconds = HIVE_REVERSE_AUCTION_WINDOW_SECONDS_HF6
         return self.reward * reverse_auction_window_seconds / ((self.time_elapsed()).total_seconds() / 60) ** 2
 
-    def estimate_curation_SBD(self, vote_value_SBD, estimated_value_SBD=None):
+    def estimate_curation_HBD(self, vote_value_HBD, estimated_value_HBD=None):
         """ Estimates curation reward
 
-            :param float vote_value_SBD: The vote value in SBD for which the curation
+            :param float vote_value_HBD: The vote value in HBD for which the curation
                 should be calculated
-            :param float estimated_value_SBD: When set, this value is used for calculate
+            :param float estimated_value_HBD: When set, this value is used for calculate
                 the curation. When not set, the current post value is used.
         """
         self.refresh()
-        if estimated_value_SBD is None:
-            estimated_value_SBD = float(self.reward)
+        if estimated_value_HBD is None:
+            estimated_value_HBD = float(self.reward)
         t = 1.0 - self.get_curation_penalty()
-        k = vote_value_SBD / (vote_value_SBD + float(self.reward))
+        k = vote_value_HBD / (vote_value_HBD + float(self.reward))
         K = (1 - math.sqrt(1 - k)) / 4 / k
-        return K * vote_value_SBD * t * math.sqrt(estimated_value_SBD)
+        return K * vote_value_HBD * t * math.sqrt(estimated_value_HBD)
 
     def get_curation_penalty(self, vote_time=None):
         """ If post is less than 15 minutes old, it will incur a curation
@@ -369,12 +369,12 @@ class Comment(BlockchainObject):
             elapsed_seconds = (vote_time - self["created"]).total_seconds()
         else:
             raise ValueError("vote_time must be a string or a datetime")
-        if self.steem.hardfork >= 21:
-            reward = (elapsed_seconds / STEEM_REVERSE_AUCTION_WINDOW_SECONDS_HF21)
-        elif self.steem.hardfork >= 20:
-            reward = (elapsed_seconds / STEEM_REVERSE_AUCTION_WINDOW_SECONDS_HF20)
+        if self.hive.hardfork >= 21:
+            reward = (elapsed_seconds / HIVE_REVERSE_AUCTION_WINDOW_SECONDS_HF21)
+        elif self.hive.hardfork >= 20:
+            reward = (elapsed_seconds / HIVE_REVERSE_AUCTION_WINDOW_SECONDS_HF20)
         else:
-            reward = (elapsed_seconds / STEEM_REVERSE_AUCTION_WINDOW_SECONDS_HF6)
+            reward = (elapsed_seconds / HIVE_REVERSE_AUCTION_WINDOW_SECONDS_HF6)
         if reward > 1:
             reward = 1.0
         return 1.0 - reward
@@ -384,15 +384,15 @@ class Comment(BlockchainObject):
 
             :param str voter: Voter for which the vote should be returned
             :param bool raw_data: If True, the raw data are returned
-            :param pending_payout_SBD: When not None this value instead of the current
+            :param pending_payout_HBD: When not None this value instead of the current
                 value is used for calculating the rewards
-            :type pending_payout_SBD: float, str
+            :type pending_payout_HBD: float, str
         """
         specific_vote = None
         if voter is None:
-            voter = Account(self["author"], steem_instance=self.steem)
+            voter = Account(self["author"], hive_instance=self.hive)
         else:
-            voter = Account(voter, steem_instance=self.steem)
+            voter = Account(voter, hive_instance=self.hive)
         if "active_votes" in self:
             for vote in self["active_votes"]:
                 if voter["name"] == vote["voter"]:
@@ -405,9 +405,9 @@ class Comment(BlockchainObject):
         if specific_vote is not None and (raw_data or not self.is_pending()):
             return specific_vote
         elif specific_vote is not None:
-            curation_reward = self.get_curation_rewards(pending_payout_SBD=True, pending_payout_value=pending_payout_value)
+            curation_reward = self.get_curation_rewards(pending_payout_HBD=True, pending_payout_value=pending_payout_value)
             specific_vote["curation_reward"] = curation_reward["active_votes"][voter["name"]]
-            specific_vote["ROI"] = float(curation_reward["active_votes"][voter["name"]]) / float(voter.get_voting_value_SBD(voting_weight=specific_vote["percent"] / 100)) * 100
+            specific_vote["ROI"] = float(curation_reward["active_votes"][voter["name"]]) / float(voter.get_voting_value_HBD(voting_weight=specific_vote["percent"] / 100)) * 100
             return specific_vote
         else:
             return None
@@ -422,7 +422,7 @@ class Comment(BlockchainObject):
         return weight / 100.
 
     def get_rewards(self):
-        """ Returns the total_payout, author_payout and the curator payout in SBD.
+        """ Returns the total_payout, author_payout and the curator payout in HBD.
             When the payout is still pending, the estimated payout is given out.
 
             .. note:: Potential beneficiary rewards were already deducted from the
@@ -431,19 +431,19 @@ class Comment(BlockchainObject):
             Example:::
 
                 {
-                    'total_payout': 9.956 SBD,
-                    'author_payout': 7.166 SBD,
-                    'curator_payout': 2.790 SBD
+                    'total_payout': 9.956 HBD,
+                    'author_payout': 7.166 HBD,
+                    'curator_payout': 2.790 HBD
                 }
 
         """
         if self.is_pending():
-            total_payout = Amount(self["pending_payout_value"], steem_instance=self.steem)
-            author_payout = self.get_author_rewards()["total_payout_SBD"]
+            total_payout = Amount(self["pending_payout_value"], hive_instance=self.hive)
+            author_payout = self.get_author_rewards()["total_payout_HBD"]
             curator_payout = total_payout - author_payout
         else:
-            author_payout = Amount(self["total_payout_value"], steem_instance=self.steem)
-            curator_payout = Amount(self["curator_payout_value"], steem_instance=self.steem)
+            author_payout = Amount(self["total_payout_value"], hive_instance=self.hive)
+            curator_payout = Amount(self["curator_payout_value"], hive_instance=self.hive)
             total_payout = author_payout + curator_payout
         return {"total_payout": total_payout, "author_payout": author_payout, "curator_payout": curator_payout}
 
@@ -454,42 +454,42 @@ class Comment(BlockchainObject):
 
                 {
                     'pending_rewards': True,
-                    'payout_SP': 0.912 STEEM,
-                    'payout_SBD': 3.583 SBD,
-                    'total_payout_SBD': 7.166 SBD
+                    'payout_SP': 0.912 HIVE,
+                    'payout_HBD': 3.583 HBD,
+                    'total_payout_HBD': 7.166 HBD
                 }
 
         """
         if not self.is_pending():
             return {'pending_rewards': False,
-                    "payout_SP": Amount(0, self.steem.steem_symbol, steem_instance=self.steem),
-                    "payout_SBD": Amount(0, self.steem.sbd_symbol, steem_instance=self.steem),
-                    "total_payout_SBD": Amount(self["total_payout_value"], steem_instance=self.steem)}
+                    "payout_SP": Amount(0, self.hive.hive_symbol, hive_instance=self.hive),
+                    "payout_HBD": Amount(0, self.hive.hbd_symbol, hive_instance=self.hive),
+                    "total_payout_HBD": Amount(self["total_payout_value"], hive_instance=self.hive)}
 
-        median_hist = self.steem.get_current_median_history()
+        median_hist = self.hive.get_current_median_history()
         if median_hist is not None:
-            median_price = Price(median_hist, steem_instance=self.steem)
+            median_price = Price(median_hist, hive_instance=self.hive)
         beneficiaries_pct = self.get_beneficiaries_pct()
         curation_tokens = self.reward * 0.25
         author_tokens = self.reward - curation_tokens
         curation_rewards = self.get_curation_rewards()
-        if self.steem.hardfork >= 20 and median_hist is not None:
+        if self.hive.hardfork >= 20 and median_hist is not None:
             author_tokens += median_price * curation_rewards['unclaimed_rewards']
 
         benefactor_tokens = author_tokens * beneficiaries_pct / 100.
         author_tokens -= benefactor_tokens
 
         if median_hist is not None:
-            sbd_steem = author_tokens * self["percent_steem_dollars"] / 20000.
-            vesting_steem = median_price.as_base(self.steem.steem_symbol) * (author_tokens - sbd_steem)
-            return {'pending_rewards': True, "payout_SP": vesting_steem, "payout_SBD": sbd_steem, "total_payout_SBD": author_tokens}
+            hbd_hive = author_tokens * self["percent_hive_dollars"] / 20000.
+            vesting_hive = median_price.as_base(self.hive.hive_symbol) * (author_tokens - hbd_hive)
+            return {'pending_rewards': True, "payout_SP": vesting_hive, "payout_HBD": hbd_hive, "total_payout_HBD": author_tokens}
         else:
             return {'pending_rewards': True, "total_payout": author_tokens}
 
-    def get_curation_rewards(self, pending_payout_SBD=False, pending_payout_value=None):
+    def get_curation_rewards(self, pending_payout_HBD=False, pending_payout_value=None):
         """ Returns the curation rewards.
 
-            :param bool pending_payout_SBD: If True, the rewards are returned in SBD and not in STEEM (default is False)
+            :param bool pending_payout_HBD: If True, the rewards are returned in HBD and not in HIVE (default is False)
             :param pending_payout_value: When not None this value instead of the current
                 value is used for calculating the rewards
             :type pending_payout_value: float, str
@@ -502,22 +502,22 @@ class Comment(BlockchainObject):
             Example::
 
                 {
-                    'pending_rewards': True, 'unclaimed_rewards': 0.245 STEEM,
+                    'pending_rewards': True, 'unclaimed_rewards': 0.245 HIVE,
                     'active_votes': {
-                        'leprechaun': 0.006 STEEM, 'timcliff': 0.186 STEEM,
-                        'st3llar': 0.000 STEEM, 'crokkon': 0.015 STEEM, 'feedyourminnows': 0.003 STEEM,
-                        'isnochys': 0.003 STEEM, 'loshcat': 0.001 STEEM, 'greenorange': 0.000 STEEM,
-                        'qustodian': 0.123 STEEM, 'jpphotography': 0.002 STEEM, 'thinkingmind': 0.001 STEEM,
-                        'oups': 0.006 STEEM, 'mattockfs': 0.001 STEEM, 'holger80': 0.003 STEEM, 'michaelizer': 0.004 STEEM,
-                        'flugschwein': 0.010 STEEM, 'ulisessabeque': 0.000 STEEM, 'hakancelik': 0.002 STEEM, 'sbi2': 0.008 STEEM,
-                        'zcool': 0.000 STEEM, 'steemhq': 0.002 STEEM, 'rowdiya': 0.000 STEEM, 'qurator-tier-1-2': 0.012 STEEM
+                        'leprechaun': 0.006 HIVE, 'timcliff': 0.186 HIVE,
+                        'st3llar': 0.000 HIVE, 'crokkon': 0.015 HIVE, 'feedyourminnows': 0.003 HIVE,
+                        'isnochys': 0.003 HIVE, 'loshcat': 0.001 HIVE, 'greenorange': 0.000 HIVE,
+                        'qustodian': 0.123 HIVE, 'jpphotography': 0.002 HIVE, 'thinkingmind': 0.001 HIVE,
+                        'oups': 0.006 HIVE, 'mattockfs': 0.001 HIVE, 'holger80': 0.003 HIVE, 'michaelizer': 0.004 HIVE,
+                        'flugschwein': 0.010 HIVE, 'ulisessabeque': 0.000 HIVE, 'hakancelik': 0.002 HIVE, 'sbi2': 0.008 HIVE,
+                        'zcool': 0.000 HIVE, 'hivehq': 0.002 HIVE, 'rowdiya': 0.000 HIVE, 'qurator-tier-1-2': 0.012 HIVE
                     }
                 }
 
         """
-        median_hist = self.steem.get_current_median_history()
+        median_hist = self.hive.get_current_median_history()
         if median_hist is not None:
-            median_price = Price(median_hist, steem_instance=self.steem)
+            median_price = Price(median_hist, hive_instance=self.hive)
         pending_rewards = False
         if "active_votes" in self:
             active_votes_list = self["active_votes"]
@@ -531,21 +531,21 @@ class Comment(BlockchainObject):
                 total_vote_weight += vote["weight"]
             
         if not self["allow_curation_rewards"] or not self.is_pending():
-            max_rewards = Amount(0, self.steem.steem_symbol, steem_instance=self.steem)
+            max_rewards = Amount(0, self.hive.hive_symbol, hive_instance=self.hive)
             unclaimed_rewards = max_rewards.copy()
         else:
             if pending_payout_value is None and "pending_payout_value" in self:
-                pending_payout_value = Amount(self["pending_payout_value"], steem_instance=self.steem)
+                pending_payout_value = Amount(self["pending_payout_value"], hive_instance=self.hive)
             elif pending_payout_value is None:
                 pending_payout_value = 0
             elif isinstance(pending_payout_value, (float, integer_types)):
-                pending_payout_value = Amount(pending_payout_value, self.steem.sbd_symbol, steem_instance=self.steem)
+                pending_payout_value = Amount(pending_payout_value, self.hive.hbd_symbol, hive_instance=self.hive)
             elif isinstance(pending_payout_value, str):
-                pending_payout_value = Amount(pending_payout_value, steem_instance=self.steem)
-            if pending_payout_SBD or median_hist is None:
+                pending_payout_value = Amount(pending_payout_value, hive_instance=self.hive)
+            if pending_payout_HBD or median_hist is None:
                 max_rewards = (pending_payout_value * 0.25)
             else:
-                max_rewards = median_price.as_base(self.steem.steem_symbol) * (pending_payout_value * 0.25)
+                max_rewards = median_price.as_base(self.hive.hive_symbol) * (pending_payout_value * 0.25)
             unclaimed_rewards = max_rewards.copy()
             pending_rewards = True
 
@@ -572,13 +572,13 @@ class Comment(BlockchainObject):
             post_permlink = self["permlink"]
         else:
             [post_author, post_permlink] = resolve_authorperm(identifier)
-        if not self.steem.is_connected():
+        if not self.hive.is_connected():
             return None
-        self.steem.rpc.set_next_node_on_empty_reply(False)
-        if self.steem.rpc.get_use_appbase():
-            return self.steem.rpc.get_reblogged_by({'author': post_author, 'permlink': post_permlink}, api="follow")['accounts']
+        self.hive.rpc.set_next_node_on_empty_reply(False)
+        if self.hive.rpc.get_use_appbase():
+            return self.hive.rpc.get_reblogged_by({'author': post_author, 'permlink': post_permlink}, api="follow")['accounts']
         else:
-            return self.steem.rpc.get_reblogged_by(post_author, post_permlink, api="follow")
+            return self.hive.rpc.get_reblogged_by(post_author, post_permlink, api="follow")
 
     def get_replies(self, raw_data=False, identifier=None):
         """ Returns content replies
@@ -590,18 +590,18 @@ class Comment(BlockchainObject):
             post_permlink = self["permlink"]
         else:
             [post_author, post_permlink] = resolve_authorperm(identifier)
-        if not self.steem.is_connected():
+        if not self.hive.is_connected():
             return None
-        self.steem.rpc.set_next_node_on_empty_reply(False)
-        if self.steem.rpc.get_use_appbase():
-            content_replies = self.steem.rpc.get_content_replies({'author': post_author, 'permlink': post_permlink}, api="tags")
+        self.hive.rpc.set_next_node_on_empty_reply(False)
+        if self.hive.rpc.get_use_appbase():
+            content_replies = self.hive.rpc.get_content_replies({'author': post_author, 'permlink': post_permlink}, api="tags")
             if 'discussions' in content_replies:
                 content_replies = content_replies['discussions']
         else:
-            content_replies = self.steem.rpc.get_content_replies(post_author, post_permlink, api="tags")
+            content_replies = self.hive.rpc.get_content_replies(post_author, post_permlink, api="tags")
         if raw_data:
             return content_replies
-        return [Comment(c, steem_instance=self.steem) for c in content_replies]
+        return [Comment(c, hive_instance=self.hive) for c in content_replies]
 
     def get_all_replies(self, parent=None):
         """ Returns all content replies
@@ -622,7 +622,7 @@ class Comment(BlockchainObject):
         if children is None:
             children = self
         while children["depth"] > 0:
-            children = Comment(construct_authorperm(children["parent_author"], children["parent_permlink"]), steem_instance=self.steem)
+            children = Comment(construct_authorperm(children["parent_author"], children["parent_permlink"]), hive_instance=self.hive)
         return children
 
     def get_votes(self, raw_data=False):
@@ -630,7 +630,7 @@ class Comment(BlockchainObject):
         if raw_data and "active_votes" in self:
             return self["active_votes"]
         from .vote import ActiveVotes
-        return ActiveVotes(self, lazy=False, steem_instance=self.steem)
+        return ActiveVotes(self, lazy=False, hive_instance=self.hive)
 
     def upvote(self, weight=+100, voter=None):
         """ Upvote the post
@@ -678,7 +678,7 @@ class Comment(BlockchainObject):
         if not identifier:
             identifier = construct_authorperm(self["author"], self["permlink"])
 
-        return self.steem.vote(weight, identifier, account=account)
+        return self.hive.vote(weight, identifier, account=account)
 
     def edit(self, body, meta=None, replace=False):
         """ Edit an existing post
@@ -714,7 +714,7 @@ class Comment(BlockchainObject):
             else:
                 new_meta = meta
 
-        return self.steem.post(
+        return self.hive.post(
             original_post["title"],
             newbody,
             reply_identifier=reply_identifier,
@@ -735,7 +735,7 @@ class Comment(BlockchainObject):
                 post. (optional)
 
         """
-        return self.steem.post(
+        return self.hive.post(
             title,
             body,
             json_metadata=meta,
@@ -758,11 +758,11 @@ class Comment(BlockchainObject):
 
         """
         if not account:
-            if "default_account" in self.steem.config:
-                account = self.steem.config["default_account"]
+            if "default_account" in self.hive.config:
+                account = self.hive.config["default_account"]
         if not account:
             raise ValueError("You need to provide an account")
-        account = Account(account, steem_instance=self.steem)
+        account = Account(account, hive_instance=self.hive)
         if not identifier:
             post_author = self["author"]
             post_permlink = self["permlink"]
@@ -771,10 +771,10 @@ class Comment(BlockchainObject):
         op = operations.Delete_comment(
             **{"author": post_author,
                "permlink": post_permlink})
-        return self.steem.finalizeOp(op, account, "posting")
+        return self.hive.finalizeOp(op, account, "posting")
 
-    def resteem(self, identifier=None, account=None):
-        """ Resteem a post
+    def rehive(self, identifier=None, account=None):
+        """ Rehive a post
 
             :param str identifier: post identifier (@<account>/<permlink>)
             :param str account: (optional) the account to allow access
@@ -782,10 +782,10 @@ class Comment(BlockchainObject):
 
         """
         if not account:
-            account = self.steem.configStorage.get("default_account")
+            account = self.hive.configStorage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
-        account = Account(account, steem_instance=self.steem)
+        account = Account(account, hive_instance=self.hive)
         if identifier is None:
             identifier = self.identifier
         author, permlink = resolve_authorperm(identifier)
@@ -796,7 +796,7 @@ class Comment(BlockchainObject):
                 "permlink": permlink
             }
         ]
-        return self.steem.custom_json(
+        return self.hive.custom_json(
             id="follow", json_data=json_body, required_posting_auths=[account["name"]])
 
 
@@ -806,21 +806,21 @@ class RecentReplies(list):
         :param str author: author
         :param bool skip_own: (optional) Skip replies of the author to him/herself.
             Default: True
-        :param Steem steem_instance: Steem() instance to use when accesing a RPC
+        :param Hive hive_instance: Hive() instance to use when accesing a RPC
     """
-    def __init__(self, author, skip_own=True, lazy=False, full=True, steem_instance=None):
-        self.steem = steem_instance or shared_steem_instance()
-        if not self.steem.is_connected():
+    def __init__(self, author, skip_own=True, lazy=False, full=True, hive_instance=None):
+        self.hive = hive_instance or shared_hive_instance()
+        if not self.hive.is_connected():
             return None
-        self.steem.rpc.set_next_node_on_empty_reply(True)
-        state = self.steem.rpc.get_state("/@%s/recent-replies" % author)
+        self.hive.rpc.set_next_node_on_empty_reply(True)
+        state = self.hive.rpc.get_state("/@%s/recent-replies" % author)
         replies = state["accounts"][author].get("recent_replies", [])
         comments = []
         for reply in replies:
             post = state["content"][reply]
             if skip_own and post["author"] == author:
                 continue
-            comments.append(Comment(post, lazy=lazy, full=full, steem_instance=self.steem))
+            comments.append(Comment(post, lazy=lazy, full=full, hive_instance=self.hive))
         super(RecentReplies, self).__init__(comments)
 
 
@@ -828,18 +828,18 @@ class RecentByPath(list):
     """ Obtain a list of votes for an account
 
         :param str account: Account name
-        :param Steem steem_instance: Steem() instance to use when accesing a RPC
+        :param Hive hive_instance: Hive() instance to use when accesing a RPC
     """
-    def __init__(self, path="promoted", category=None, lazy=False, full=True, steem_instance=None):
-        self.steem = steem_instance or shared_steem_instance()
-        if not self.steem.is_connected():
+    def __init__(self, path="promoted", category=None, lazy=False, full=True, hive_instance=None):
+        self.hive = hive_instance or shared_hive_instance()
+        if not self.hive.is_connected():
             return None
-        self.steem.rpc.set_next_node_on_empty_reply(True)
-        state = self.steem.rpc.get_state("/" + path)
+        self.hive.rpc.set_next_node_on_empty_reply(True)
+        state = self.hive.rpc.get_state("/" + path)
         replies = state["discussion_idx"][''].get(path, [])
         comments = []
         for reply in replies:
             post = state["content"][reply]
             if category is None or (category is not None and post["category"] == category):
-                comments.append(Comment(post, lazy=lazy, full=full, steem_instance=self.steem))
+                comments.append(Comment(post, lazy=lazy, full=full, hive_instance=self.hive))
         super(RecentByPath, self).__init__(comments)

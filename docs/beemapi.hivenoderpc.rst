@@ -1,7 +1,7 @@
-beemapi\.steemnoderpc
+beemapi\.hivenoderpc
 =====================
 
-.. automodule:: beemapi.steemnoderpc
+.. automodule:: beemapi.hivenoderpc
     :members:
     :undoc-members:
     :show-inheritance:

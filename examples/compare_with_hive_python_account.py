@@ -3,69 +3,69 @@ import sys
 from datetime import timedelta
 import time
 import io
-from beem import Steem
+from beem import Hive
 from beem.account import Account
 from beem.amount import Amount
 from beem.utils import parse_time
-from steem.account import Account as steemAccount
-from steem.post import Post as steemPost
-from steem import Steem as steemSteem
+from hive.account import Account as hiveAccount
+from hive.post import Post as hivePost
+from hive import Hive as hiveHive
 import logging
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
 if __name__ == "__main__":
-    stm = Steem("https://api.steemit.com")
-    beem_acc = Account("holger80", steem_instance=stm)
-    stm2 = steemSteem(nodes=["https://api.steemit.com"])
-    steem_acc = steemAccount("holger80", steemd_instance=stm2)
+    stm = Hive("https://api.hiveit.com")
+    beem_acc = Account("holger80", hive_instance=stm)
+    stm2 = hiveHive(nodes=["https://api.hiveit.com"])
+    hive_acc = hiveAccount("holger80", hived_instance=stm2)
 
     # profile
     print("beem_acc.profile  {}".format(beem_acc.profile))
-    print("steem_acc.profile {}".format(steem_acc.profile))
-    # sp
-    print("beem_acc.sp  {}".format(beem_acc.sp))
-    print("steem_acc.sp {}".format(steem_acc.sp))
+    print("hive_acc.profile {}".format(hive_acc.profile))
+    # hp
+    print("beem_acc.hp  {}".format(beem_acc.hp))
+    print("hive_acc.hp {}".format(hive_acc.hp))
     # rep
     print("beem_acc.rep  {}".format(beem_acc.rep))
-    print("steem_acc.rep {}".format(steem_acc.rep))
+    print("hive_acc.rep {}".format(hive_acc.rep))
     # balances
     print("beem_acc.balances  {}".format(beem_acc.balances))
-    print("steem_acc.balances {}".format(steem_acc.balances))
+    print("hive_acc.balances {}".format(hive_acc.balances))
     # get_balances()
     print("beem_acc.get_balances()  {}".format(beem_acc.get_balances()))
-    print("steem_acc.get_balances() {}".format(steem_acc.get_balances()))
+    print("hive_acc.get_balances() {}".format(hive_acc.get_balances()))
     # reputation()
     print("beem_acc.get_reputation()  {}".format(beem_acc.get_reputation()))
-    print("steem_acc.reputation() {}".format(steem_acc.reputation()))
+    print("hive_acc.reputation() {}".format(hive_acc.reputation()))
     # voting_power()
     print("beem_acc.get_voting_power()  {}".format(beem_acc.get_voting_power()))
-    print("steem_acc.voting_power() {}".format(steem_acc.voting_power()))
+    print("hive_acc.voting_power() {}".format(hive_acc.voting_power()))
     # get_followers()
     print("beem_acc.get_followers()  {}".format(beem_acc.get_followers()))
-    print("steem_acc.get_followers() {}".format(steem_acc.get_followers()))
+    print("hive_acc.get_followers() {}".format(hive_acc.get_followers()))
     # get_following()
     print("beem_acc.get_following()  {}".format(beem_acc.get_following()))
-    print("steem_acc.get_following() {}".format(steem_acc.get_following()))
+    print("hive_acc.get_following() {}".format(hive_acc.get_following()))
     # has_voted()
     print("beem_acc.has_voted()  {}".format(beem_acc.has_voted("@holger80/api-methods-list-for-appbase")))
-    print("steem_acc.has_voted() {}".format(steem_acc.has_voted(steemPost("@holger80/api-methods-list-for-appbase"))))
+    print("hive_acc.has_voted() {}".format(hive_acc.has_voted(hivePost("@holger80/api-methods-list-for-appbase"))))
     # curation_stats()
     print("beem_acc.curation_stats()  {}".format(beem_acc.curation_stats()))
-    print("steem_acc.curation_stats() {}".format(steem_acc.curation_stats()))
+    print("hive_acc.curation_stats() {}".format(hive_acc.curation_stats()))
     # virtual_op_count
     print("beem_acc.virtual_op_count()  {}".format(beem_acc.virtual_op_count()))
-    print("steem_acc.virtual_op_count() {}".format(steem_acc.virtual_op_count()))
+    print("hive_acc.virtual_op_count() {}".format(hive_acc.virtual_op_count()))
     # get_account_votes
     print("beem_acc.get_account_votes()  {}".format(beem_acc.get_account_votes()))
-    print("steem_acc.get_account_votes() {}".format(steem_acc.get_account_votes()))
+    print("hive_acc.get_account_votes() {}".format(hive_acc.get_account_votes()))
     # get_withdraw_routes
     print("beem_acc.get_withdraw_routes()  {}".format(beem_acc.get_withdraw_routes()))
-    print("steem_acc.get_withdraw_routes() {}".format(steem_acc.get_withdraw_routes()))
+    print("hive_acc.get_withdraw_routes() {}".format(hive_acc.get_withdraw_routes()))
     # get_conversion_requests
     print("beem_acc.get_conversion_requests()  {}".format(beem_acc.get_conversion_requests()))
-    print("steem_acc.get_conversion_requests() {}".format(steem_acc.get_conversion_requests()))
+    print("hive_acc.get_conversion_requests() {}".format(hive_acc.get_conversion_requests()))
     # export
     # history
     beem_hist = []
@@ -73,23 +73,23 @@ if __name__ == "__main__":
         beem_hist.append(h)
         if len(beem_hist) >= 10:
             break
-    steem_hist = []
-    for h in steem_acc.history(filter_by="transfer", start=0):
-        steem_hist.append(h)
-        if len(steem_hist) >= 10:
+    hive_hist = []
+    for h in hive_acc.history(filter_by="transfer", start=0):
+        hive_hist.append(h)
+        if len(hive_hist) >= 10:
             break
     print("beem_acc.history()  {}".format(beem_hist))
-    print("steem_acc.history() {}".format(steem_hist))
+    print("hive_acc.history() {}".format(hive_hist))
     # history_reverse
     beem_hist = []
     for h in beem_acc.history_reverse(only_ops=["transfer"]):
         beem_hist.append(h)
         if len(beem_hist) >= 10:
             break
-    steem_hist = []
-    for h in steem_acc.history_reverse(filter_by="transfer"):
-        steem_hist.append(h)
-        if len(steem_hist) >= 10:
+    hive_hist = []
+    for h in hive_acc.history_reverse(filter_by="transfer"):
+        hive_hist.append(h)
+        if len(hive_hist) >= 10:
             break
     print("beem_acc.history_reverse()  {}".format(beem_hist))
-    print("steem_acc.history_reverse() {}".format(steem_hist))
+    print("hive_acc.history_reverse() {}".format(hive_hist))

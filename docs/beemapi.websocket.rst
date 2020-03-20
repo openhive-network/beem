@@ -1,16 +1,16 @@
 beemapi\.websocket
 ==================
 
-This class allows subscribe to push notifications from the Steem
+This class allows subscribe to push notifications from the Hive
 node.
 
 .. code-block:: python
 
     from pprint import pprint
-    from beemapi.websocket import SteemWebsocket
+    from beemapi.websocket import HiveWebsocket
 
-    ws = SteemWebsocket(
-        "wss://gtg.steem.house:8090",
+    ws = HiveWebsocket(
+        "wss://gtg.hive.house:8090",
         accounts=["test"],
         on_block=print,
     )
@@ -18,7 +18,7 @@ node.
     ws.run_forever()
 
 
-.. autoclass:: beemapi.websocket.SteemWebsocket
+.. autoclass:: beemapi.websocket.HiveWebsocket
     :members:
     :undoc-members:
     :private-members:

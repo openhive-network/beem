@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import sys
-from beem import Steem
+from beem import Hive
 from beem.witness import Witness, WitnessesRankedByVote
 from time import sleep
 
@@ -27,16 +27,16 @@ if __name__ == "__main__":
         witness = "holger80"
     else:
         witness = sys.argv[1]
-    stm = Steem()
-    witness = Witness(witness, steem_instance=stm)
+    stm = Hive()
+    witness = Witness(witness, hive_instance=stm)
 
     witness_schedule = stm.get_witness_schedule()
     config = stm.get_config()
     if "VIRTUAL_SCHEDULE_LAP_LENGTH2" in config:
         lap_length = int(config["VIRTUAL_SCHEDULE_LAP_LENGTH2"])
     else:
-        lap_length = int(config["STEEM_VIRTUAL_SCHEDULE_LAP_LENGTH2"])
-    witnesses = WitnessesRankedByVote(limit=250, steem_instance=stm)
+        lap_length = int(config["HIVE_VIRTUAL_SCHEDULE_LAP_LENGTH2"])
+    witnesses = WitnessesRankedByVote(limit=250, hive_instance=stm)
     vote_sum = witnesses.get_votes_sum()
 
     virtual_time_to_block_num = int(witness_schedule["num_scheduled_witnesses"]) / (lap_length / (vote_sum + 1))
