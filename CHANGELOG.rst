@@ -1,5 +1,9 @@
 Changelog
 =========
+0.23.0
+------
+* Mass rename from steem to hive 
+
 0.21.1
 ------
 * Fix non ascii text handling on some nodes
