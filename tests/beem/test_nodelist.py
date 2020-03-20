@@ -4,7 +4,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from builtins import super
 import unittest
-from beem import Steem, exceptions
+from beem import Hive, exceptions
 from beem.instance import set_shared_hive_instance
 from beem.account import Account
 from beem.nodelist import NodeList
@@ -14,7 +14,7 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        cls.bts = Steem(
+        cls.bts = Hive(
             node=nodelist.get_nodes(exclude_limited=False),
             nobroadcast=True,
             num_retries=10

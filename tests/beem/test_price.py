@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
-from beem import Steem
+from beem import Hive
 from beem.instance import set_shared_hive_instance
 from beem.amount import Amount
 from beem.price import Price, Order, FilledOrder
@@ -15,8 +15,8 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
-        hive = Steem(
+        nodelist.update_nodes(hive_instance=Hive(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        hive = Hive(
             node=nodelist.get_nodes(exclude_limited=True),
             nobroadcast=True,
             num_retries=10

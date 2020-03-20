@@ -6,7 +6,7 @@ from builtins import super
 import unittest
 from parameterized import parameterized
 from pprint import pprint
-from beem import Steem
+from beem import Hive
 from beem.market import Market
 from beem.price import Price
 from beem.asset import Asset
@@ -22,8 +22,8 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
-        cls.bts = Steem(
+        nodelist.update_nodes(hive_instance=Hive(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        cls.bts = Hive(
             node=nodelist.get_nodes(exclude_limited=True),
             nobroadcast=True,
             unsigned=True,

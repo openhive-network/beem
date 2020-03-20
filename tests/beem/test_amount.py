@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from builtins import super
 import unittest
 from parameterized import parameterized
-from beem import Steem
+from beem import Hive
 from beem.amount import Amount
 from beem.asset import Asset
 from beem.nodelist import NodeList
@@ -17,13 +17,13 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
-        cls.bts = Steem(
+        nodelist.update_nodes(hive_instance=Hive(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        cls.bts = Hive(
             node=nodelist.get_nodes(exclude_limited=True),
             nobroadcast=True,
             num_retries=10
         )
-        cls.hiveio = Steem(
+        cls.hiveio = Hive(
             node="https://api.hive.blog",
             nobroadcast=True,
             use_condenser=False,

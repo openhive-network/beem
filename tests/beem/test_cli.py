@@ -9,7 +9,7 @@ import mock
 import click
 from click.testing import CliRunner
 from pprint import pprint
-from beem import Steem, exceptions
+from beem import Hive, exceptions
 from beem.account import Account
 from beem.amount import Amount
 from beemgraphenebase.account import PrivateKey
@@ -29,7 +29,7 @@ class Testcases(unittest.TestCase):
     def setUpClass(cls):
         nodelist = NodeList()
         nodelist.update_nodes()
-        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        nodelist.update_nodes(hive_instance=Hive(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
         cls.node_list = nodelist.get_nodes(exclude_limited=True)
        
         # hv = shared_hive_instance()
@@ -154,14 +154,14 @@ class Testcases(unittest.TestCase):
 
     def test_upvote(self):
         runner = CliRunner()
-        result = runner.invoke(cli, ['-ds', 'upvote', '@hiveio/firstpost'], input="test\n")
+        result = runner.invoke(cli, ['-ds', 'upvote', '@hiveio/announcing-the-launch-of-hive-blockchain'], input="test\n")
         self.assertEqual(result.exit_code, 0)
-        result = runner.invoke(cli, ['-ds', 'upvote', '--weight', '100', '@hiveio/firstpost'], input="test\n")
+        result = runner.invoke(cli, ['-ds', 'upvote', '--weight', '100', '@hiveio/announcing-the-launch-of-hive-blockchain'], input="test\n")
         self.assertEqual(result.exit_code, 0)
 
     def test_downvote(self):
         runner = CliRunner()
-        result = runner.invoke(cli, ['-ds', 'downvote', '--weight', '100', '@hiveio/firstpost'], input="test\n")
+        result = runner.invoke(cli, ['-ds', 'downvote', '--weight', '100', '@hiveio/announcing-the-launch-of-hive-blockchain'], input="test\n")
         self.assertEqual(result.exit_code, 0)
 
     def test_transfer(self):
@@ -315,7 +315,7 @@ class Testcases(unittest.TestCase):
 
     def test_rehive(self):
         runner = CliRunner()
-        result = runner.invoke(cli, ['-dso', 'rehive', '@hiveio/firstposte'], input="test\n")
+        result = runner.invoke(cli, ['-dso', 'rehive', '@hiveio/announcing-the-launch-of-hive-blockchain'], input="test\n")
         self.assertEqual(result.exit_code, 0)
 
     def test_follow_unfollow(self):

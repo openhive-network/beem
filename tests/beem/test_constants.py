@@ -10,7 +10,7 @@ import pytz
 from datetime import datetime, timedelta
 from parameterized import parameterized
 from pprint import pprint
-from beem import Steem, exceptions, constants
+from beem import Hive, exceptions, constants
 from beem.nodelist import NodeList
 
 wif = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
@@ -21,8 +21,8 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
-        cls.appbase = Steem(
+        nodelist.update_nodes(hive_instance=Hive(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        cls.appbase = Hive(
             node=nodelist.get_nodes(exclude_limited=True),
             nobroadcast=True,
             bundle=False,

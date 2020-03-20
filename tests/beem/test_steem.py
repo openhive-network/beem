@@ -11,7 +11,7 @@ from parameterized import parameterized
 import random
 import json
 from pprint import pprint
-from beem import Steem, exceptions
+from beem import Hive, exceptions
 from beem.amount import Amount
 from beem.memo import Memo
 from beem.version import version as beem_version
@@ -32,8 +32,8 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.nodelist = NodeList()
-        cls.nodelist.update_nodes(hive_instance=Steem(node=cls.nodelist.get_nodes(exclude_limited=False), num_retries=10))
-        cls.bts = Steem(
+        cls.nodelist.update_nodes(hive_instance=Hive(node=cls.nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        cls.bts = Hive(
             node=cls.nodelist.get_nodes(exclude_limited=True),
             nobroadcast=True,
             unsigned=True,
@@ -62,7 +62,7 @@ class Testcases(unittest.TestCase):
         self.assertEqual(float(amount), 1.33)
 
     def test_create_account(self):
-        bts = Steem(node=self.nodelist.get_nodes(),
+        bts = Hive(node=self.nodelist.get_nodes(),
                     nobroadcast=True,
                     unsigned=True,
                     data_refresh_time_seconds=900,
@@ -131,7 +131,7 @@ class Testcases(unittest.TestCase):
             "test")
 
     def test_create_account_password(self):
-        bts = Steem(node=self.nodelist.get_nodes(),
+        bts = Hive(node=self.nodelist.get_nodes(),
                     nobroadcast=True,
                     unsigned=True,
                     data_refresh_time_seconds=900,
@@ -362,7 +362,7 @@ class Testcases(unittest.TestCase):
         self.assertFalse(bts.get_blockchain_version() == '0.0.0')
 
     def test_offline(self):
-        bts = Steem(node=self.nodelist.get_nodes(),
+        bts = Hive(node=self.nodelist.get_nodes(),
                     offline=True,
                     data_refresh_time_seconds=900,
                     keys={"active": wif, "owner": wif, "memo": wif})
@@ -385,7 +385,7 @@ class Testcases(unittest.TestCase):
         self.assertEqual(bts.get_blockchain_version(), '0.0.0')
 
     def test_properties(self):
-        bts = Steem(node=self.nodelist.get_nodes(),
+        bts = Hive(node=self.nodelist.get_nodes(),
                     nobroadcast=True,
                     data_refresh_time_seconds=900,
                     keys={"active": wif, "owner": wif, "memo": wif},

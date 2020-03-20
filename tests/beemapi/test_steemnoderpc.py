@@ -12,7 +12,7 @@ from parameterized import parameterized
 import random
 import itertools
 from pprint import pprint
-from beem import Steem
+from beem import Hive
 from beemapi.hivenoderpc import SteemNodeRPC
 from beemapi.websocket import SteemWebsocket
 from beemapi import exceptions
@@ -31,13 +31,13 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(normal=True, appbase=True), num_retries=3))
+        nodelist.update_nodes(hive_instance=Hive(node=nodelist.get_nodes(normal=True, appbase=True), num_retries=3))
         cls.nodes = nodelist.get_nodes()
         if "https://api.hive.blog" in cls.nodes:
             cls.nodes.remove("https://api.hive.blog")
         cls.nodes_hiveit = ["https://api.hive.blog"]
 
-        cls.appbase = Steem(
+        cls.appbase = Hive(
             node=cls.nodes,
             nobroadcast=True,
             keys={"active": wif, "owner": wif, "memo": wif},

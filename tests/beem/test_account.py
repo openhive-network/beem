@@ -10,7 +10,7 @@ import pytz
 from datetime import datetime, timedelta
 from parameterized import parameterized
 from pprint import pprint
-from beem import Steem, exceptions
+from beem import Hive, exceptions
 from beem.account import Account
 from beem.block import Block
 from beem.amount import Amount
@@ -27,10 +27,10 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        nodelist.update_nodes(hive_instance=Hive(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
         node_list = nodelist.get_nodes(exclude_limited=True)
       
-        cls.bts = Steem(
+        cls.bts = Hive(
             node=node_list,
             nobroadcast=True,
             bundle=False,

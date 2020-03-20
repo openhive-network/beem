@@ -3,7 +3,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 import unittest
-from beem import Steem
+from beem import Hive
 from beem.conveyor import Conveyor
 from beem.instance import set_shared_hive_instance
 from beem.nodelist import NodeList
@@ -16,7 +16,7 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        hv = Steem(node=nodelist.get_nodes(), nobroadcast=True,
+        hv = Hive(node=nodelist.get_nodes(), nobroadcast=True,
                     num_retries=10, expiration=120)
         set_shared_hive_instance(hv)
 

@@ -8,7 +8,7 @@ import json
 from beemgraphenebase import objects
 from beemgraphenebase import types
 from beem.amount import Amount
-from beem import Steem
+from beem import Hive
 
 
 class Testcases(unittest.TestCase):

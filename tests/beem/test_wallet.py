@@ -7,7 +7,7 @@ import unittest
 from parameterized import parameterized
 import mock
 from pprint import pprint
-from beem import Steem, exceptions
+from beem import Hive, exceptions
 from beem.account import Account
 from beem.amount import Amount
 from beem.asset import Asset
@@ -24,9 +24,9 @@ class Testcases(unittest.TestCase):
         hv = shared_hive_instance()
         hv.config.refreshBackup()
         nodelist = NodeList()
-        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        nodelist.update_nodes(hive_instance=Hive(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
 
-        cls.hv = Steem(
+        cls.hv = Hive(
             node=nodelist.get_nodes(exclude_limited=True),
             nobroadcast=True,
             # We want to bundle many operations into a single transaction

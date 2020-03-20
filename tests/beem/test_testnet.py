@@ -9,7 +9,7 @@ import string
 import unittest
 import random
 from pprint import pprint
-from beem import Steem
+from beem import Hive
 from beem.exceptions import (
     InsufficientAuthorityError,
     MissingKeyError,
@@ -45,7 +45,7 @@ class Testcases(unittest.TestCase):
         # hv.config.refreshBackup()
         # nodes = nodelist.get_testnet()
         cls.nodes = nodelist.get_nodes()
-        cls.bts = Steem(
+        cls.bts = Hive(
             node=cls.nodes,
             nobroadcast=True,
             num_retries=10,
@@ -289,7 +289,7 @@ class Testcases(unittest.TestCase):
         # Send a 2 of 2 transaction from elf which needs beem4's cosign to send
         # funds but sign the transaction with elf's key and then serialize the transaction
         # and deserialize the transaction.  After that, sign with beem4's key.
-        hive = Steem(
+        hive = Hive(
             node=self.nodes,
             num_retries=10,
             keys=[self.active_private_key_of_beem5],
@@ -311,7 +311,7 @@ class Testcases(unittest.TestCase):
         del hive
         del tx
 
-        hive = Steem(
+        hive = Hive(
             node=self.nodes,
             num_retries=10,
             keys=[self.active_private_key_of_beem4],
@@ -519,7 +519,7 @@ class Testcases(unittest.TestCase):
 
     def test_appendWif(self):
         nodelist = NodeList()
-        hv = Steem(node=self.nodes,
+        hv = Hive(node=self.nodes,
                     nobroadcast=True,
                     expiration=120,
                     num_retries=10)
@@ -542,7 +542,7 @@ class Testcases(unittest.TestCase):
 
     def test_appendSigner(self):
         nodelist = NodeList()
-        hv = Steem(node=self.nodes,
+        hv = Hive(node=self.nodes,
                     keys=[self.active_key],
                     nobroadcast=True,
                     expiration=120,
@@ -564,7 +564,7 @@ class Testcases(unittest.TestCase):
 
     def test_verifyAuthorityException(self):
         nodelist = NodeList()
-        hv = Steem(node=self.nodes,
+        hv = Hive(node=self.nodes,
                     keys=[self.posting_key],
                     nobroadcast=True,
                     expiration=120,
@@ -587,7 +587,7 @@ class Testcases(unittest.TestCase):
 
     def test_Transfer_broadcast(self):
         nodelist = NodeList()
-        hv = Steem(node=self.nodes,
+        hv = Hive(node=self.nodes,
                     keys=[self.active_key],
                     nobroadcast=True,
                     expiration=120,
@@ -624,7 +624,7 @@ class Testcases(unittest.TestCase):
     
     def test_follow_active_key(self):
         nodelist = NodeList()
-        hv = Steem(node=self.nodes,
+        hv = Hive(node=self.nodes,
                     keys=[self.active_key],
                     nobroadcast=True,
                     expiration=120,
@@ -634,7 +634,7 @@ class Testcases(unittest.TestCase):
 
     def test_follow_posting_key(self):
         nodelist = NodeList()
-        hv = Steem(node=self.nodes,
+        hv = Hive(node=self.nodes,
                     keys=[self.posting_key],
                     nobroadcast=True,
                     expiration=120,

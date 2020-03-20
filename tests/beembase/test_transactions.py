@@ -26,7 +26,7 @@ from beembase.operationids import getOperationNameForId
 from beemgraphenebase.py23 import py23_bytes, bytes_types
 from beem.amount import Amount
 from beem.asset import Asset
-from beem.hive import Steem
+from beem.hive import Hive
 
 
 TEST_AGAINST_CLI_WALLET = False
@@ -43,7 +43,7 @@ class Testcases(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.hv = Steem(
+        self.hv = Hive(
             offline=True
         )
 

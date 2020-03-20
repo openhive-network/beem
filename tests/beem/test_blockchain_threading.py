@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 import pytz
 import time
 from pprint import pprint
-from beem import Steem
+from beem import Hive
 from beem.blockchain import Blockchain
 from beem.block import Block
 from beem.instance import set_shared_hive_instance
@@ -20,8 +20,8 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
-        cls.bts = Steem(
+        nodelist.update_nodes(hive_instance=Hive(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        cls.bts = Hive(
             node=nodelist.get_nodes(exclude_limited=True),
             nobroadcast=True,
             timeout=30,

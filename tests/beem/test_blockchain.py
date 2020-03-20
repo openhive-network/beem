@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 import pytz
 import time
 from pprint import pprint
-from beem import Steem
+from beem import Hive
 from beem.blockchain import Blockchain
 from beem.exceptions import BlockWaitTimeExceeded
 from beem.block import Block
@@ -25,8 +25,8 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
-        cls.bts = Steem(
+        nodelist.update_nodes(hive_instance=Hive(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        cls.bts = Hive(
             node=nodelist.get_nodes(exclude_limited=True),
             nobroadcast=True,
             keys={"active": wif},
@@ -221,8 +221,8 @@ class Testcases(unittest.TestCase):
     def test_hash_op(self):
         bts = self.bts
         b = Blockchain(hive_instance=bts)
-        op1 = {'type': 'vote_operation', 'value': {'voter': 'ubg', 'author': 'yesslife', 'permlink': 'hiveio-sandwich-contest-week-25-2da-entry', 'weight': 100}}
-        op2 = ['vote', {'voter': 'ubg', 'author': 'yesslife', 'permlink': 'hiveio-sandwich-contest-week-25-2da-entry', 'weight': 100}]
+        op1 = {'type': 'vote_operation', 'value': {'voter': 'ubg', 'author': 'hiveio', 'permlink': 'announcing-the-launch-of-hive-blockchain', 'weight': 100}}
+        op2 = ['vote', {'voter': 'ubg', 'author': 'hiveio', 'permlink': 'announcing-the-launch-of-hive-blockchain', 'weight': 100}]
         hash1 = b.hash_op(op1)
         hash2 = b.hash_op(op2)
         self.assertEqual(hash1, hash2)

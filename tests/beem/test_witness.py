@@ -6,7 +6,7 @@ from builtins import super
 import unittest
 from parameterized import parameterized
 from pprint import pprint
-from beem import Steem
+from beem import Hive
 from beem.witness import Witness, Witnesses, WitnessesVotedByAccount, WitnessesRankedByVote
 from beem.instance import set_shared_hive_instance
 from beem.nodelist import NodeList
@@ -18,15 +18,15 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
-        cls.bts = Steem(
+        nodelist.update_nodes(hive_instance=Hive(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        cls.bts = Hive(
             node=nodelist.get_nodes(exclude_limited=True),
             nobroadcast=True,
             unsigned=True,
             keys={"active": wif},
             num_retries=10
         )
-        cls.hiveio = Steem(
+        cls.hiveio = Hive(
             node="https://api.hive.blog",
             nobroadcast=True,
             unsigned=True,

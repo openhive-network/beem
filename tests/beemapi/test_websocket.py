@@ -10,7 +10,7 @@ import unittest
 import random
 import itertools
 from pprint import pprint
-from beem import Steem
+from beem import Hive
 from beemapi.websocket import SteemWebsocket
 from beem.instance import set_shared_hive_instance
 from beem.nodelist import NodeList
@@ -26,8 +26,8 @@ class Testcases(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         nodelist = NodeList()
-        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(normal=True, appbase=True), num_retries=10))
-        hv = Steem(node=nodelist.get_nodes())
+        nodelist.update_nodes(hive_instance=Hive(node=nodelist.get_nodes(normal=True, appbase=True), num_retries=10))
+        hv = Hive(node=nodelist.get_nodes())
 
         self.ws = SteemWebsocket(
             urls=hv.rpc.nodes,

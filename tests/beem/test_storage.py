@@ -11,7 +11,7 @@ from parameterized import parameterized
 import random
 import json
 from pprint import pprint
-from beem import Steem
+from beem import Hive
 from beem.amount import Amount
 from beem.memo import Memo
 from beem.version import version as beem_version
@@ -33,9 +33,9 @@ class Testcases(unittest.TestCase):
         hv = shared_hive_instance()
         hv.config.refreshBackup()
         nodelist = NodeList()
-        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        nodelist.update_nodes(hive_instance=Hive(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
 
-        cls.hv = Steem(
+        cls.hv = Hive(
             node=nodelist.get_nodes(exclude_limited=True),
             nobroadcast=True,
             # We want to bundle many operations into a single transaction

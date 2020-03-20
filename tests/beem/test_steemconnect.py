@@ -11,7 +11,7 @@ from parameterized import parameterized
 import random
 import json
 from pprint import pprint
-from beem import Steem, exceptions
+from beem import Hive, exceptions
 from beem.amount import Amount
 from beem.memo import Memo
 from beem.version import version as beem_version
@@ -32,8 +32,8 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
-        cls.bts = Steem(
+        nodelist.update_nodes(hive_instance=Hive(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        cls.bts = Hive(
             node=nodelist.get_nodes(exclude_limited=True),
             nobroadcast=True,
             unsigned=True,

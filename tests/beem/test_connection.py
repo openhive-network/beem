@@ -1,5 +1,5 @@
 import unittest
-from beem import Steem
+from beem import Hive
 from beem.account import Account
 from beem.instance import set_shared_hive_instance, SharedInstance
 from beem.blockchainobject import BlockchainObject
@@ -13,15 +13,15 @@ class Testcases(unittest.TestCase):
 
     def test_hv1hv2(self):
         nodelist = NodeList()
-        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
-        b1 = Steem(
+        nodelist.update_nodes(hive_instance=Hive(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        b1 = Hive(
             node="https://api.hive.blog",
             nobroadcast=True,
             num_retries=10
         )
         node_list = nodelist.get_nodes(exclude_limited=True)
 
-        b2 = Steem(
+        b2 = Hive(
             node=node_list,
             nobroadcast=True,
             num_retries=10
@@ -31,9 +31,9 @@ class Testcases(unittest.TestCase):
 
     def test_default_connection(self):
         nodelist = NodeList()
-        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        nodelist.update_nodes(hive_instance=Hive(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
 
-        b2 = Steem(
+        b2 = Hive(
             node=nodelist.get_nodes(exclude_limited=True),
             nobroadcast=True,
         )

@@ -6,7 +6,7 @@ from builtins import str
 from builtins import super
 import unittest
 from parameterized import parameterized
-from beem import Steem
+from beem import Hive
 from beem.asset import Asset
 from beem.instance import set_shared_hive_instance
 from beem.exceptions import AssetDoesNotExistsException
@@ -17,13 +17,13 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
-        cls.bts = Steem(
+        nodelist.update_nodes(hive_instance=Hive(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        cls.bts = Hive(
             node=nodelist.get_nodes(exclude_limited=True),
             nobroadcast=True,
             num_retries=10
         )
-        cls.hiveio = Steem(
+        cls.hiveio = Hive(
             node="https://api.hive.blog",
             nobroadcast=True,
             num_retries=10
@@ -87,7 +87,7 @@ class Testcases(unittest.TestCase):
     # Mocker comes from pytest-mock, providing an easy way to have patched objects
     # for the life of the test.
     def test_calls(mocker):
-        asset = Asset("USD", lazy=True, hive_instance=Steem(offline=True))
+        asset = Asset("USD", lazy=True, hive_instance=Hive(offline=True))
         method = mocker.patch.object(Asset, 'get_call_orders')
         asset.calls
         method.assert_called_with(10)

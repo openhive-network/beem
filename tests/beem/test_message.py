@@ -1,7 +1,7 @@
 from builtins import super
 import unittest
 import mock
-from beem import Steem
+from beem import Hive
 from beem.message import Message
 from beem.account import Account
 from beem.instance import set_shared_hive_instance
@@ -16,8 +16,8 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
-        cls.bts = Steem(
+        nodelist.update_nodes(hive_instance=Hive(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        cls.bts = Hive(
             node=nodelist.get_nodes(exclude_limited=True),
             nobroadcast=True,
             keys=[wif],

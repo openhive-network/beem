@@ -670,7 +670,7 @@ get_trending_tags
 .. code-block:: python
 
     from beem.discussions import Query, Trending_tags
-    q = Query(limit=10, start_tag="hiveio")
+    q = Query(limit=10, start_tag="hive")
     for h in Trending_tags(q):
         print(h)
 

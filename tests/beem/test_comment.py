@@ -6,7 +6,7 @@ from builtins import super, str
 import unittest
 from parameterized import parameterized
 from pprint import pprint
-from beem import Steem, exceptions
+from beem import Hive, exceptions
 from beem.comment import Comment, RecentReplies, RecentByPath
 from beem.vote import Vote
 from beem.account import Account
@@ -21,10 +21,10 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        nodelist.update_nodes(hive_instance=Hive(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
         node_list = nodelist.get_nodes(exclude_limited=True)
 
-        cls.bts = Steem(
+        cls.bts = Hive(
             node=node_list,
             use_condenser=True,
             nobroadcast=True,
@@ -32,7 +32,7 @@ class Testcases(unittest.TestCase):
             keys={"active": wif},
             num_retries=10
         )
-        cls.hiveio = Steem(
+        cls.hiveio = Hive(
             node="https://api.hive.blog",
             nobroadcast=True,
             unsigned=True,

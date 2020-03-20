@@ -23,7 +23,7 @@ except ImportError:
 
 class Conveyor(object):
     """ Class to access hiveio Conveyor instances:
-        https://github.com/hiveio/conveyor
+        https://gitlab.syncad.com/hive-group//conveyor
 
         Description from the official documentation:
 
@@ -42,7 +42,7 @@ class Conveyor(object):
           consisting of a post title and a body.
 
         The underlying RPC authentication and request signing procedure is
-        described here: https://github.com/hiveio/rpc-auth
+        described here: https://gitlab.syncad.com/hive-group//rpc-auth
 
     """
 
@@ -65,7 +65,7 @@ class Conveyor(object):
 
     def prehash_message(self, timestamp, account, method, params, nonce):
         """ Prepare a hash for the Conveyor API request with SHA256 according
-            to https://github.com/hiveio/rpc-auth
+            to https://gitlab.syncad.com/hive-group//rpc-auth
             Hashing of `second` is then done inside `ecdsasig.sign_message()`.
 
             :param str timestamp: valid iso8601 datetime ending in "Z"

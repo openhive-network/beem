@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from builtins import super
 import unittest
 from parameterized import parameterized
-from beem import Steem
+from beem import Hive
 from beem.instance import set_shared_hive_instance
 from beem.transactionbuilder import TransactionBuilder
 from beembase.signedtransactions import Signed_Transaction
@@ -32,15 +32,15 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        nodelist.update_nodes(hive_instance=Hive(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
         node_list = nodelist.get_nodes(exclude_limited=True)
-        cls.hv = Steem(
+        cls.hv = Hive(
             node=node_list,
             keys={"active": wif, "owner": wif, "memo": wif},
             nobroadcast=True,
             num_retries=10
         )
-        cls.hiveio = Steem(
+        cls.hiveio = Hive(
             node="https://api.hive.blog",
             nobroadcast=True,
             keys={"active": wif, "owner": wif, "memo": wif},
