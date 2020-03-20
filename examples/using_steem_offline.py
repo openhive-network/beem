@@ -28,17 +28,17 @@ wif = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
 
 
 if __name__ == "__main__":
-    stm_online = Hive()
-    ref_block_num, ref_block_prefix = getBlockParams(stm_online)
+    hv_online = Hive()
+    ref_block_num, ref_block_prefix = getBlockParams(hv_online)
     print("ref_block_num %d - ref_block_prefix %d" % (ref_block_num, ref_block_prefix))
 
-    stm = Hive(offline=True)
+    hv = Hive(offline=True)
 
     op = operations.Transfer({'from': 'beembot',
                               'to': 'thecrazygm',
                               'amount': "0.001 HBD",
                               'memo': ""})
-    tb = TransactionBuilder(hive_instance=stm)
+    tb = TransactionBuilder(hive_instance=hv)
 
     tb.appendOps([op])
     tb.appendWif(wif)

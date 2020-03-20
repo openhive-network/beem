@@ -15,26 +15,26 @@ logging.basicConfig(level=logging.INFO)
 
 
 if __name__ == "__main__":
-    stm = Hive(node="https://api.hiveit.com")
-    # stm = Hive(node="https://testnet.hiveitdev.com")
-    # stm = Hive(node="wss://appbasetest.timcliff.com")
-    # stm = Hive(node="https://api.hiveitstage.com")
-    # stm = Hive(node="https://api.hiveitdev.com")
-    all_calls = stm.rpc.get_methods(api="jsonrpc")
+    hv = Hive(node="https://api.hiveit.com")
+    # hv = Hive(node="https://testnet.hiveitdev.com")
+    # hv = Hive(node="wss://appbasetest.timcliff.com")
+    # hv = Hive(node="https://api.hiveitstage.com")
+    # hv = Hive(node="https://api.hiveitdev.com")
+    all_calls = hv.rpc.get_methods(api="jsonrpc")
     t = PrettyTable(["method", "args", "ret"])
     t.align = "l"
     t_condenser = PrettyTable(["method", "args", "ret"])
     t_condenser.align = "l"
     for call in all_calls:
         if "condenser" not in call:
-            ret = stm.rpc.get_signature({'method': call}, api="jsonrpc")
+            ret = hv.rpc.get_signature({'method': call}, api="jsonrpc")
             t.add_row([
                 call,
                 ret['args'],
                 ret['ret']
             ])
         else:
-            ret = stm.rpc.get_signature({'method': call}, api="jsonrpc")
+            ret = hv.rpc.get_signature({'method': call}, api="jsonrpc")
             t_condenser.add_row([
                 call,
                 ret['args'],

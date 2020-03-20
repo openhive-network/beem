@@ -22,23 +22,23 @@ if __name__ == "__main__":
     how_many_hours = 1
     nodes = NodeList()
     if node_setup == 0:
-        stm = Hive(node=nodes.get_nodes(normal=True, wss=True), num_retries=10)
+        hv = Hive(node=nodes.get_nodes(normal=True, wss=True), num_retries=10)
         max_batch_size = None
         threading = False
         thread_num = 8
     elif node_setup == 1:
-        stm = Hive(node=nodes.get_nodes(normal=True, wss=True), num_retries=10)
+        hv = Hive(node=nodes.get_nodes(normal=True, wss=True), num_retries=10)
         max_batch_size = None
         threading = True
         thread_num = 16
     elif node_setup == 2:
-        stm = Hive(node=nodes.get_nodes(appbase=False, https=False), num_retries=10)
+        hv = Hive(node=nodes.get_nodes(appbase=False, https=False), num_retries=10)
         max_batch_size = None
         threading = True
         thread_num = 16
-    blockchain = Blockchain(hive_instance=stm)
+    blockchain = Blockchain(hive_instance=hv)
     last_block_id = 19273700
-    last_block = Block(last_block_id, hive_instance=stm)
+    last_block = Block(last_block_id, hive_instance=hv)
     startTime = datetime.now()
 
     stopTime = last_block.time() + timedelta(seconds=how_many_hours * 60 * 60)

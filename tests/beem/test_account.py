@@ -43,13 +43,13 @@ class Testcases(unittest.TestCase):
         set_shared_hive_instance(cls.bts)
 
     def test_account(self):
-        stm = self.bts
+        hv = self.bts
         account = self.account
-        Account("beembot", hive_instance=stm)
+        Account("beembot", hive_instance=hv)
         with self.assertRaises(
             exceptions.AccountDoesNotExistsException
         ):
-            Account("DoesNotExistsXXX", hive_instance=stm)
+            Account("DoesNotExistsXXX", hive_instance=hv)
         # asset = Asset("1.3.0")
         # symbol = asset["symbol"]
         self.assertEqual(account.name, "beembot")
@@ -173,8 +173,8 @@ class Testcases(unittest.TestCase):
         self.assertEqual(h_list[-1][1]['block'], h_all_raw[-2 + zero_element][1]['block'])
 
     def test_history2(self):
-        stm = self.bts
-        account = Account("beembot", hive_instance=stm)
+        hv = self.bts
+        account = Account("beembot", hive_instance=hv)
         h_list = []
         max_index = account.virtual_op_count()
         for h in account.history(start=max_index - 4, stop=max_index, use_block_num=False, batch_size=2, raw_output=False):
@@ -205,8 +205,8 @@ class Testcases(unittest.TestCase):
             self.assertEqual(h_list[i][0] - h_list[i - 1][0], 1)
 
     def test_history_reverse2(self):
-        stm = self.bts
-        account = Account("beembot", hive_instance=stm)
+        hv = self.bts
+        account = Account("beembot", hive_instance=hv)
         h_list = []
         max_index = account.virtual_op_count()
         for h in account.history_reverse(start=max_index, stop=max_index - 4, use_block_num=False, batch_size=2, raw_output=False):
@@ -237,9 +237,9 @@ class Testcases(unittest.TestCase):
             self.assertEqual(h_list[i][0] - h_list[i - 1][0], -1)
 
     def test_history_block_num(self):
-        stm = self.bts
+        hv = self.bts
         zero_element = 0
-        account = Account("fullnodeupdate", hive_instance=stm)
+        account = Account("fullnodeupdate", hive_instance=hv)
         h_all_raw = []
         for h in account.history_reverse(raw_output=True):
             h_all_raw.append(h)
@@ -424,10 +424,10 @@ class Testcases(unittest.TestCase):
                     self.assertEqual(content[k], json_content[k])
 
     def test_estimate_virtual_op_num(self):
-        stm = self.bts
-        account = Account("gtg", hive_instance=stm)
+        hv = self.bts
+        account = Account("gtg", hive_instance=hv)
         block_num = 21248120
-        block = Block(block_num, hive_instance=stm)
+        block = Block(block_num, hive_instance=hv)
         op_num1 = account.estimate_virtual_op_num(block.time(), stop_diff=1, max_count=100)
         op_num2 = account.estimate_virtual_op_num(block_num, stop_diff=1, max_count=100)
         op_num3 = account.estimate_virtual_op_num(block_num, stop_diff=100, max_count=100)
@@ -462,8 +462,8 @@ class Testcases(unittest.TestCase):
             last_block = new_block
 
     def test_history_votes(self):
-        stm = self.bts
-        account = Account("gtg", hive_instance=stm)
+        hv = self.bts
+        account = Account("gtg", hive_instance=hv)
         utc = pytz.timezone('UTC')
         limit_time = utc.localize(datetime.utcnow()) - timedelta(days=2)
         votes_list = []

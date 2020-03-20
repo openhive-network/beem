@@ -22,12 +22,12 @@ logging.basicConfig(level=logging.INFO)
 
 
 if __name__ == "__main__":
-    # stm = Hive(node="https://testnet.timcliff.com/")
-    # stm = Hive(node="https://testnet.hiveitdev.com")
-    stm = Hive(node="https://api.hiveit.com")
-    stm.wallet.unlock(pwd="pwd123")
+    # hv = Hive(node="https://testnet.timcliff.com/")
+    # hv = Hive(node="https://testnet.hiveitdev.com")
+    hv = Hive(node="https://api.hiveit.com")
+    hv.wallet.unlock(pwd="pwd123")
 
-    account = Account("beembot", hive_instance=stm)
+    account = Account("beembot", hive_instance=hv)
     print(account.get_voting_power())
 
     account.transfer("thecrazygm", 0.001, "HBD", "test")

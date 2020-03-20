@@ -4,7 +4,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 from builtins import object
-import beem as stm
+import beem as hv
 
 
 class SharedInstance(object):
@@ -30,7 +30,7 @@ def shared_hive_instance():
     """
     if not SharedInstance.instance:
         clear_cache()
-        SharedInstance.instance = stm.Hive(**SharedInstance.config)
+        SharedInstance.instance = hv.Hive(**SharedInstance.config)
     return SharedInstance.instance
 
 

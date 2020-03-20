@@ -25,7 +25,7 @@ from beemapi.exceptions import NumRetriesReached
 from beemgraphenebase.py23 import py23_bytes
 from beem.instance import shared_hive_instance
 from .amount import Amount
-import beem as stm
+import beem as hv
 log = logging.getLogger(__name__)
 if sys.version_info < (3, 0):
     from Queue import Queue
@@ -418,7 +418,7 @@ class Blockchain(object):
             hive_instance = [self.hive]
             nodelist = self.hive.rpc.nodes.export_working_nodes()
             for i in range(thread_num - 1):
-                hive_instance.append(stm.Hive(node=nodelist,
+                hive_instance.append(hv.Hive(node=nodelist,
                                                 num_retries=self.hive.rpc.num_retries,
                                                 num_retries_call=self.hive.rpc.num_retries_call,
                                                 timeout=self.hive.rpc.timeout))

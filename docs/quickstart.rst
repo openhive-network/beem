@@ -20,16 +20,16 @@ By creating this object different options can be set.
 
    from beem import Hive
    from beem.account import Account
-   stm = Hive()
-   account = Account("test", hive_instance=stm)
+   hv = Hive()
+   account = Account("test", hive_instance=hv)
 
 .. code-block:: python
 
    from beem import Hive
    from beem.account import Account
    from beem.instance import set_shared_hive_instance
-   stm = Hive()
-   set_shared_hive_instance(stm)
+   hv = Hive()
+   set_shared_hive_instance(hv)
    account = Account("test")
 
 Wallet and Keys

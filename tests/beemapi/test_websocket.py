@@ -27,10 +27,10 @@ class Testcases(unittest.TestCase):
         super().__init__(*args, **kwargs)
         nodelist = NodeList()
         nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(normal=True, appbase=True), num_retries=10))
-        stm = Steem(node=nodelist.get_nodes())
+        hv = Steem(node=nodelist.get_nodes())
 
         self.ws = SteemWebsocket(
-            urls=stm.rpc.nodes,
+            urls=hv.rpc.nodes,
             num_retries=10
         )
 

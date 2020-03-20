@@ -92,12 +92,12 @@ Quickstart
 .. code-block:: python
 
    from beem.hive import Hive
-   stm = Hive()
-   stm.wallet.wipe(True)
-   stm.wallet.create("wallet-passphrase")
-   stm.wallet.unlock("wallet-passphrase")
-   stm.wallet.addPrivateKey("512345678")
-   stm.wallet.lock()
+   hv = Hive()
+   hv.wallet.wipe(True)
+   hv.wallet.create("wallet-passphrase")
+   hv.wallet.unlock("wallet-passphrase")
+   hv.wallet.addPrivateKey("512345678")
+   hv.wallet.lock()
 
 .. code-block:: python
 

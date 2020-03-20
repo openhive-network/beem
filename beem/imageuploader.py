@@ -40,8 +40,8 @@ class ImageUploader(object):
 
                 from beem import Hive
                 from beem.imageuploader import ImageUploader
-                stm = Hive(keys=["5xxx"]) # private posting key
-                iu = ImageUploader(hive_instance=stm)
+                hv = Hive(keys=["5xxx"]) # private posting key
+                iu = ImageUploader(hive_instance=hv)
                 iu.upload("path/to/image.png", "account_name") # "private posting key belongs to account_name
 
         """

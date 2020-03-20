@@ -11,7 +11,7 @@ log = logging.getLogger()
 
 class Testcases(unittest.TestCase):
 
-    def test_stm1stm2(self):
+    def test_hv1hv2(self):
         nodelist = NodeList()
         nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
         b1 = Steem(

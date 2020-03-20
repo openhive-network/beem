@@ -41,8 +41,8 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        # stm = shared_hive_instance()
-        # stm.config.refreshBackup()
+        # hv = shared_hive_instance()
+        # hv.config.refreshBackup()
         # nodes = nodelist.get_testnet()
         cls.nodes = nodelist.get_nodes()
         cls.bts = Steem(
@@ -72,45 +72,45 @@ class Testcases(unittest.TestCase):
         super().__init__(*args, **kwargs)
         
         raise unittest.SkipTest()
-        stm = self.bts
-        stm.nobroadcast = True
-        stm.wallet.wipe(True)
-        stm.wallet.create("123")
-        stm.wallet.unlock("123")
+        hv = self.bts
+        hv.nobroadcast = True
+        hv.wallet.wipe(True)
+        hv.wallet.create("123")
+        hv.wallet.unlock("123")
 
-        stm.wallet.addPrivateKey(self.active_key1)
-        stm.wallet.addPrivateKey(self.memo_key1)
-        stm.wallet.addPrivateKey(self.posting_key1)
+        hv.wallet.addPrivateKey(self.active_key1)
+        hv.wallet.addPrivateKey(self.memo_key1)
+        hv.wallet.addPrivateKey(self.posting_key1)
 
-        stm.wallet.addPrivateKey(self.active_key)
-        stm.wallet.addPrivateKey(self.memo_key)
-        stm.wallet.addPrivateKey(self.posting_key)
-        stm.wallet.addPrivateKey(self.active_private_key_of_beem4)
-        stm.wallet.addPrivateKey(self.active_private_key_of_beem5)
+        hv.wallet.addPrivateKey(self.active_key)
+        hv.wallet.addPrivateKey(self.memo_key)
+        hv.wallet.addPrivateKey(self.posting_key)
+        hv.wallet.addPrivateKey(self.active_private_key_of_beem4)
+        hv.wallet.addPrivateKey(self.active_private_key_of_beem5)
 
     @classmethod
     def tearDownClass(cls):
-        stm = shared_hive_instance()
-        stm.config.recover_with_latest_backup()
+        hv = shared_hive_instance()
+        hv.config.recover_with_latest_backup()
 
     def test_wallet_keys(self):
-        stm = self.bts
-        stm.wallet.unlock("123")
-        priv_key = stm.wallet.getPrivateKeyForPublicKey(str(PrivateKey(self.posting_key, prefix=stm.prefix).pubkey))
+        hv = self.bts
+        hv.wallet.unlock("123")
+        priv_key = hv.wallet.getPrivateKeyForPublicKey(str(PrivateKey(self.posting_key, prefix=hv.prefix).pubkey))
         self.assertEqual(str(priv_key), self.posting_key)
-        priv_key = stm.wallet.getKeyForAccount("beem", "active")
+        priv_key = hv.wallet.getKeyForAccount("beem", "active")
         self.assertEqual(str(priv_key), self.active_key)
-        priv_key = stm.wallet.getKeyForAccount("beem1", "posting")
+        priv_key = hv.wallet.getKeyForAccount("beem1", "posting")
         self.assertEqual(str(priv_key), self.posting_key1)
 
-        priv_key = stm.wallet.getPrivateKeyForPublicKey(str(PrivateKey(self.active_private_key_of_beem4, prefix=stm.prefix).pubkey))
+        priv_key = hv.wallet.getPrivateKeyForPublicKey(str(PrivateKey(self.active_private_key_of_beem4, prefix=hv.prefix).pubkey))
         self.assertEqual(str(priv_key), self.active_private_key_of_beem4)
-        priv_key = stm.wallet.getKeyForAccount("beem4", "active")
+        priv_key = hv.wallet.getKeyForAccount("beem4", "active")
         self.assertEqual(str(priv_key), self.active_private_key_of_beem4)
 
-        priv_key = stm.wallet.getPrivateKeyForPublicKey(str(PrivateKey(self.active_private_key_of_beem5, prefix=stm.prefix).pubkey))
+        priv_key = hv.wallet.getPrivateKeyForPublicKey(str(PrivateKey(self.active_private_key_of_beem5, prefix=hv.prefix).pubkey))
         self.assertEqual(str(priv_key), self.active_private_key_of_beem5)
-        priv_key = stm.wallet.getKeyForAccount("beem5", "active")
+        priv_key = hv.wallet.getKeyForAccount("beem5", "active")
         self.assertEqual(str(priv_key), self.active_private_key_of_beem5)
 
     def test_transfer(self):
@@ -324,14 +324,14 @@ class Testcases(unittest.TestCase):
         new_tx.broadcast()
 
     def test_verifyAuthority(self):
-        stm = self.bts
-        stm.wallet.unlock("123")
-        tx = TransactionBuilder(use_condenser_api=True, hive_instance=stm)
+        hv = self.bts
+        hv.wallet.unlock("123")
+        tx = TransactionBuilder(use_condenser_api=True, hive_instance=hv)
         tx.appendOps(Transfer(**{"from": "beem",
                                  "to": "beem1",
-                                 "amount": Amount("1.300 HBD", hive_instance=stm),
+                                 "amount": Amount("1.300 HBD", hive_instance=hv),
                                  "memo": "Foobar"}))
-        account = Account("beem", hive_instance=stm)
+        account = Account("beem", hive_instance=hv)
         tx.appendSigner(account, "active")
         self.assertTrue(len(tx.wifs) > 0)
         tx.sign()
@@ -519,14 +519,14 @@ class Testcases(unittest.TestCase):
 
     def test_appendWif(self):
         nodelist = NodeList()
-        stm = Steem(node=self.nodes,
+        hv = Steem(node=self.nodes,
                     nobroadcast=True,
                     expiration=120,
                     num_retries=10)
-        tx = TransactionBuilder(use_condenser_api=True, hive_instance=stm)
+        tx = TransactionBuilder(use_condenser_api=True, hive_instance=hv)
         tx.appendOps(Transfer(**{"from": "beem",
                                  "to": "beem1",
-                                 "amount": Amount("1 HIVE", hive_instance=stm),
+                                 "amount": Amount("1 HIVE", hive_instance=hv),
                                  "memo": ""}))
         with self.assertRaises(
             MissingKeyError
@@ -542,17 +542,17 @@ class Testcases(unittest.TestCase):
 
     def test_appendSigner(self):
         nodelist = NodeList()
-        stm = Steem(node=self.nodes,
+        hv = Steem(node=self.nodes,
                     keys=[self.active_key],
                     nobroadcast=True,
                     expiration=120,
                     num_retries=10)
-        tx = TransactionBuilder(use_condenser_api=True, hive_instance=stm)
+        tx = TransactionBuilder(use_condenser_api=True, hive_instance=hv)
         tx.appendOps(Transfer(**{"from": "beem",
                                  "to": "beem1",
-                                 "amount": Amount("1 HIVE", hive_instance=stm),
+                                 "amount": Amount("1 HIVE", hive_instance=hv),
                                  "memo": ""}))
-        account = Account("beem", hive_instance=stm)
+        account = Account("beem", hive_instance=hv)
         with self.assertRaises(
             AssertionError
         ):
@@ -564,17 +564,17 @@ class Testcases(unittest.TestCase):
 
     def test_verifyAuthorityException(self):
         nodelist = NodeList()
-        stm = Steem(node=self.nodes,
+        hv = Steem(node=self.nodes,
                     keys=[self.posting_key],
                     nobroadcast=True,
                     expiration=120,
                     num_retries=10)
-        tx = TransactionBuilder(use_condenser_api=True, hive_instance=stm)
+        tx = TransactionBuilder(use_condenser_api=True, hive_instance=hv)
         tx.appendOps(Transfer(**{"from": "beem",
                                  "to": "beem1",
-                                 "amount": Amount("1 HIVE", hive_instance=stm),
+                                 "amount": Amount("1 HIVE", hive_instance=hv),
                                  "memo": ""}))
-        account = Account("beem2", hive_instance=stm)
+        account = Account("beem2", hive_instance=hv)
         tx.appendSigner(account, "active")
         tx.appendWif(self.posting_key)
         self.assertTrue(len(tx.wifs) > 0)
@@ -587,35 +587,35 @@ class Testcases(unittest.TestCase):
 
     def test_Transfer_broadcast(self):
         nodelist = NodeList()
-        stm = Steem(node=self.nodes,
+        hv = Steem(node=self.nodes,
                     keys=[self.active_key],
                     nobroadcast=True,
                     expiration=120,
                     num_retries=10)
 
-        tx = TransactionBuilder(use_condenser_api=True, expiration=10, hive_instance=stm)
+        tx = TransactionBuilder(use_condenser_api=True, expiration=10, hive_instance=hv)
         tx.appendOps(Transfer(**{"from": "beem",
                                  "to": "beem1",
-                                 "amount": Amount("1 HIVE", hive_instance=stm),
+                                 "amount": Amount("1 HIVE", hive_instance=hv),
                                  "memo": ""}))
         tx.appendSigner("beem", "active")
         tx.sign()
         tx.broadcast()
 
     def test_TransactionConstructor(self):
-        stm = self.bts
+        hv = self.bts
         opTransfer = Transfer(**{"from": "beem",
                                  "to": "beem1",
-                                 "amount": Amount("1 HIVE", hive_instance=stm),
+                                 "amount": Amount("1 HIVE", hive_instance=hv),
                                  "memo": ""})
-        tx1 = TransactionBuilder(use_condenser_api=True, hive_instance=stm)
+        tx1 = TransactionBuilder(use_condenser_api=True, hive_instance=hv)
         tx1.appendOps(opTransfer)
-        tx = TransactionBuilder(tx1, hive_instance=stm)
+        tx = TransactionBuilder(tx1, hive_instance=hv)
         self.assertFalse(tx.is_empty())
         self.assertTrue(len(tx.list_operations()) == 1)
         self.assertTrue(repr(tx) is not None)
         self.assertTrue(str(tx) is not None)
-        account = Account("beem", hive_instance=stm)
+        account = Account("beem", hive_instance=hv)
         tx.appendSigner(account, "active")
         self.assertTrue(len(tx.wifs) > 0)
         tx.sign()
@@ -624,20 +624,20 @@ class Testcases(unittest.TestCase):
     
     def test_follow_active_key(self):
         nodelist = NodeList()
-        stm = Steem(node=self.nodes,
+        hv = Steem(node=self.nodes,
                     keys=[self.active_key],
                     nobroadcast=True,
                     expiration=120,
                     num_retries=10)
-        account = Account("beem", hive_instance=stm)
+        account = Account("beem", hive_instance=hv)
         account.follow("beem1")
 
     def test_follow_posting_key(self):
         nodelist = NodeList()
-        stm = Steem(node=self.nodes,
+        hv = Steem(node=self.nodes,
                     keys=[self.posting_key],
                     nobroadcast=True,
                     expiration=120,
                     num_retries=10)
-        account = Account("beem", hive_instance=stm)
+        account = Account("beem", hive_instance=hv)
         account.follow("beem1")

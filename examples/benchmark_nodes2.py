@@ -48,11 +48,11 @@ def benchmark_node(node, how_many_minutes=10, how_many_seconds=30):
     authorperm = construct_authorperm(author, permlink)
     last_block_id = 19273700
     try:
-        stm = Hive(node=node, num_retries=3, num_retries_call=3, timeout=30)
-        blockchain = Blockchain(hive_instance=stm)
-        blockchain_version = stm.get_blockchain_version()
+        hv = Hive(node=node, num_retries=3, num_retries_call=3, timeout=30)
+        blockchain = Blockchain(hive_instance=hv)
+        blockchain_version = hv.get_blockchain_version()
 
-        last_block = Block(last_block_id, hive_instance=stm)
+        last_block = Block(last_block_id, hive_instance=hv)
 
         stopTime = last_block.time() + timedelta(seconds=how_many_minutes * 60)
         total_transaction = 0
@@ -90,9 +90,9 @@ def benchmark_node(node, how_many_minutes=10, how_many_seconds=30):
         block_count = -1
 
     try:
-        stm = Hive(node=node, num_retries=3, num_retries_call=3, timeout=30)
-        account = Account("gtg", hive_instance=stm)
-        blockchain_version = stm.get_blockchain_version()
+        hv = Hive(node=node, num_retries=3, num_retries_call=3, timeout=30)
+        account = Account("gtg", hive_instance=hv)
+        blockchain_version = hv.get_blockchain_version()
 
         start = timer()
         for acc_op in account.history_reverse(batch_size=100):
@@ -114,20 +114,20 @@ def benchmark_node(node, how_many_minutes=10, how_many_seconds=30):
         successful = False
 
     try:
-        stm = Hive(node=node, num_retries=3, num_retries_call=3, timeout=30)
-        account = Account("gtg", hive_instance=stm)
-        blockchain_version = stm.get_blockchain_version()
+        hv = Hive(node=node, num_retries=3, num_retries_call=3, timeout=30)
+        account = Account("gtg", hive_instance=hv)
+        blockchain_version = hv.get_blockchain_version()
 
         start = timer()
-        Vote(authorpermvoter, hive_instance=stm)
+        Vote(authorpermvoter, hive_instance=hv)
         stop = timer()
         vote_time = stop - start
         start = timer()
-        Comment(authorperm, hive_instance=stm)
+        Comment(authorperm, hive_instance=hv)
         stop = timer()
         comment_time = stop - start
         start = timer()
-        Account(author, hive_instance=stm)
+        Account(author, hive_instance=hv)
         stop = timer()
         account_time = stop - start
         start = timer()
@@ -200,7 +200,7 @@ if __name__ == "__main__":
     print("\n")
     print("Total benchmark time: %.2f s\n" % (timer() - benchmark_time))
     if set_default_nodes:
-        stm = Hive(offline=True)
-        stm.set_default_nodes(working_nodes)
+        hv = Hive(offline=True)
+        hv.set_default_nodes(working_nodes)
     else:
         print("beempy set nodes " + str(working_nodes))

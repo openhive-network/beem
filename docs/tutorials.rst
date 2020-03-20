@@ -25,15 +25,15 @@ one comment operation from each sender.
   # not a real working key
   wif = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
 
-  stm = Hive(
+  hv = Hive(
       bundle=True, # Enable bundle broadcast
       # nobroadcast=True, # Enable this for testing
       keys=[wif],
   )
-  # Set stm as shared instance
-  set_shared_hive_instance(stm)
+  # Set hv as shared instance
+  set_shared_hive_instance(hv)
 
-  # Account and Comment will use now stm
+  # Account and Comment will use now hv
   account = Account("test")
 
   # Post
@@ -45,7 +45,7 @@ one comment operation from each sender.
   # Upvote post with 25%
   c.upvote(25, voter=account)
 
-  pprint(stm.broadcast())
+  pprint(hv.broadcast())
 
 
 Use nobroadcast for testing
@@ -208,9 +208,9 @@ the complete queue is sended at once to the node. The result is a list with repl
 .. code-block:: python
 
     from beem import Hive
-    stm = Hive("https://api.hiveit.com")
-    stm.rpc.get_config(add_to_queue=True)
-    stm.rpc.rpc_queue
+    hv = Hive("https://api.hiveit.com")
+    hv.rpc.get_config(add_to_queue=True)
+    hv.rpc.rpc_queue
 
 .. code-block:: python
 
@@ -218,7 +218,7 @@ the complete queue is sended at once to the node. The result is a list with repl
 
 .. code-block:: python
 
-    result = stm.rpc.get_block({"block_num":1}, api="block", add_to_queue=False)
+    result = hv.rpc.get_block({"block_num":1}, api="block", add_to_queue=False)
     len(result)
 
 .. code-block:: python
@@ -274,10 +274,10 @@ Example with one operation with and without the wallet:
     from beem import Hive
     from beem.transactionbuilder import TransactionBuilder
     from beembase import operations
-    stm = Hive()
+    hv = Hive()
     # Uncomment the following when using a wallet:
-    # stm.wallet.unlock("secret_password")
-    tx = TransactionBuilder(hive_instance=stm)
+    # hv.wallet.unlock("secret_password")
+    tx = TransactionBuilder(hive_instance=hv)
     op = operations.Transfer(**{"from": 'user_a',
                                 "to": 'user_b',
                                 "amount": '1.000 HBD',
@@ -296,10 +296,10 @@ Example with signing and broadcasting two operations:
     from beem import Hive
     from beem.transactionbuilder import TransactionBuilder
     from beembase import operations
-    stm = Hive()
+    hv = Hive()
     # Uncomment the following when using a wallet:
-    # stm.wallet.unlock("secret_password")
-    tx = TransactionBuilder(hive_instance=stm)
+    # hv.wallet.unlock("secret_password")
+    tx = TransactionBuilder(hive_instance=hv)
     ops = []
     op = operations.Transfer(**{"from": 'user_a',
                                 "to": 'user_b',

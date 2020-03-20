@@ -30,12 +30,12 @@ wif = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
 class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        stm = shared_hive_instance()
-        stm.config.refreshBackup()
+        hv = shared_hive_instance()
+        hv.config.refreshBackup()
         nodelist = NodeList()
         nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
 
-        cls.stm = Steem(
+        cls.hv = Steem(
             node=nodelist.get_nodes(exclude_limited=True),
             nobroadcast=True,
             # We want to bundle many operations into a single transaction
@@ -44,11 +44,11 @@ class Testcases(unittest.TestCase):
             # Overwrite wallet to use this list of wifs only
         )
 
-        cls.stm.set_default_account("test")
-        set_shared_hive_instance(cls.stm)
-        # self.stm.newWallet("TestingOneTwoThree")
+        cls.hv.set_default_account("test")
+        set_shared_hive_instance(cls.hv)
+        # self.hv.newWallet("TestingOneTwoThree")
 
-        cls.wallet = Wallet(hive_instance=cls.stm)
+        cls.wallet = Wallet(hive_instance=cls.hv)
         cls.wallet.wipe(True)
         cls.wallet.newWallet(pwd="TestingOneTwoThree")
         cls.wallet.unlock(pwd="TestingOneTwoThree")
@@ -56,11 +56,11 @@ class Testcases(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        stm = shared_hive_instance()
-        stm.config.recover_with_latest_backup()
+        hv = shared_hive_instance()
+        hv.config.recover_with_latest_backup()
 
     def test_set_default_account(self):
-        stm = self.stm
-        stm.set_default_account("beembot")
+        hv = self.hv
+        hv.set_default_account("beembot")
 
-        self.assertEqual(stm.config["default_account"], "beembot")
+        self.assertEqual(hv.config["default_account"], "beembot")

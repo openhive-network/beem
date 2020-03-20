@@ -16,10 +16,10 @@ logging.basicConfig(level=logging.INFO)
 
 
 if __name__ == "__main__":
-    stm = Hive("https://api.hiveit.com")
-    beem_acc = Account("thecrazygm", hive_instance=stm)
-    stm2 = hiveHive(nodes=["https://api.hiveit.com"])
-    hive_acc = hiveAccount("thecrazygm", hived_instance=stm2)
+    hv = Hive("https://api.hiveit.com")
+    beem_acc = Account("thecrazygm", hive_instance=hv)
+    hv2 = hiveHive(nodes=["https://api.hiveit.com"])
+    hive_acc = hiveAccount("thecrazygm", hived_instance=hv2)
 
     # profile
     print("beem_acc.profile  {}".format(beem_acc.profile))

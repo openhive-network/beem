@@ -21,12 +21,12 @@ wif = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
 class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        stm = shared_hive_instance()
-        stm.config.refreshBackup()
+        hv = shared_hive_instance()
+        hv.config.refreshBackup()
         nodelist = NodeList()
         nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
 
-        cls.stm = Steem(
+        cls.hv = Steem(
             node=nodelist.get_nodes(exclude_limited=True),
             nobroadcast=True,
             # We want to bundle many operations into a single transaction
@@ -34,11 +34,11 @@ class Testcases(unittest.TestCase):
             num_retries=10
             # Overwrite wallet to use this list of wifs only
         )
-        cls.stm.set_default_account("test")
-        set_shared_hive_instance(cls.stm)
-        # self.stm.newWallet("TestingOneTwoThree")
+        cls.hv.set_default_account("test")
+        set_shared_hive_instance(cls.hv)
+        # self.hv.newWallet("TestingOneTwoThree")
 
-        cls.wallet = Wallet(hive_instance=cls.stm)
+        cls.wallet = Wallet(hive_instance=cls.hv)
         cls.wallet.wipe(True)
         cls.wallet.newWallet(pwd="TestingOneTwoThree")
         cls.wallet.unlock(pwd="TestingOneTwoThree")
@@ -46,12 +46,12 @@ class Testcases(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        stm = shared_hive_instance()
-        stm.config.recover_with_latest_backup()
+        hv = shared_hive_instance()
+        hv.config.recover_with_latest_backup()
 
     def test_wallet_lock(self):
-        stm = self.stm
-        self.wallet.hive = stm
+        hv = self.hv
+        self.wallet.hive = hv
         self.wallet.unlock(pwd="TestingOneTwoThree")
         self.assertTrue(self.wallet.unlocked())
         self.assertFalse(self.wallet.locked())
@@ -59,8 +59,8 @@ class Testcases(unittest.TestCase):
         self.assertTrue(self.wallet.locked())
 
     def test_change_masterpassword(self):
-        stm = self.stm
-        self.wallet.hive = stm
+        hv = self.hv
+        self.wallet.hive = hv
         self.wallet.unlock(pwd="TestingOneTwoThree")
         self.assertTrue(self.wallet.unlocked())
         self.wallet.changePassphrase("newPass")
@@ -72,8 +72,8 @@ class Testcases(unittest.TestCase):
         self.wallet.lock()
 
     def test_Keys(self):
-        stm = self.stm
-        self.wallet.hive = stm
+        hv = self.hv
+        self.wallet.hive = hv
         self.wallet.unlock(pwd="TestingOneTwoThree")
         keys = self.wallet.getPublicKeys()
         self.assertTrue(len(keys) > 0)
@@ -82,8 +82,8 @@ class Testcases(unittest.TestCase):
         self.assertEqual(private, wif)
 
     def test_account_by_pub(self):
-        stm = self.stm
-        self.wallet.hive = stm
+        hv = self.hv
+        self.wallet.hive = hv
         self.wallet.unlock(pwd="TestingOneTwoThree")
         acc = Account("gtg")
         pub = acc["owner"]["key_auths"][0][0]
@@ -102,8 +102,8 @@ class Testcases(unittest.TestCase):
         self.assertEqual(pub, acc_by_pub_list[0]["pubkey"])
 
     def test_pub_lookup(self):
-        stm = self.stm
-        self.wallet.hive = stm
+        hv = self.hv
+        self.wallet.hive = hv
         self.wallet.unlock(pwd="TestingOneTwoThree")
         with self.assertRaises(
             exceptions.MissingKeyError
@@ -123,8 +123,8 @@ class Testcases(unittest.TestCase):
             self.wallet.getPostingKeyForAccount("test")
 
     def test_pub_lookup_keys(self):
-        stm = self.stm
-        self.wallet.hive = stm
+        hv = self.hv
+        self.wallet.hive = hv
         self.wallet.unlock(pwd="TestingOneTwoThree")
         with self.assertRaises(
             exceptions.MissingKeyError
@@ -140,8 +140,8 @@ class Testcases(unittest.TestCase):
             self.wallet.getPostingKeysForAccount("test")
 
     def test_encrypt(self):
-        stm = self.stm
-        self.wallet.hive = stm
+        hv = self.hv
+        self.wallet.hive = hv
         self.wallet.unlock(pwd="TestingOneTwoThree")
         self.wallet.masterpassword = "TestingOneTwoThree"
         self.assertEqual([self.wallet.encrypt_wif("5HqUkGuo62BfcJU5vNhTXKJRXuUi9QSE6jp8C3uBJ2BVHtB8WSd"),
@@ -154,8 +154,8 @@ class Testcases(unittest.TestCase):
         self.wallet.masterpassword = "TestingOneTwoThree"
 
     def test_deencrypt(self):
-        stm = self.stm
-        self.wallet.hive = stm
+        hv = self.hv
+        self.wallet.hive = hv
         self.wallet.unlock(pwd="TestingOneTwoThree")
         self.wallet.masterpassword = "TestingOneTwoThree"
         self.assertEqual([self.wallet.decrypt_wif("6PRN5mjUTtud6fUXbJXezfn6oABoSr6GSLjMbrGXRZxSUcxThxsUW8epQi"),

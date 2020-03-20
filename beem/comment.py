@@ -37,8 +37,8 @@ class Comment(BlockchainObject):
         >>> from beem.comment import Comment
         >>> from beem.account import Account
         >>> from beem import Hive
-        >>> stm = Hive()
-        >>> acc = Account("gtg", hive_instance=stm)
+        >>> hv = Hive()
+        >>> acc = Account("gtg", hive_instance=hv)
         >>> authorperm = acc.get_blog(limit=1)[0]["authorperm"]
         >>> c = Comment(authorperm)
         >>> postdate = c["created"]

@@ -17,8 +17,8 @@ log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-def stream_votes(stm, threading, thread_num):
-    b = Blockchain(hive_instance=stm)
+def stream_votes(hv, threading, thread_num):
+    b = Blockchain(hive_instance=hv)
     opcount = 0
     start_time = time.time()
     for op in b.stream(start=23483000, stop=23485000, threading=threading, thread_num=thread_num,
@@ -43,11 +43,11 @@ if __name__ == "__main__":
     vote_result = []
     duration = []
 
-    stm = Hive(node=node_list, timeout=timeout)
-    b = Blockchain(hive_instance=stm)
+    hv = Hive(node=node_list, timeout=timeout)
+    b = Blockchain(hive_instance=hv)
     block = b.get_current_block()
     block.set_cache_auto_clean(False)
-    opcount, total_duration = stream_votes(stm, threading, thread_num)
+    opcount, total_duration = stream_votes(hv, threading, thread_num)
     print("Finished!")
     block.set_cache_auto_clean(True)
     cache_len = len(list(block._cache))

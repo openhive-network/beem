@@ -43,7 +43,7 @@ class Testcases(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.stm = Steem(
+        self.hv = Steem(
             offline=True
         )
 
@@ -82,7 +82,7 @@ class Testcases(unittest.TestCase):
         self.op = operations.Transfer(**{
             "from": "foo",
             "to": "baar",
-            "amount": Amount("111.110 HIVE", hive_instance=self.stm),
+            "amount": Amount("111.110 HIVE", hive_instance=self.hv),
             "memo": "Fooo",
             "prefix": default_prefix
         })
@@ -236,7 +236,7 @@ class Testcases(unittest.TestCase):
                 "from": "testuser",
                 "to": "testuser",
                 "amount": "1.000 HIVE",
-                "memo": "testmemo",
+                "memo": "tehvemo",
                 "prefix": default_prefix
             })
         self.cm = (

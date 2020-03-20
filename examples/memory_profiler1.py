@@ -17,9 +17,9 @@ logging.basicConfig(level=logging.INFO)
 
 @profile
 def profiling(name_list):
-    stm = Hive()
-    set_shared_hive_instance(stm)
-    del stm
+    hv = Hive()
+    set_shared_hive_instance(hv)
+    del hv
     print("start")
     for name in name_list:
         print("account: %s" % (name))

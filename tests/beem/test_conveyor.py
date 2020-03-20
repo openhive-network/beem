@@ -16,9 +16,9 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        stm = Steem(node=nodelist.get_nodes(), nobroadcast=True,
+        hv = Steem(node=nodelist.get_nodes(), nobroadcast=True,
                     num_retries=10, expiration=120)
-        set_shared_hive_instance(stm)
+        set_shared_hive_instance(hv)
 
     def test_healthcheck(self):
         health = Conveyor().healthcheck()

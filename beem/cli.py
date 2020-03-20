@@ -98,35 +98,35 @@ def prompt_flag_callback(ctx, param, value):
         ctx.abort()
 
 
-def unlock_wallet(stm, password=None):
-    if stm.unsigned and stm.nobroadcast:
+def unlock_wallet(hv, password=None):
+    if hv.unsigned and hv.nobroadcast:
         return True
-    password_storage = stm.config["password_storage"]
+    password_storage = hv.config["password_storage"]
     if not password and KEYRING_AVAILABLE and password_storage == "keyring":
         password = keyring.get_password("beem", "wallet")
     if not password and password_storage == "environment" and "UNLOCK" in os.environ:
         password = os.environ.get("UNLOCK")
     if bool(password):
-        stm.wallet.unlock(password)
+        hv.wallet.unlock(password)
     else:
         password = click.prompt("Password to unlock wallet or posting/active wif", confirmation_prompt=False, hide_input=True)
         try:
-            stm.wallet.unlock(password)
+            hv.wallet.unlock(password)
         except:
             try:
-                stm.wallet.setKeys([password])
+                hv.wallet.setKeys([password])
                 print("Wif accepted!")
                 return True                
             except:
                 raise exceptions.WrongMasterPasswordException("entered password is not a valid password/wif")
 
-    if stm.wallet.locked():
+    if hv.wallet.locked():
         if password_storage == "keyring" or password_storage == "environment":
             print("Wallet could not be unlocked with %s!" % password_storage)
             password = click.prompt("Password to unlock wallet", confirmation_prompt=False, hide_input=True)
             if bool(password):
-                unlock_wallet(stm, password=password)
-                if not stm.wallet.locked():
+                unlock_wallet(hv, password=password)
+                if not hv.wallet.locked():
                     return True
         else:
             print("Wallet could not be unlocked!")
@@ -138,9 +138,9 @@ def unlock_wallet(stm, password=None):
 
 def node_answer_time(node):
     try:
-        stm_local = Hive(node=node, num_retries=2, num_retries_call=2, timeout=10)
+        hv_local = Hive(node=node, num_retries=2, num_retries_call=2, timeout=10)
         start = timer()
-        stm_local.get_config(use_stored_data=False)
+        hv_local.get_config(use_stored_data=False)
         stop = timer()
         rpc_answer_time = stop - start
     except KeyboardInterrupt:
@@ -192,7 +192,7 @@ def cli(node, offline, no_broadcast, no_wallet, unsigned, create_link, hiveconne
     else:
         sc2 = None
     debug = verbose > 0
-    stm = Hive(
+    hv = Hive(
         node=node,
         nobroadcast=no_broadcast,
         offline=offline,
@@ -207,7 +207,7 @@ def cli(node, offline, no_broadcast, no_wallet, unsigned, create_link, hiveconne
         timeout=15,
         autoconnect=False
     )
-    set_shared_hive_instance(stm)
+    set_shared_hive_instance(hv)
 
     pass
 
@@ -225,20 +225,20 @@ def set(key, value):
         Set the default vote weight to 50 %:
         set default_vote_weight 50
     """
-    stm = shared_hive_instance()
+    hv = shared_hive_instance()
     if key == "default_account":
-        if stm.rpc is not None:
-            stm.rpc.rpcconnect()
-        stm.set_default_account(value)
+        if hv.rpc is not None:
+            hv.rpc.rpcconnect()
+        hv.set_default_account(value)
     elif key == "default_vote_weight":
-        stm.set_default_vote_weight(value)
+        hv.set_default_vote_weight(value)
     elif key == "nodes" or key == "node":
         if bool(value) or value != "default":
-            stm.set_default_nodes(value)
+            hv.set_default_nodes(value)
         else:
-            stm.set_default_nodes("")
+            hv.set_default_nodes("")
     elif key == "password_storage":
-        stm.config["password_storage"] = value
+        hv.config["password_storage"] = value
         if KEYRING_AVAILABLE and value == "keyring":
             password = click.prompt("Password to unlock wallet (Will be stored in keyring)", confirmation_prompt=False, hide_input=True)
             password = keyring.set_password("beem", "wallet", password)
@@ -250,13 +250,13 @@ def set(key, value):
         if value == "environment":
             print("The wallet password can be stored in the UNLOCK environment variable to skip password prompt!")
     elif key == "client_id":
-        stm.config["client_id"] = value
+        hv.config["client_id"] = value
     elif key == "hot_sign_redirect_uri":
-        stm.config["hot_sign_redirect_uri"] = value
+        hv.config["hot_sign_redirect_uri"] = value
     elif key == "sc2_api_url":
-        stm.config["sc2_api_url"] = value
+        hv.config["sc2_api_url"] = value
     elif key == "oauth_base_url":
-        stm.config["oauth_base_url"] = value
+        hv.config["oauth_base_url"] = value
     else:
         print("wrong key")
 
@@ -266,33 +266,33 @@ def set(key, value):
 def nextnode(results):
     """ Uses the next node in list
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
-    stm.move_current_node_to_front()
-    node = stm.get_default_nodes()
-    offline = stm.offline
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
+    hv.move_current_node_to_front()
+    node = hv.get_default_nodes()
+    offline = hv.offline
     if len(node) < 2:
         print("At least two nodes are needed!")
         return
     node = node[1:] + [node[0]]
     if not offline:
-        stm.rpc.next()
-        stm.get_blockchain_version()
-    while not offline and node[0] != stm.rpc.url and len(node) > 1:
+        hv.rpc.next()
+        hv.get_blockchain_version()
+    while not offline and node[0] != hv.rpc.url and len(node) > 1:
         node = node[1:] + [node[0]]
-    stm.set_default_nodes(node)
+    hv.set_default_nodes(node)
     if not results:
         return
 
     t = PrettyTable(["Key", "Value"])
     t.align = "l"
     if not offline:
-        t.add_row(["Node-Url", stm.rpc.url])
+        t.add_row(["Node-Url", hv.rpc.url])
     else:
         t.add_row(["Node-Url", node[0]])
     if not offline:
-        t.add_row(["Version", stm.get_blockchain_version()])
+        t.add_row(["Version", hv.get_blockchain_version()])
     else:
         t.add_row(["Version", "hivepy is in offline mode..."])
     print(t)
@@ -314,10 +314,10 @@ def nextnode(results):
 def pingnode(raw, sort, remove, threading):
     """ Returns the answer time in milliseconds
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
-    nodes = stm.get_default_nodes()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
+    nodes = hv.get_default_nodes()
     if not raw:
         t = PrettyTable(["Node", "Answer time [ms]"])
         t.align = "l"
@@ -346,7 +346,7 @@ def pingnode(raw, sort, remove, threading):
         for i in sorted_arg:
             if not remove or ping_times[i] != float("inf"):
                 sorted_nodes.append(nodes[i])
-        stm.set_default_nodes(sorted_nodes)
+        hv.set_default_nodes(sorted_nodes)
         if not raw:
             for i in sorted_arg:
                 t.add_row([nodes[i], "%.2f" % (ping_times[i] * 1000)])
@@ -354,7 +354,7 @@ def pingnode(raw, sort, remove, threading):
         else:
             print(ping_times[sorted_arg])
     else:
-        node = stm.rpc.url
+        node = hv.rpc.url
         rpc_answer_time = node_answer_time(node)
         rpc_time_str = "%.2f" % (rpc_answer_time * 1000)
         if raw:
@@ -374,29 +374,29 @@ def pingnode(raw, sort, remove, threading):
 def currentnode(version, url):
     """ Sets the currently working node at the first place in the list
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
-    offline = stm.offline
-    stm.move_current_node_to_front()
-    node = stm.get_default_nodes()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
+    offline = hv.offline
+    hv.move_current_node_to_front()
+    node = hv.get_default_nodes()
     if version and not offline:
-        print(stm.get_blockchain_version())
+        print(hv.get_blockchain_version())
         return
     elif version and offline:
         print("Node is offline")
         return
     if url and not offline:
-        print(stm.rpc.url)
+        print(hv.rpc.url)
         return
     t = PrettyTable(["Key", "Value"])
     t.align = "l"
     if not offline:
-        t.add_row(["Node-Url", stm.rpc.url])
+        t.add_row(["Node-Url", hv.rpc.url])
     else:
         t.add_row(["Node-Url", node[0]])
     if not offline:
-        t.add_row(["Version", stm.get_blockchain_version()])
+        t.add_row(["Version", hv.get_blockchain_version()])
     else:
         t.add_row(["Version", "hivepy is in offline mode..."])
     print(t)
@@ -424,13 +424,13 @@ def currentnode(version, url):
 def updatenodes(show, test, only_https, only_wss, only_appbase, only_non_appbase):
     """ Update the nodelist from @fullnodeupdate
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     t = PrettyTable(["node", "Version", "score"])
     t.align = "l"
     nodelist = NodeList()
-    nodelist.update_nodes(hive_instance=stm)
+    nodelist.update_nodes(hive_instance=hv)
     nodes = nodelist.get_nodes(exclude_limited=False, normal=not only_appbase, appbase=not only_non_appbase, wss=not only_https, https=not only_wss)
     if show or test:
         sorted_nodes = sorted(nodelist, key=lambda node: node["score"], reverse=True)
@@ -440,26 +440,26 @@ def updatenodes(show, test, only_https, only_wss, only_appbase, only_non_appbase
                 t.add_row([node["url"], node["version"], score])
         print(t)
     if not test:
-        stm.set_default_nodes(nodes)
+        hv.set_default_nodes(nodes)
 
 
 @cli.command()
 def config():
     """ Shows local configuration
     """
-    stm = shared_hive_instance()
+    hv = shared_hive_instance()
     t = PrettyTable(["Key", "Value"])
     t.align = "l"
-    for key in stm.config:
+    for key in hv.config:
         # hide internal config data
         if key in availableConfigurationKeys and key != "nodes" and key != "node":
-            t.add_row([key, stm.config[key]])
-    node = stm.get_default_nodes()
+            t.add_row([key, hv.config[key]])
+    node = hv.get_default_nodes()
     nodes = json.dumps(node, indent=4)
     t.add_row(["nodes", nodes])
     if "password_storage" not in availableConfigurationKeys:
-        t.add_row(["password_storage", stm.config["password_storage"]])
-    t.add_row(["data_dir", stm.config.data_dir])
+        t.add_row(["password_storage", hv.config["password_storage"]])
+    t.add_row(["data_dir", hv.config.data_dir])
     print(t)
 
 
@@ -469,30 +469,30 @@ def config():
 def createwallet(wipe):
     """ Create new wallet with a new password
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
-    if stm.wallet.created() and not wipe:
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
+    if hv.wallet.created() and not wipe:
         wipe_answer = click.prompt("'Do you want to wipe your wallet? Are your sure? This is IRREVERSIBLE! If you dont have a backup you may lose access to your account! [y/n]",
                                    default="n")
         if wipe_answer in ["y", "ye", "yes"]:
-            stm.wallet.wipe(True)
+            hv.wallet.wipe(True)
         else:
             return
     elif wipe:
-        stm.wallet.wipe(True)
+        hv.wallet.wipe(True)
     password = None
     password = click.prompt("New wallet password", confirmation_prompt=True, hide_input=True)
     if not bool(password):
         print("Password cannot be empty! Quitting...")
         return
-    password_storage = stm.config["password_storage"]
+    password_storage = hv.config["password_storage"]
     if KEYRING_AVAILABLE and password_storage == "keyring":
         password = keyring.set_password("beem", "wallet", password)
     elif password_storage == "environment":
         print("The new wallet password can be stored in the UNLOCK environment variable to skip password prompt!")
-    stm.wallet.create(password)
-    set_shared_hive_instance(stm)
+    hv.wallet.create(password)
+    set_shared_hive_instance(hv)
 
 
 @cli.command()
@@ -500,16 +500,16 @@ def createwallet(wipe):
 def walletinfo(test_unlock):
     """ Show info about wallet
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()    
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()    
     t = PrettyTable(["Key", "Value"])
     t.align = "l"
-    t.add_row(["created", stm.wallet.created()])
-    t.add_row(["locked", stm.wallet.locked()])
-    t.add_row(["Number of stored keys", len(stm.wallet.getPublicKeys())])
-    t.add_row(["sql-file", stm.wallet.keyStorage.sqlDataBaseFile])
-    password_storage = stm.config["password_storage"]
+    t.add_row(["created", hv.wallet.created()])
+    t.add_row(["locked", hv.wallet.locked()])
+    t.add_row(["Number of stored keys", len(hv.wallet.getPublicKeys())])
+    t.add_row(["sql-file", hv.wallet.keyStorage.sqlDataBaseFile])
+    password_storage = hv.config["password_storage"]
     t.add_row(["password_storage", password_storage])
     password = os.environ.get("UNLOCK")
     if password is not None:
@@ -521,11 +521,11 @@ def walletinfo(test_unlock):
     else:
         t.add_row(["keyring installed", "no"])
     if test_unlock:
-        if unlock_wallet(stm):
+        if unlock_wallet(hv):
             t.add_row(["Wallet unlock", "successful"])
         else:
             t.add_row(["Wallet unlock", "not working"])
-    # t.add_row(["getPublicKeys", str(stm.wallet.getPublicKeys())])
+    # t.add_row(["getPublicKeys", str(hv.wallet.getPublicKeys())])
     print(t)
 
 
@@ -535,17 +535,17 @@ def walletinfo(test_unlock):
 def parsewif(unsafe_import_key):
     """ Parse a WIF private key without importing
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if unsafe_import_key:
         for key in unsafe_import_key:
             try:
-                pubkey = PrivateKey(key, prefix=stm.prefix).pubkey
+                pubkey = PrivateKey(key, prefix=hv.prefix).pubkey
                 print(pubkey)
-                account = stm.wallet.getAccountFromPublicKey(str(pubkey))
-                account = Account(account, hive_instance=stm)
-                key_type = stm.wallet.getKeyType(account, str(pubkey))
+                account = hv.wallet.getAccountFromPublicKey(str(pubkey))
+                account = Account(account, hive_instance=hv)
+                key_type = hv.wallet.getKeyType(account, str(pubkey))
                 print("Account: %s - %s" % (account["name"], key_type))
             except Exception as e:
                 print(str(e))
@@ -555,11 +555,11 @@ def parsewif(unsafe_import_key):
             if not wifkey or wifkey == "quit" or wifkey == "exit":
                 break
             try:
-                pubkey = PrivateKey(wifkey, prefix=stm.prefix).pubkey
+                pubkey = PrivateKey(wifkey, prefix=hv.prefix).pubkey
                 print(pubkey)
-                account = stm.wallet.getAccountFromPublicKey(str(pubkey))
-                account = Account(account, hive_instance=stm)
-                key_type = stm.wallet.getKeyType(account, str(pubkey))
+                account = hv.wallet.getAccountFromPublicKey(str(pubkey))
+                account = Account(account, hive_instance=hv)
+                key_type = hv.wallet.getKeyType(account, str(pubkey))
                 print("Account: %s - %s" % (account["name"], key_type))
             except Exception as e:
                 print(str(e))
@@ -575,15 +575,15 @@ def addkey(unsafe_import_key):
         When no [OPTION] is given, a password prompt for unlocking the wallet
         and a prompt for entering the private key are shown.
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
-    if not unlock_wallet(stm):
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
+    if not unlock_wallet(hv):
         return
     if not unsafe_import_key:
         unsafe_import_key = click.prompt("Enter private key", confirmation_prompt=False, hide_input=True)
-    stm.wallet.addPrivateKey(unsafe_import_key)
-    set_shared_hive_instance(stm)
+    hv.wallet.addPrivateKey(unsafe_import_key)
+    set_shared_hive_instance(hv)
 
 
 @cli.command()
@@ -598,13 +598,13 @@ def delkey(confirm, pub):
         PUB is the public key from the private key
         which will be deleted from the wallet
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
-    if not unlock_wallet(stm):
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
+    if not unlock_wallet(hv):
         return
-    stm.wallet.removePrivateKeyFromPublicKey(pub)
-    set_shared_hive_instance(stm)
+    hv.wallet.removePrivateKeyFromPublicKey(pub)
+    set_shared_hive_instance(hv)
 
 
 @cli.command()
@@ -637,15 +637,15 @@ def addtoken(name, unsafe_import_token):
         When no [OPTION] is given, a password prompt for unlocking the wallet
         and a prompt for entering the private key are shown.
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
-    if not unlock_wallet(stm):
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
+    if not unlock_wallet(hv):
         return
     if not unsafe_import_token:
         unsafe_import_token = click.prompt("Enter private token", confirmation_prompt=False, hide_input=True)
-    stm.wallet.addToken(name, unsafe_import_token)
-    set_shared_hive_instance(stm)
+    hv.wallet.addToken(name, unsafe_import_token)
+    set_shared_hive_instance(hv)
 
 
 @cli.command()
@@ -660,25 +660,25 @@ def deltoken(confirm, name):
         name is the public name from the private token
         which will be deleted from the wallet
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
-    if not unlock_wallet(stm):
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
+    if not unlock_wallet(hv):
         return
-    stm.wallet.removeTokenFromPublicName(name)
-    set_shared_hive_instance(stm)
+    hv.wallet.removeTokenFromPublicName(name)
+    set_shared_hive_instance(hv)
 
 
 @cli.command()
 def listkeys():
     """ Show stored keys
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     t = PrettyTable(["Available Key"])
     t.align = "l"
-    for key in stm.wallet.getPublicKeys():
+    for key in hv.wallet.getPublicKeys():
         t.add_row([key])
     print(t)
 
@@ -687,13 +687,13 @@ def listkeys():
 def listtoken():
     """ Show stored token
     """
-    stm = shared_hive_instance()
+    hv = shared_hive_instance()
     t = PrettyTable(["name", "scope", "status"])
     t.align = "l"
-    if not unlock_wallet(stm):
+    if not unlock_wallet(hv):
         return
-    sc2 = HiveConnect(hive_instance=stm)
-    for name in stm.wallet.getPublicNames():
+    sc2 = HiveConnect(hive_instance=hv)
+    for name in hv.wallet.getPublicNames():
         ret = sc2.me(username=name)
         if "error" in ret:
             t.add_row([name, "-", ret["error"]])
@@ -705,12 +705,12 @@ def listtoken():
 @cli.command()
 def listaccounts():
     """Show stored accounts"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     t = PrettyTable(["Name", "Type", "Available Key"])
     t.align = "l"
-    for account in stm.wallet.getAccounts():
+    for account in hv.wallet.getAccounts():
         t.add_row([
             account["name"] or "n/a", account["type"] or "n/a",
             account["pubkey"]
@@ -727,11 +727,11 @@ def upvote(post, account, weight):
 
         POST is @author/permlink
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not weight:
-        weight = stm.config["default_vote_weight"]        
+        weight = hv.config["default_vote_weight"]        
     else:
         weight = float(weight)
         if weight > 100:
@@ -740,14 +740,14 @@ def upvote(post, account, weight):
             raise ValueError("Minimum vote weight is 0!")
 
     if not account:
-        account = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        account = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
     try:
-        post = Comment(post, hive_instance=stm)
+        post = Comment(post, hive_instance=hv)
         tx = post.upvote(weight, voter=account)
-        if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-            tx = stm.hiveconnect.url_from_tx(tx)
+        if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+            tx = hv.hiveconnect.url_from_tx(tx)
     except exceptions.VotingInvalidOnArchivedPost:
         print("Post/Comment is older than 7 days! Did not upvote.")
         tx = {}
@@ -762,19 +762,19 @@ def delete(post, account):
 
         POST is @author/permlink
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
 
     if not account:
-        account = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        account = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
     try:
-        post = Comment(post, hive_instance=stm)
+        post = Comment(post, hive_instance=hv)
         tx = post.delete(account=account)
-        if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-            tx = stm.hiveconnect.url_from_tx(tx)
+        if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+            tx = hv.hiveconnect.url_from_tx(tx)
     except exceptions.VotingInvalidOnArchivedPost:
         print("Could not delete post.")
         tx = {}
@@ -791,9 +791,9 @@ def downvote(post, account, weight):
 
         POST is @author/permlink
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
 
     weight = float(weight)
     if weight > 100:
@@ -802,14 +802,14 @@ def downvote(post, account, weight):
         raise ValueError("Minimum downvote weight is 0!")
     
     if not account:
-        account = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        account = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
     try:
-        post = Comment(post, hive_instance=stm)
+        post = Comment(post, hive_instance=hv)
         tx = post.downvote(weight, voter=account)
-        if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-            tx = stm.hiveconnect.url_from_tx(tx)
+        if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+            tx = hv.hiveconnect.url_from_tx(tx)
     except exceptions.VotingInvalidOnArchivedPost:
         print("Post/Comment is older than 7 days! Did not downvote.")
         tx = {}
@@ -825,19 +825,19 @@ def downvote(post, account, weight):
 @click.option('--account', '-a', help='Transfer from this account')
 def transfer(to, amount, asset, memo, account):
     """Transfer HBD/HIVE"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        account = stm.config["default_account"]
+        account = hv.config["default_account"]
     if not bool(memo):
         memo = ''
-    if not unlock_wallet(stm):
+    if not unlock_wallet(hv):
         return
-    acc = Account(account, hive_instance=stm)
+    acc = Account(account, hive_instance=hv)
     tx = acc.transfer(to, amount, asset, memo)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -848,21 +848,21 @@ def transfer(to, amount, asset, memo, account):
 @click.option('--to', help='Powerup this account', default=None)
 def powerup(amount, account, to):
     """Power up (vest HIVE as HIVE POWER)"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        account = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        account = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
-    acc = Account(account, hive_instance=stm)
+    acc = Account(account, hive_instance=hv)
     try:
         amount = float(amount)
     except:
         amount = str(amount)
     tx = acc.transfer_to_vesting(amount, to=to)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -875,21 +875,21 @@ def powerdown(amount, account):
 
         amount is in VESTS
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        account = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        account = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
-    acc = Account(account, hive_instance=stm)
+    acc = Account(account, hive_instance=hv)
     try:
         amount = float(amount)
     except:
         amount = str(amount)
     tx = acc.withdraw_vesting(amount)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -903,24 +903,24 @@ def delegate(amount, to_account, account):
 
         amount is in VESTS / Hive
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        account = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        account = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
-    acc = Account(account, hive_instance=stm)
+    acc = Account(account, hive_instance=hv)
     try:
         amount = float(amount)
     except:
-        amount = Amount(str(amount), hive_instance=stm)
-        if amount.symbol == stm.hive_symbol:
-            amount = stm.hp_to_vests(float(amount))
+        amount = Amount(str(amount), hive_instance=hv)
+        if amount.symbol == hv.hive_symbol:
+            amount = hv.hp_to_vests(float(amount))
 
     tx = acc.delegate_vesting_shares(to_account, amount)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -933,17 +933,17 @@ def delegate(amount, to_account, account):
               'VESTS, or false if it should receive them as HIVE.', is_flag=True)
 def powerdownroute(to, percentage, account, auto_vest):
     """Setup a powerdown route"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        account = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        account = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
-    acc = Account(account, hive_instance=stm)
+    acc = Account(account, hive_instance=hv)
     tx = acc.set_withdraw_vesting_route(to, percentage, auto_vest=auto_vest)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -953,21 +953,21 @@ def powerdownroute(to, percentage, account, auto_vest):
 @click.option('--account', '-a', help='Powerup from this account')
 def convert(amount, account):
     """Convert HIVEDollars to Hive (takes a week to settle)"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        account = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        account = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
-    acc = Account(account, hive_instance=stm)
+    acc = Account(account, hive_instance=hv)
     try:
         amount = float(amount)
     except:
         amount = str(amount)
     tx = acc.convert(amount)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -976,22 +976,22 @@ def convert(amount, account):
 def changewalletpassphrase():
     """ Change wallet password
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()    
-    if not unlock_wallet(stm):
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()    
+    if not unlock_wallet(hv):
         return
     newpassword = None
     newpassword = click.prompt("New wallet password", confirmation_prompt=True, hide_input=True)
     if not bool(newpassword):
         print("Password cannot be empty! Quitting...")
         return
-    password_storage = stm.config["password_storage"]
+    password_storage = hv.config["password_storage"]
     if KEYRING_AVAILABLE and password_storage == "keyring":
         keyring.set_password("beem", "wallet", newpassword)
     elif password_storage == "environment":
         print("The new wallet password can be stored in the UNLOCK invironment variable to skip password prompt!")
-    stm.wallet.changePassphrase(newpassword)
+    hv.wallet.changePassphrase(newpassword)
 
 
 @cli.command()
@@ -999,14 +999,14 @@ def changewalletpassphrase():
 def power(account):
     """ Shows vote power and bandwidth
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if len(account) == 0:
-        if "default_account" in stm.config:
-            account = [stm.config["default_account"]]
+        if "default_account" in hv.config:
+            account = [hv.config["default_account"]]
     for name in account:
-        a = Account(name, hive_instance=stm)
+        a = Account(name, hive_instance=hv)
         print("\n@%s" % a.name)
         a.print_info(use_table=True)
 
@@ -1016,14 +1016,14 @@ def power(account):
 def balance(account):
     """ Shows balance
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if len(account) == 0:
-        if "default_account" in stm.config:
-            account = [stm.config["default_account"]]
+        if "default_account" in hv.config:
+            account = [hv.config["default_account"]]
     for name in account:
-        a = Account(name, hive_instance=stm)
+        a = Account(name, hive_instance=hv)
         print("\n@%s" % a.name)
         t = PrettyTable(["Account", "HIVE", "HBD", "VESTS"])
         t.align = "r"
@@ -1059,12 +1059,12 @@ def balance(account):
 def interest(account):
     """ Get information about interest payment
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        if "default_account" in stm.config:
-            account = [stm.config["default_account"]]
+        if "default_account" in hv.config:
+            account = [hv.config["default_account"]]
 
     t = PrettyTable([
         "Account", "Last Interest Payment", "Next Payment",
@@ -1072,7 +1072,7 @@ def interest(account):
     ])
     t.align = "r"
     for a in account:
-        a = Account(a, hive_instance=stm)
+        a = Account(a, hive_instance=hv)
         i = a.interest()
         t.add_row([
             a["name"],
@@ -1089,14 +1089,14 @@ def interest(account):
 def follower(account):
     """ Get information about followers
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        if "default_account" in stm.config:
-            account = [stm.config["default_account"]]
+        if "default_account" in hv.config:
+            account = [hv.config["default_account"]]
     for a in account:
-        a = Account(a, hive_instance=stm)
+        a = Account(a, hive_instance=hv)
         print("\nFollowers statistics for @%s (please wait...)" % a.name)
         followers = a.get_followers(False)
         followers.print_summarize_table(tag_type="Followers")
@@ -1107,14 +1107,14 @@ def follower(account):
 def following(account):
     """ Get information about following
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        if "default_account" in stm.config:
-            account = [stm.config["default_account"]]
+        if "default_account" in hv.config:
+            account = [hv.config["default_account"]]
     for a in account:
-        a = Account(a, hive_instance=stm)
+        a = Account(a, hive_instance=hv)
         print("\nFollowing statistics for @%s (please wait...)" % a.name)
         following = a.get_following(False)
         following.print_summarize_table(tag_type="Following")
@@ -1125,14 +1125,14 @@ def following(account):
 def muter(account):
     """ Get information about muter
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        if "default_account" in stm.config:
-            account = [stm.config["default_account"]]
+        if "default_account" in hv.config:
+            account = [hv.config["default_account"]]
     for a in account:
-        a = Account(a, hive_instance=stm)
+        a = Account(a, hive_instance=hv)
         print("\nMuters statistics for @%s (please wait...)" % a.name)
         muters = a.get_muters(False)
         muters.print_summarize_table(tag_type="Muters")
@@ -1143,14 +1143,14 @@ def muter(account):
 def muting(account):
     """ Get information about muting
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        if "default_account" in stm.config:
-            account = [stm.config["default_account"]]
+        if "default_account" in hv.config:
+            account = [hv.config["default_account"]]
     for a in account:
-        a = Account(a, hive_instance=stm)
+        a = Account(a, hive_instance=hv)
         print("\nMuting statistics for @%s (please wait...)" % a.name)
         muting = a.get_mutings(False)
         muting.print_summarize_table(tag_type="Muting")
@@ -1161,13 +1161,13 @@ def muting(account):
 def permissions(account):
     """ Show permissions of an account
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        if "default_account" in stm.config:
-            account = stm.config["default_account"]
-    account = Account(account, hive_instance=stm)
+        if "default_account" in hv.config:
+            account = hv.config["default_account"]
+    account = Account(account, hive_instance=hv)
     t = PrettyTable(["Permission", "Threshold", "Key/Account"], hrules=0)
     t.align = "r"
     for permission in ["owner", "active", "posting"]:
@@ -1199,26 +1199,26 @@ def allow(foreign_account, permission, account, weight, threshold):
             When not given, password will be asked, from which a public key is derived.
             This derived key will then interact with your account.
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        account = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        account = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
     if permission not in ["posting", "active", "owner"]:
         print("Wrong permission, please use: posting, active or owner!")
         return
-    acc = Account(account, hive_instance=stm)
+    acc = Account(account, hive_instance=hv)
     if not foreign_account:
         from beemgraphenebase.account import PasswordKey
         pwd = click.prompt("Password for Key Derivation", confirmation_prompt=True, hide_input=True)
-        foreign_account = format(PasswordKey(account, pwd, permission).get_public(), stm.prefix)
+        foreign_account = format(PasswordKey(account, pwd, permission).get_public(), hv.prefix)
     if threshold is not None:
         threshold = int(threshold)
     tx = acc.allow(foreign_account, weight=weight, permission=permission, threshold=threshold)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -1231,26 +1231,26 @@ def allow(foreign_account, permission, account, weight, threshold):
               'by signatures to be able to interact')
 def disallow(foreign_account, permission, account, threshold):
     """Remove allowance an account/key to interact with your account"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        account = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        account = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
     if permission not in ["posting", "active", "owner"]:
         print("Wrong permission, please use: posting, active or owner!")
         return
     if threshold is not None:
         threshold = int(threshold)
-    acc = Account(account, hive_instance=stm)
+    acc = Account(account, hive_instance=hv)
     if not foreign_account:
         from beemgraphenebase.account import PasswordKey
         pwd = click.prompt("Password for Key Derivation", confirmation_prompt=True)
-        foreign_account = [format(PasswordKey(account, pwd, permission).get_public(), stm.prefix)]
+        foreign_account = [format(PasswordKey(account, pwd, permission).get_public(), hv.prefix)]
     tx = acc.disallow(foreign_account, permission=permission, threshold=threshold)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -1261,21 +1261,21 @@ def disallow(foreign_account, permission, account, threshold):
 @click.option('--number', '-n', help='Number of subsidized accounts to be claimed (default = 1), when fee = 0 HIVE', default=1)
 def claimaccount(creator, fee, number):
     """Claim account for claimed account creation."""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not creator:
-        creator = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        creator = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
-    creator = Account(creator, hive_instance=stm)
-    fee = Amount("%.3f %s" % (float(fee), stm.hive_symbol), hive_instance=stm)
+    creator = Account(creator, hive_instance=hv)
+    fee = Amount("%.3f %s" % (float(fee), hv.hive_symbol), hive_instance=hv)
     tx = None
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.claim_account(creator, fee=fee)
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.claim_account(creator, fee=fee)
+        tx = hv.hiveconnect.url_from_tx(tx)
     elif float(fee) == 0:
-        rc = RC(hive_instance=stm)
+        rc = RC(hive_instance=hv)
         current_costs = rc.claim_account(tx_size=200)
         current_mana = creator.get_rc_manabar()["current_mana"]
         last_mana = current_mana
@@ -1288,7 +1288,7 @@ def claimaccount(creator, fee, number):
                 tx = json.dumps(tx, indent=4)
                 print(tx)
             cnt += 1
-            tx = stm.claim_account(creator, fee=fee)
+            tx = hv.claim_account(creator, fee=fee)
             time.sleep(10)
             creator.refresh()
             current_mana = creator.get_rc_manabar()["current_mana"]
@@ -1297,7 +1297,7 @@ def claimaccount(creator, fee, number):
         if cnt == 0:
             print("Not enough RC for a claim!")
     else:
-        tx = stm.claim_account(creator, fee=fee)
+        tx = hv.claim_account(creator, fee=fee)
     if tx is not None:
         tx = json.dumps(tx, indent=4)
         print(tx)
@@ -1313,30 +1313,30 @@ def claimaccount(creator, fee, number):
 @click.option('--create-claimed-account', '-c', help='Instead of paying the account creation fee a subsidized account is created.', is_flag=True, default=False)
 def newaccount(accountname, account, owner, active, memo, posting, create_claimed_account):
     """Create a new account"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        account = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        account = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
-    acc = Account(account, hive_instance=stm)
+    acc = Account(account, hive_instance=hv)
     if owner is None or active is None or memo is None or posting is None:
         password = click.prompt("Keys were not given - Passphrase is used to create keys\n New Account Passphrase", confirmation_prompt=True, hide_input=True)
         if not password:
             print("You cannot chose an empty password")
             return
         if create_claimed_account:
-            tx = stm.create_claimed_account(accountname, creator=acc, password=password)
+            tx = hv.create_claimed_account(accountname, creator=acc, password=password)
         else:
-            tx = stm.create_account(accountname, creator=acc, password=password)
+            tx = hv.create_account(accountname, creator=acc, password=password)
     else:
         if create_claimed_account:
-            tx = stm.create_claimed_account(accountname, creator=acc, owner_key=owner, active_key=active, memo_key=memo, posting_key=posting)
+            tx = hv.create_claimed_account(accountname, creator=acc, owner_key=owner, active_key=active, memo_key=memo, posting_key=posting)
         else:
-            tx = stm.create_account(accountname, creator=acc, owner_key=owner, active_key=active, memo_key=memo, posting_key=posting)        
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+            tx = hv.create_account(accountname, creator=acc, owner_key=owner, active_key=active, memo_key=memo, posting_key=posting)        
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -1348,9 +1348,9 @@ def newaccount(accountname, account, owner, active, memo, posting, create_claime
 @click.option('--pair', '-p', help='"Key=Value" pairs', multiple=True)
 def setprofile(variable, value, account, pair):
     """Set a variable in an account\'s profile"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     keys = []
     values = []
     if pair:
@@ -1365,16 +1365,16 @@ def setprofile(variable, value, account, pair):
     profile = Profile(keys, values)
 
     if not account:
-        account = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        account = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
-    acc = Account(account, hive_instance=stm)
+    acc = Account(account, hive_instance=hv)
 
     json_metadata = Profile(acc["json_metadata"] if acc["json_metadata"] else {})
     json_metadata.update(profile)
     tx = acc.update_account_profile(json_metadata)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -1384,23 +1384,23 @@ def setprofile(variable, value, account, pair):
 @click.option('--account', '-a', help='delprofile as this user')
 def delprofile(variable, account):
     """Delete a variable in an account\'s profile"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
 
     if not account:
-        account = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        account = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
-    acc = Account(account, hive_instance=stm)
+    acc = Account(account, hive_instance=hv)
     json_metadata = Profile(acc["json_metadata"])
 
     for var in variable:
         json_metadata.remove(var)
 
     tx = acc.update_account_profile(json_metadata)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -1411,12 +1411,12 @@ def delprofile(variable, account):
 def importaccount(account, roles):
     """Import an account using a passphrase"""
     from beemgraphenebase.account import PasswordKey
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
-    if not unlock_wallet(stm):
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
+    if not unlock_wallet(hv):
         return
-    account = Account(account, hive_instance=stm)
+    account = Account(account, hive_instance=hv)
     imported = False
     password = click.prompt("Account Passphrase", confirmation_prompt=False, hide_input=True)
     if not password:
@@ -1424,40 +1424,40 @@ def importaccount(account, roles):
         return
     if "owner" in roles:
         owner_key = PasswordKey(account["name"], password, role="owner")
-        owner_pubkey = format(owner_key.get_public_key(), stm.prefix)
+        owner_pubkey = format(owner_key.get_public_key(), hv.prefix)
         if owner_pubkey in [x[0] for x in account["owner"]["key_auths"]]:
             print("Importing owner key!")
             owner_privkey = owner_key.get_private_key()
-            stm.wallet.addPrivateKey(owner_privkey)
+            hv.wallet.addPrivateKey(owner_privkey)
             imported = True
 
     if "active" in roles:
         active_key = PasswordKey(account["name"], password, role="active")
-        active_pubkey = format(active_key.get_public_key(), stm.prefix)
+        active_pubkey = format(active_key.get_public_key(), hv.prefix)
         if active_pubkey in [x[0] for x in account["active"]["key_auths"]]:
             print("Importing active key!")
             active_privkey = active_key.get_private_key()
-            stm.wallet.addPrivateKey(active_privkey)
+            hv.wallet.addPrivateKey(active_privkey)
             imported = True
 
     if "posting" in roles:
         posting_key = PasswordKey(account["name"], password, role="posting")
-        posting_pubkey = format(posting_key.get_public_key(), stm.prefix)
+        posting_pubkey = format(posting_key.get_public_key(), hv.prefix)
         if posting_pubkey in [
             x[0] for x in account["posting"]["key_auths"]
         ]:
             print("Importing posting key!")
             posting_privkey = posting_key.get_private_key()
-            stm.wallet.addPrivateKey(posting_privkey)
+            hv.wallet.addPrivateKey(posting_privkey)
             imported = True
 
     if "memo" in roles:
         memo_key = PasswordKey(account["name"], password, role="memo")
-        memo_pubkey = format(memo_key.get_public_key(), stm.prefix)
+        memo_pubkey = format(memo_key.get_public_key(), hv.prefix)
         if memo_pubkey == account["memo_key"]:
             print("Importing memo key!")
             memo_privkey = memo_key.get_private_key()
-            stm.wallet.addPrivateKey(memo_privkey)
+            hv.wallet.addPrivateKey(memo_privkey)
             imported = True
 
     if not imported:
@@ -1469,25 +1469,25 @@ def importaccount(account, roles):
 @click.option('--key', help='The new memo key')
 def updatememokey(account, key):
     """Update an account\'s memo key"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        account = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        account = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
-    acc = Account(account, hive_instance=stm)
+    acc = Account(account, hive_instance=hv)
     if not key:
         from beemgraphenebase.account import PasswordKey
         pwd = click.prompt("Password for Memo Key Derivation", confirmation_prompt=True, hide_input=True)
         memo_key = PasswordKey(account, pwd, "memo")
-        key = format(memo_key.get_public_key(), stm.prefix)
+        key = format(memo_key.get_public_key(), hv.prefix)
         memo_privkey = memo_key.get_private_key()
-        if not stm.nobroadcast:
-            stm.wallet.addPrivateKey(memo_privkey)
+        if not hv.nobroadcast:
+            hv.wallet.addPrivateKey(memo_privkey)
     tx = acc.update_memo_key(key)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -1497,15 +1497,15 @@ def updatememokey(account, key):
 @click.argument('beneficiaries', nargs=-1)
 def beneficiaries(authorperm, beneficiaries):
     """Set beneficaries"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
-    c = Comment(authorperm, hive_instance=stm)
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
+    c = Comment(authorperm, hive_instance=hv)
     account = c["author"]
 
     if not account:
-        account = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        account = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
 
     options = {"author": c["author"],
@@ -1519,10 +1519,10 @@ def beneficiaries(authorperm, beneficiaries):
         beneficiaries = beneficiaries[0].split(",")
     beneficiaries_list_sorted = derive_beneficiaries(beneficiaries)
     for b in beneficiaries_list_sorted:
-        Account(b["account"], hive_instance=stm)
-    tx = stm.comment_options(options, authorperm, beneficiaries_list_sorted, account=account)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+        Account(b["account"], hive_instance=hv)
+    tx = hv.comment_options(options, authorperm, beneficiaries_list_sorted, account=account)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -1532,14 +1532,14 @@ def beneficiaries(authorperm, beneficiaries):
 @click.option('--account', '-a', help='Account name')
 @click.option('--image-name', '-n', help='Image name')
 def uploadimage(image, account, image_name):
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        account = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        account = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
-    iu = ImageUploader(hive_instance=stm)
+    iu = ImageUploader(hive_instance=hv)
     tx = iu.upload(image, account, image_name)
     if image_name is None:
         print("![](%s)" % tx["url"])
@@ -1561,14 +1561,14 @@ def uploadimage(image, account, image_name):
 @click.option('--no-parse-body', help='Disable parsing of links, tags and images', is_flag=True, default=False)
 def post(body, account, title, permlink, tags, reply_identifier, community, beneficiaries, percent_hive_dollars, max_accepted_payout, no_parse_body):
     """broadcasts a post/comment"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
 
     if not account:
-        account = stm.config["default_account"]
+        account = hv.config["default_account"]
     author = account
-    if not unlock_wallet(stm):
+    if not unlock_wallet(hv):
         return
     with open(body) as f:
         content = f.read()
@@ -1624,8 +1624,8 @@ def post(body, account, title, permlink, tags, reply_identifier, community, bene
     if max_accepted_payout is not None or percent_hive_dollars is not None:
         comment_options = {}
     if max_accepted_payout is not None:
-        if stm.hbd_symbol not in max_accepted_payout:
-            max_accepted_payout = str(Amount(float(max_accepted_payout), stm.hbd_symbol, hive_instance=stm))
+        if hv.hbd_symbol not in max_accepted_payout:
+            max_accepted_payout = str(Amount(float(max_accepted_payout), hv.hbd_symbol, hive_instance=hv))
         comment_options["max_accepted_payout"] = max_accepted_payout
     if percent_hive_dollars is not None:
         comment_options["percent_hive_dollars"] = percent_hive_dollars
@@ -1633,11 +1633,11 @@ def post(body, account, title, permlink, tags, reply_identifier, community, bene
     if "beneficiaries" in parameter:
         beneficiaries = derive_beneficiaries(parameter["beneficiaries"])
         for b in beneficiaries:
-            Account(b["account"], hive_instance=stm)
-    tx = stm.post(title, body, author=author, permlink=permlink, reply_identifier=reply_identifier, community=community,
+            Account(b["account"], hive_instance=hv)
+    tx = hv.post(title, body, author=author, permlink=permlink, reply_identifier=reply_identifier, community=community,
                   tags=tags, comment_options=comment_options, beneficiaries=beneficiaries, parse_body=parse_body)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -1649,20 +1649,20 @@ def post(body, account, title, permlink, tags, reply_identifier, community, bene
 @click.option('--title', '-t', help='Title of the post')
 def reply(authorperm, body, account, title):
     """replies to a comment"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
 
     if not account:
-        account = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        account = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
     
     if title is None:
         title = ""
-    tx = stm.post(title, body, json_metadata=None, author=account, reply_identifier=authorperm)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    tx = hv.post(title, body, json_metadata=None, author=account, reply_identifier=authorperm)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -1672,17 +1672,17 @@ def reply(authorperm, body, account, title):
 @click.option('--account', '-a', help='Your account')
 def approvewitness(witness, account):
     """Approve a witnesses"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        account = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        account = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
-    acc = Account(account, hive_instance=stm)
+    acc = Account(account, hive_instance=hv)
     tx = acc.approvewitness(witness, approve=True)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -1692,17 +1692,17 @@ def approvewitness(witness, account):
 @click.option('--account', '-a', help='Your account')
 def disapprovewitness(witness, account):
     """Disapprove a witnesses"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        account = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        account = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
-    acc = Account(account, hive_instance=stm)
+    acc = Account(account, hive_instance=hv)
     tx = acc.disapprovewitness(witness)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -1712,10 +1712,10 @@ def disapprovewitness(witness, account):
 @click.option('--outfile', '-o', help='Load transaction from file. If "-", read from stdin (defaults to "-")')
 def sign(file, outfile):
     """Sign a provided transaction with available and required keys"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
-    if not unlock_wallet(stm):
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
+    if not unlock_wallet(hv):
         return
     if file and file != "-":
         if not os.path.isfile(file):
@@ -1728,7 +1728,7 @@ def sign(file, outfile):
     else:
         tx = click.get_text_stream('stdin')
     tx = ast.literal_eval(tx)
-    tx = stm.sign(tx, reconstruct_tx=False)
+    tx = hv.sign(tx, reconstruct_tx=False)
     tx = json.dumps(tx, indent=4)
     if outfile and outfile != "-":
         with open(outfile, 'w') as fp:
@@ -1741,9 +1741,9 @@ def sign(file, outfile):
 @click.option('--file', help='Load transaction from file. If "-", read from stdin (defaults to "-")')
 def broadcast(file):
     """broadcast a signed transaction"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if file and file != "-":
         if not os.path.isfile(file):
             raise Exception("File %s does not exist!" % file)
@@ -1755,7 +1755,7 @@ def broadcast(file):
     else:
         tx = click.get_text_stream('stdin')
     tx = ast.literal_eval(tx)
-    tx = stm.broadcast(tx)
+    tx = hv.broadcast(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -1765,12 +1765,12 @@ def broadcast(file):
 def ticker(hbd_to_hive):
     """ Show ticker
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     t = PrettyTable(["Key", "Value"])
     t.align = "l"
-    market = Market(hive_instance=stm)
+    market = Market(hive_instance=hv)
     ticker = market.ticker()
     for key in ticker:
         if key in ["highest_bid", "latest", "lowest_ask"] and hbd_to_hive:
@@ -1791,17 +1791,17 @@ def ticker(hbd_to_hive):
 def pricehistory(width, height, ascii):
     """ Show price history
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
-    feed_history = stm.get_feed_history()
-    current_base = Amount(feed_history['current_median_history']["base"], hive_instance=stm)
-    current_quote = Amount(feed_history['current_median_history']["quote"], hive_instance=stm)
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
+    feed_history = hv.get_feed_history()
+    current_base = Amount(feed_history['current_median_history']["base"], hive_instance=hv)
+    current_quote = Amount(feed_history['current_median_history']["quote"], hive_instance=hv)
     price_history = feed_history["price_history"]
     price = []
     for h in price_history:
-        base = Amount(h["base"], hive_instance=stm)
-        quote = Amount(h["quote"], hive_instance=stm)
+        base = Amount(h["base"], hive_instance=hv)
+        quote = Amount(h["quote"], hive_instance=hv)
         price.append(float(base.amount / quote.amount))
     if ascii:
         charset = u'ascii'
@@ -1829,10 +1829,10 @@ def pricehistory(width, height, ascii):
 def tradehistory(days, hours, hbd_to_hive, limit, width, height, ascii):
     """ Show price history
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
-    m = Market(hive_instance=stm)
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
+    m = Market(hive_instance=hv)
     utc = pytz.timezone('UTC')
     stop = utc.localize(datetime.utcnow())
     start = stop - timedelta(days=days)
@@ -1840,9 +1840,9 @@ def tradehistory(days, hours, hbd_to_hive, limit, width, height, ascii):
     trades = m.trade_history(start=start, stop=stop, limit=limit, intervall=intervall)
     price = []
     if hbd_to_hive:
-        base_str = stm.hive_symbol
+        base_str = hv.hive_symbol
     else:
-        base_str = stm.hbd_symbol
+        base_str = hv.hbd_symbol
     for trade in trades:
         base = 0
         quote = 0
@@ -1875,10 +1875,10 @@ def tradehistory(days, hours, hbd_to_hive, limit, width, height, ascii):
 @click.option('--ascii', help='Use only ascii symbols', is_flag=True, default=False)
 def orderbook(chart, limit, show_date, width, height, ascii):
     """Obtain orderbook of the internal market"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
-    market = Market(hive_instance=stm)
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
+    market = Market(hive_instance=hv)
     orderbook = market.orderbook(limit=limit, raw_data=False)
     if not show_date:
         header = ["Asks Sum HBD", "Sell Orders", "Bids Sum HBD", "Buy Orders"]
@@ -1973,36 +1973,36 @@ def buy(amount, asset, price, account, orderid):
 
         Limit buy price denoted in (HBD per HIVE)
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if account is None:
-        account = stm.config["default_account"]
-    if asset == stm.hbd_symbol:
-        market = Market(base=Asset(stm.hive_symbol), quote=Asset(stm.hbd_symbol), hive_instance=stm)
+        account = hv.config["default_account"]
+    if asset == hv.hbd_symbol:
+        market = Market(base=Asset(hv.hive_symbol), quote=Asset(hv.hbd_symbol), hive_instance=hv)
     else:
-        market = Market(base=Asset(stm.hbd_symbol), quote=Asset(stm.hive_symbol), hive_instance=stm)
+        market = Market(base=Asset(hv.hbd_symbol), quote=Asset(hv.hive_symbol), hive_instance=hv)
     if price is None:
         orderbook = market.orderbook(limit=1, raw_data=False)
-        if asset == stm.hive_symbol and len(orderbook["bids"]) > 0:
-            p = Price(orderbook["bids"][0]["base"], orderbook["bids"][0]["quote"], hive_instance=stm).invert()
+        if asset == hv.hive_symbol and len(orderbook["bids"]) > 0:
+            p = Price(orderbook["bids"][0]["base"], orderbook["bids"][0]["quote"], hive_instance=hv).invert()
             p_show = p
         elif len(orderbook["asks"]) > 0:
-            p = Price(orderbook["asks"][0]["base"], orderbook["asks"][0]["quote"], hive_instance=stm).invert()
+            p = Price(orderbook["asks"][0]["base"], orderbook["asks"][0]["quote"], hive_instance=hv).invert()
             p_show = p
         price_ok = click.prompt("Is the following Price ok: %s [y/n]" % (str(p_show)))
         if price_ok not in ["y", "ye", "yes"]:
             return
     else:
-        p = Price(float(price), u"%s:%s" % (stm.hbd_symbol, stm.hive_symbol), hive_instance=stm)
-    if not unlock_wallet(stm):
+        p = Price(float(price), u"%s:%s" % (hv.hbd_symbol, hv.hive_symbol), hive_instance=hv)
+    if not unlock_wallet(hv):
         return
 
-    a = Amount(float(amount), asset, hive_instance=stm)
-    acc = Account(account, hive_instance=stm)
+    a = Amount(float(amount), asset, hive_instance=hv)
+    acc = Account(account, hive_instance=hv)
     tx = market.buy(p, a, account=acc, orderid=orderid)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -2018,35 +2018,35 @@ def sell(amount, asset, price, account, orderid):
 
         Limit sell price denoted in (HBD per HIVE)
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
-    if asset == stm.hbd_symbol:
-        market = Market(base=Asset(stm.hive_symbol), quote=Asset(stm.hbd_symbol), hive_instance=stm)
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
+    if asset == hv.hbd_symbol:
+        market = Market(base=Asset(hv.hive_symbol), quote=Asset(hv.hbd_symbol), hive_instance=hv)
     else:
-        market = Market(base=Asset(stm.hbd_symbol), quote=Asset(stm.hive_symbol), hive_instance=stm)
+        market = Market(base=Asset(hv.hbd_symbol), quote=Asset(hv.hive_symbol), hive_instance=hv)
     if not account:
-        account = stm.config["default_account"]
+        account = hv.config["default_account"]
     if not price:
         orderbook = market.orderbook(limit=1, raw_data=False)
-        if asset == stm.hbd_symbol and len(orderbook["bids"]) > 0:
-            p = Price(orderbook["bids"][0]["base"], orderbook["bids"][0]["quote"], hive_instance=stm).invert()
+        if asset == hv.hbd_symbol and len(orderbook["bids"]) > 0:
+            p = Price(orderbook["bids"][0]["base"], orderbook["bids"][0]["quote"], hive_instance=hv).invert()
             p_show = p
         else:
-            p = Price(orderbook["asks"][0]["base"], orderbook["asks"][0]["quote"], hive_instance=stm).invert()
+            p = Price(orderbook["asks"][0]["base"], orderbook["asks"][0]["quote"], hive_instance=hv).invert()
             p_show = p
         price_ok = click.prompt("Is the following Price ok: %s [y/n]" % (str(p_show)))
         if price_ok not in ["y", "ye", "yes"]:
             return
     else:
-        p = Price(float(price), u"%s:%s" % (stm.hbd_symbol, stm.hive_symbol), hive_instance=stm)
-    if not unlock_wallet(stm):
+        p = Price(float(price), u"%s:%s" % (hv.hbd_symbol, hv.hive_symbol), hive_instance=hv)
+    if not unlock_wallet(hv):
         return
-    a = Amount(float(amount), asset, hive_instance=stm)
-    acc = Account(account, hive_instance=stm)
+    a = Amount(float(amount), asset, hive_instance=hv)
+    acc = Account(account, hive_instance=hv)
     tx = market.sell(p, a, account=acc, orderid=orderid)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -2056,18 +2056,18 @@ def sell(amount, asset, price, account, orderid):
 @click.option('--account', '-a', help='Sell with this account (defaults to "default_account")')
 def cancel(orderid, account):
     """Cancel order in the internal market"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
-    market = Market(hive_instance=stm)
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
+    market = Market(hive_instance=hv)
     if not account:
-        account = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        account = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
-    acc = Account(account, hive_instance=stm)
+    acc = Account(account, hive_instance=hv)
     tx = market.cancel(orderid, account=acc)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -2076,13 +2076,13 @@ def cancel(orderid, account):
 @click.argument('account', nargs=1, required=False)
 def openorders(account):
     """Show open orders"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
-    market = Market(hive_instance=stm)
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
+    market = Market(hive_instance=hv)
     if not account:
-        account = stm.config["default_account"]
-    acc = Account(account, hive_instance=stm)
+        account = hv.config["default_account"]
+    acc = Account(account, hive_instance=hv)
     openorders = market.accountopenorders(account=acc)
     t = PrettyTable(["Orderid", "Created", "Order", "Account"], hrules=0)
     t.align = "r"
@@ -2099,18 +2099,18 @@ def openorders(account):
 @click.option('--account', '-a', help='Rehive as this user')
 def rehive(identifier, account):
     """Rehive an existing post"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        account = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        account = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
-    acc = Account(account, hive_instance=stm)
-    post = Comment(identifier, hive_instance=stm)
+    acc = Account(account, hive_instance=hv)
+    post = Comment(identifier, hive_instance=hv)
     tx = post.rehive(account=acc)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -2121,19 +2121,19 @@ def rehive(identifier, account):
 @click.option('--what', help='Follow these objects (defaults to ["blog"])', default=["blog"])
 def follow(follow, account, what):
     """Follow another account"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        account = stm.config["default_account"]
+        account = hv.config["default_account"]
     if isinstance(what, str):
         what = [what]
-    if not unlock_wallet(stm):
+    if not unlock_wallet(hv):
         return
-    acc = Account(account, hive_instance=stm)
+    acc = Account(account, hive_instance=hv)
     tx = acc.follow(follow, what=what)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -2144,19 +2144,19 @@ def follow(follow, account, what):
 @click.option('--what', help='Mute these objects (defaults to ["ignore"])', default=["ignore"])
 def mute(mute, account, what):
     """Mute another account"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        account = stm.config["default_account"]
+        account = hv.config["default_account"]
     if isinstance(what, str):
         what = [what]
-    if not unlock_wallet(stm):
+    if not unlock_wallet(hv):
         return
-    acc = Account(account, hive_instance=stm)
+    acc = Account(account, hive_instance=hv)
     tx = acc.follow(mute, what=what)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -2166,17 +2166,17 @@ def mute(mute, account, what):
 @click.option('--account', '-a', help='UnFollow/UnMute from this account')
 def unfollow(unfollow, account):
     """Unfollow/Unmute another account"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        account = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        account = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
-    acc = Account(account, hive_instance=stm)
+    acc = Account(account, hive_instance=hv)
     tx = acc.unfollow(unfollow)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -2190,25 +2190,25 @@ def unfollow(unfollow, account):
 @click.option('--signing_key', help='Signing Key')
 def witnessupdate(witness, maximum_block_size, account_creation_fee, hbd_interest_rate, url, signing_key):
     """Change witness properties"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not witness:
-        witness = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        witness = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
-    witness = Witness(witness, hive_instance=stm)
+    witness = Witness(witness, hive_instance=hv)
     props = witness["props"]
     if account_creation_fee is not None:
         props["account_creation_fee"] = str(
-            Amount("%.3f %s" % (float(account_creation_fee), stm.hive_symbol), hive_instance=stm))
+            Amount("%.3f %s" % (float(account_creation_fee), hv.hive_symbol), hive_instance=hv))
     if maximum_block_size is not None:
         props["maximum_block_size"] = int(maximum_block_size)
     if hbd_interest_rate is not None:
         props["hbd_interest_rate"] = int(float(hbd_interest_rate) * 100)
     tx = witness.update(signing_key or witness["signing_key"], url or witness["url"], props)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -2217,21 +2217,21 @@ def witnessupdate(witness, maximum_block_size, account_creation_fee, hbd_interes
 @click.argument('witness', nargs=1)
 def witnessdisable(witness):
     """Disable a witness"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not witness:
-        witness = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        witness = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
-    witness = Witness(witness, hive_instance=stm)
+    witness = Witness(witness, hive_instance=hv)
     if not witness.is_active:
         print("Cannot disable a disabled witness!")
         return
     props = witness["props"]
     tx = witness.update('STM1111111111111111111111111111111114T1Anm', witness["url"], props)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -2241,18 +2241,18 @@ def witnessdisable(witness):
 @click.argument('signing_key', nargs=1)
 def witnessenable(witness, signing_key):
     """Enable a witness"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not witness:
-        witness = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        witness = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
-    witness = Witness(witness, hive_instance=stm)
+    witness = Witness(witness, hive_instance=hv)
     props = witness["props"]
     tx = witness.update(signing_key, witness["url"], props)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -2266,23 +2266,23 @@ def witnessenable(witness, signing_key):
 @click.option('--url', help='Witness URL', default="")
 def witnesscreate(witness, pub_signing_key, maximum_block_size, account_creation_fee, hbd_interest_rate, url):
     """Create a witness"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
-    if not unlock_wallet(stm):
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
+    if not unlock_wallet(hv):
         return
     props = {
         "account_creation_fee":
-            Amount("%.3f %s" % (float(account_creation_fee), stm.hive_symbol), hive_instance=stm),
+            Amount("%.3f %s" % (float(account_creation_fee), hv.hive_symbol), hive_instance=hv),
         "maximum_block_size":
             int(maximum_block_size),
         "hbd_interest_rate":
             int(hbd_interest_rate * 100)
     }
 
-    tx = stm.witness_update(pub_signing_key, url, props, account=witness)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    tx = hv.witness_update(pub_signing_key, url, props, account=witness)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -2299,14 +2299,14 @@ def witnesscreate(witness, pub_signing_key, maximum_block_size, account_creation
 @click.option('--url', help='Witness URL')
 def witnessproperties(witness, wif, account_creation_fee, account_subsidy_budget, account_subsidy_decay, maximum_block_size, hbd_interest_rate, new_signing_key, url):
     """Update witness properties of witness WITNESS with the witness signing key WIF"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
-    # if not unlock_wallet(stm):
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
+    # if not unlock_wallet(hv):
     #    return
     props = {}
     if account_creation_fee is not None:
-        props["account_creation_fee"] = Amount("%.3f %s" % (float(account_creation_fee), stm.hive_symbol), hive_instance=stm)
+        props["account_creation_fee"] = Amount("%.3f %s" % (float(account_creation_fee), hv.hive_symbol), hive_instance=hv)
     if account_subsidy_budget is not None:
         props["account_subsidy_budget"] = int(account_subsidy_budget)
     if account_subsidy_decay is not None:
@@ -2320,9 +2320,9 @@ def witnessproperties(witness, wif, account_creation_fee, account_subsidy_budget
     if url is not None:
         props["url"] = url
 
-    tx = stm.witness_set_properties(wif, witness, props)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    tx = hv.witness_set_properties(wif, witness, props)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -2335,50 +2335,50 @@ def witnessproperties(witness, wif, account_creation_fee, account_subsidy_budget
 @click.option('--support-peg', help='Supports peg adjusting the quote, is overwritten by --set-quote!', is_flag=True, default=False)
 def witnessfeed(witness, wif, base, quote, support_peg):
     """Publish price feed for a witness"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if wif is None:
-        if not unlock_wallet(stm):
+        if not unlock_wallet(hv):
             return
-    witness = Witness(witness, hive_instance=stm)
-    market = Market(hive_instance=stm)
+    witness = Witness(witness, hive_instance=hv)
+    market = Market(hive_instance=hv)
     old_base = witness["hbd_exchange_rate"]["base"]
     old_quote = witness["hbd_exchange_rate"]["quote"]
-    last_published_price = Price(witness["hbd_exchange_rate"], hive_instance=stm)
+    last_published_price = Price(witness["hbd_exchange_rate"], hive_instance=hv)
     hive_usd = None
     print("Old price %.3f (base: %s, quote %s)" % (float(last_published_price), old_base, old_quote))
     if quote is None and not support_peg:
-        quote = Amount("1.000 %s" % stm.hive_symbol, hive_instance=stm)
+        quote = Amount("1.000 %s" % hv.hive_symbol, hive_instance=hv)
     elif quote is None:
         latest_price = market.ticker()['latest']
         if hive_usd is None:
             hive_usd = market.hive_usd_implied()
-        hbd_usd = float(latest_price.as_base(stm.hbd_symbol)) * hive_usd
-        quote = Amount(1. / hbd_usd, stm.hive_symbol, hive_instance=stm)
+        hbd_usd = float(latest_price.as_base(hv.hbd_symbol)) * hive_usd
+        quote = Amount(1. / hbd_usd, hv.hive_symbol, hive_instance=hv)
     else:
-        if str(quote[-5:]).upper() == stm.hive_symbol:
-            quote = Amount(quote, hive_instance=stm)
+        if str(quote[-5:]).upper() == hv.hive_symbol:
+            quote = Amount(quote, hive_instance=hv)
         else:
-            quote = Amount(quote, stm.hive_symbol, hive_instance=stm)
+            quote = Amount(quote, hv.hive_symbol, hive_instance=hv)
     if base is None:
         if hive_usd is None:
             hive_usd = market.hive_usd_implied()
-        base = Amount(hive_usd, stm.hbd_symbol, hive_instance=stm)
+        base = Amount(hive_usd, hv.hbd_symbol, hive_instance=hv)
     else:
-        if str(quote[-3:]).upper() == stm.hbd_symbol:
-            base = Amount(base, hive_instance=stm)
+        if str(quote[-3:]).upper() == hv.hbd_symbol:
+            base = Amount(base, hive_instance=hv)
         else:
-            base = Amount(base, stm.hbd_symbol, hive_instance=stm)
-    new_price = Price(base=base, quote=quote, hive_instance=stm)
+            base = Amount(base, hv.hbd_symbol, hive_instance=hv)
+    new_price = Price(base=base, quote=quote, hive_instance=hv)
     print("New price %.3f (base: %s, quote %s)" % (float(new_price), base, quote))
     if wif is not None:
         props = {"hbd_exchange_rate": new_price}
-        tx = stm.witness_set_properties(wif, witness["owner"], props)
+        tx = hv.witness_set_properties(wif, witness["owner"], props)
     else:
         tx = witness.feed_publish(base, quote=quote)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -2388,13 +2388,13 @@ def witnessfeed(witness, wif, base, quote, support_peg):
 def witness(witness):
     """ List witness information
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
-    witness = Witness(witness, hive_instance=stm)
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
+    witness = Witness(witness, hive_instance=hv)
     witness_json = witness.json()
-    witness_schedule = stm.get_witness_schedule()
-    config = stm.get_config()
+    witness_schedule = hv.get_witness_schedule()
+    config = hv.get_config()
     if "VIRTUAL_SCHEDULE_LAP_LENGTH2" in config:
         lap_length = int(config["VIRTUAL_SCHEDULE_LAP_LENGTH2"])
     else:
@@ -2402,7 +2402,7 @@ def witness(witness):
     rank = 0
     active_rank = 0
     found = False
-    witnesses = WitnessesRankedByVote(limit=250, hive_instance=stm)
+    witnesses = WitnessesRankedByVote(limit=250, hive_instance=hv)
     vote_sum = witnesses.get_votes_sum()
     for w in witnesses:
         rank += 1
@@ -2450,21 +2450,21 @@ def witness(witness):
 def witnesses(account, limit):
     """ List witnesses
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if account:
-        account = Account(account, hive_instance=stm)
+        account = Account(account, hive_instance=hv)
         account_name = account["name"]
         if account["proxy"] != "":
             account_name = account["proxy"]
             account_type = "Proxy"
         else:
             account_type = "Account"
-        witnesses = WitnessesVotedByAccount(account_name, hive_instance=stm)
+        witnesses = WitnessesVotedByAccount(account_name, hive_instance=hv)
         print("%s: @%s (%d of 30)" % (account_type, account_name, len(witnesses)))
     else:
-        witnesses = WitnessesRankedByVote(limit=limit, hive_instance=stm)
+        witnesses = WitnessesRankedByVote(limit=limit, hive_instance=hv)
     witnesses.printAsTable()
 
 
@@ -2478,11 +2478,11 @@ def witnesses(account, limit):
 def votes(account, direction, outgoing, incoming, days, export):
     """ List outgoing/incoming account votes
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        account = stm.config["default_account"]
+        account = hv.config["default_account"]
     if direction is None and not incoming and not outgoing:
         direction = "in"
     utc = pytz.timezone('UTC')
@@ -2490,14 +2490,14 @@ def votes(account, direction, outgoing, incoming, days, export):
     out_votes_str = ""
     in_votes_str = ""
     if direction == "out" or outgoing:
-        votes = AccountVotes(account, start=limit_time, hive_instance=stm)
+        votes = AccountVotes(account, start=limit_time, hive_instance=hv)
         out_votes_str = votes.printAsTable(start=limit_time, return_str=True)
     if direction == "in" or incoming:
-        account = Account(account, hive_instance=stm)
+        account = Account(account, hive_instance=hv)
         votes_list = []
         for v in account.history(start=limit_time, only_ops=["vote"]):
             votes_list.append(v)
-        votes = ActiveVotes(votes_list, hive_instance=stm)
+        votes = ActiveVotes(votes_list, hive_instance=hv)
         in_votes_str = votes.printAsTable(votee=account["name"], return_str=True)
     if export:
         with open(export, 'w') as w:
@@ -2534,9 +2534,9 @@ def curation(authorperm, account, limit, min_vote, max_vote, min_performance, ma
         the fifth account vote in the given time duration (default is 7 days)
 
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if authorperm is None:
         authorperm = 'all'
     if account is None and authorperm != 'all':
@@ -2545,11 +2545,11 @@ def curation(authorperm, account, limit, min_vote, max_vote, min_performance, ma
         show_all_voter = False
     if authorperm == 'all' or authorperm.isdigit():
         if not account:
-            account = stm.config["default_account"]
+            account = hv.config["default_account"]
         utc = pytz.timezone('UTC')
         limit_time = utc.localize(datetime.utcnow()) - timedelta(days=days)
-        votes = AccountVotes(account, start=limit_time, hive_instance=stm)
-        authorperm_list = [Comment(vote.authorperm, hive_instance=stm) for vote in votes]
+        votes = AccountVotes(account, start=limit_time, hive_instance=hv)
+        authorperm_list = [Comment(vote.authorperm, hive_instance=hv) for vote in votes]
         if authorperm.isdigit():
             if len(authorperm_list) < int(authorperm):
                 raise ValueError("Authorperm id must be lower than %d" % (len(authorperm_list) + 1))
@@ -2584,7 +2584,7 @@ def curation(authorperm, account, limit, min_vote, max_vote, min_performance, ma
     index = 0
     for authorperm in authorperm_list:
         index += 1
-        comment = Comment(authorperm, hive_instance=stm)
+        comment = Comment(authorperm, hive_instance=hv)
         if payout is not None and comment.is_pending():
             payout = float(payout)
         elif payout is not None:
@@ -2596,7 +2596,7 @@ def curation(authorperm, account, limit, min_vote, max_vote, min_performance, ma
         max_curation = [0, 0, 0, 0, 0, 0]
         highest_vote = [0, 0, 0, 0, 0, 0]
         for vote in comment["active_votes"]:
-            vote_HBD = stm.rshares_to_hbd(int(vote["rshares"]))
+            vote_HBD = hv.rshares_to_hbd(int(vote["rshares"]))
             curation_HBD = curation_rewards_HBD["active_votes"][vote["voter"]]
             curation_HP = curation_rewards_HP["active_votes"][vote["voter"]]
             if vote_HBD > 0:
@@ -2723,11 +2723,11 @@ def curation(authorperm, account, limit, min_vote, max_vote, min_performance, ma
 def rewards(accounts, only_sum, post, comment, curation, length, author, permlink, title, days):
     """ Lists received rewards
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not accounts:
-        accounts = [stm.config["default_account"]]
+        accounts = [hv.config["default_account"]]
     if not comment and not curation and not post:
         post = True
         permlink = True
@@ -2739,9 +2739,9 @@ def rewards(accounts, only_sum, post, comment, curation, length, author, permlin
     limit_time = now - timedelta(days=days)
     for account in accounts:
         sum_reward = [0, 0, 0, 0, 0]
-        account = Account(account, hive_instance=stm)
-        median_price = Price(stm.get_current_median_history(), hive_instance=stm)
-        m = Market(hive_instance=stm)
+        account = Account(account, hive_instance=hv)
+        median_price = Price(hv.get_current_median_history(), hive_instance=hv)
+        m = Market(hive_instance=hv)
         latest = m.ticker()["latest"]
         if author and permlink:
             t = PrettyTable(["Author", "Permlink", "Payout", "HBD", "HP + HIVE", "Liquid USD", "Invested USD"])
@@ -2769,7 +2769,7 @@ def rewards(accounts, only_sum, post, comment, curation, length, author, permlin
                 if not post and not comment and v["type"] == "author_reward":
                     continue
                 if v["type"] == "author_reward":
-                    c = Comment(v, hive_instance=stm)
+                    c = Comment(v, hive_instance=hv)
                     try:
                         c.refresh()
                     except exceptions.ContentDoesNotExistsException:
@@ -2778,11 +2778,11 @@ def rewards(accounts, only_sum, post, comment, curation, length, author, permlin
                         continue
                     if not comment and c.is_comment():
                         continue
-                    payout_HBD = Amount(v["hbd_payout"], hive_instance=stm)
-                    payout_HIVE = Amount(v["hive_payout"], hive_instance=stm)
+                    payout_HBD = Amount(v["hbd_payout"], hive_instance=hv)
+                    payout_HIVE = Amount(v["hive_payout"], hive_instance=hv)
                     sum_reward[0] += float(payout_HBD)
                     sum_reward[1] += float(payout_HIVE)
-                    payout_HP = stm.vests_to_sp(Amount(v["vesting_payout"], hive_instance=stm))
+                    payout_HP = hv.vests_to_sp(Amount(v["vesting_payout"], hive_instance=hv))
                     sum_reward[2] += float(payout_HP)
                     liquid_USD = float(payout_HBD) / float(latest) * float(median_price) + float(payout_HIVE) * float(median_price)
                     sum_reward[3] += liquid_USD
@@ -2804,14 +2804,14 @@ def rewards(accounts, only_sum, post, comment, curation, length, author, permlin
                                  (liquid_USD),
                                  (invested_USD)])
                 elif v["type"] == "curation_reward":
-                    reward = Amount(v["reward"], hive_instance=stm)
-                    payout_HP = stm.vests_to_sp(reward)
+                    reward = Amount(v["reward"], hive_instance=hv)
+                    payout_HP = hv.vests_to_sp(reward)
                     liquid_USD = 0
                     invested_USD = float(payout_HP) * float(median_price)
                     sum_reward[2] += float(payout_HP)
                     sum_reward[4] += invested_USD
                     if title:
-                        c = Comment(construct_authorperm(v["comment_author"], v["comment_permlink"]), hive_instance=stm)
+                        c = Comment(construct_authorperm(v["comment_author"], v["comment_permlink"]), hive_instance=hv)
                         permlink_row = c.title
                     else:
                         permlink_row = v["comment_permlink"]
@@ -2919,11 +2919,11 @@ def rewards(accounts, only_sum, post, comment, curation, length, author, permlin
 def pending(accounts, only_sum, post, comment, curation, length, author, permlink, title, days):
     """ Lists pending rewards
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not accounts:
-        accounts = [stm.config["default_account"]]
+        accounts = [hv.config["default_account"]]
     if not comment and not curation and not post:
         post = True
         permlink = True
@@ -2936,9 +2936,9 @@ def pending(accounts, only_sum, post, comment, curation, length, author, permlin
     limit_time = utc.localize(datetime.utcnow()) - timedelta(days=days)
     for account in accounts:
         sum_reward = [0, 0, 0, 0]
-        account = Account(account, hive_instance=stm)
-        median_price = Price(stm.get_current_median_history(), hive_instance=stm)
-        m = Market(hive_instance=stm)
+        account = Account(account, hive_instance=hv)
+        median_price = Price(hv.get_current_median_history(), hive_instance=hv)
+        m = Market(hive_instance=hv)
         latest = m.ticker()["latest"]
         if author and permlink:
             t = PrettyTable(["Author", "Permlink", "Cashout", "HBD", "HP", "Liquid USD", "Invested USD"])
@@ -3002,9 +3002,9 @@ def pending(accounts, only_sum, post, comment, curation, length, author, permlin
                              (liquid_USD),
                              (invested_USD)])
         if curation:
-            votes = AccountVotes(account, start=limit_time, hive_instance=stm)
+            votes = AccountVotes(account, start=limit_time, hive_instance=hv)
             for vote in votes:
-                c = Comment(vote["authorperm"], hive_instance=stm)
+                c = Comment(vote["authorperm"], hive_instance=hv)
                 rewards = c.get_curation_rewards()
                 if not rewards["pending_rewards"]:
                     continue
@@ -3122,12 +3122,12 @@ def claimreward(account, reward_hive, reward_hbd, reward_vests, claim_all_hive, 
 
         By default, this will claim ``all`` outstanding balances.
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        account = stm.config["default_account"]
-    acc = Account(account, hive_instance=stm)
+        account = hv.config["default_account"]
+    acc = Account(account, hive_instance=hv)
     r = acc.balances["rewards"]
     if len(r) == 3 and r[0].amount + r[1].amount + r[2].amount == 0:
         print("Nothing to claim.")
@@ -3135,7 +3135,7 @@ def claimreward(account, reward_hive, reward_hbd, reward_vests, claim_all_hive, 
     elif len(r) == 2 and r[0].amount + r[1].amount:
         print("Nothing to claim.")
         return
-    if not unlock_wallet(stm):
+    if not unlock_wallet(hv):
         return
     if claim_all_hive:
         reward_hive = r[0]
@@ -3145,8 +3145,8 @@ def claimreward(account, reward_hive, reward_hbd, reward_vests, claim_all_hive, 
         reward_vests = r[2]
 
     tx = acc.claim_reward_balance(reward_hive, reward_hbd, reward_vests)
-    if stm.unsigned and stm.nobroadcast and stm.hiveconnect is not None:
-        tx = stm.hiveconnect.url_from_tx(tx)
+    if hv.unsigned and hv.nobroadcast and hv.hiveconnect is not None:
+        tx = hv.hiveconnect.url_from_tx(tx)
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -3195,18 +3195,18 @@ def customjson(jsonid, json_data, account, active):
                     value = float(value)
                 field[key] = value
             data[d] = field
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not account:
-        account = stm.config["default_account"]
-    if not unlock_wallet(stm):
+        account = hv.config["default_account"]
+    if not unlock_wallet(hv):
         return
-    acc = Account(account, hive_instance=stm)
+    acc = Account(account, hive_instance=hv)
     if active:
-        tx = stm.custom_json(jsonid, data, required_auths=[account])
+        tx = hv.custom_json(jsonid, data, required_auths=[account])
     else:
-        tx = stm.custom_json(jsonid, data, required_posting_auths=[account])
+        tx = hv.custom_json(jsonid, data, required_posting_auths=[account])
     tx = json.dumps(tx, indent=4)
     print(tx)
 
@@ -3217,16 +3217,16 @@ def customjson(jsonid, json_data, account, active):
 @click.option('--use-api', '-u', help='Uses the get_potential_signatures api call', is_flag=True, default=False)
 def verify(blocknumber, trx, use_api):
     """Returns the public signing keys for a block"""
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
-    b = Blockchain(hive_instance=stm)
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
+    b = Blockchain(hive_instance=hv)
     i = 0
     if not blocknumber:
         blocknumber = b.get_current_block_num()
     try:
         int(blocknumber)
-        block = Block(blocknumber, hive_instance=stm)
+        block = Block(blocknumber, hive_instance=hv)
         if trx is not None:
             i = int(trx)
             trxs = [block.json_transactions[int(trx)]]
@@ -3235,7 +3235,7 @@ def verify(blocknumber, trx, use_api):
     except Exception:
         trxs = [b.get_transaction(blocknumber)]
         blocknumber = trxs[0]["block_num"]
-    wallet = Wallet(hive_instance=stm)
+    wallet = Wallet(hive_instance=hv)
     t = PrettyTable(["trx", "Signer key", "Account"])
     t.align = "l"
     if not use_api:
@@ -3250,10 +3250,10 @@ def verify(blocknumber, trx, use_api):
                 tx = b.get_transaction(trx["transaction_id"])
                 signed_tx = Signed_Transaction(tx)
             public_keys = []
-            for key in signed_tx.verify(chain=stm.chain_params, recover_parameter=True):
-                public_keys.append(format(Base58(key, prefix=stm.prefix), stm.prefix))
+            for key in signed_tx.verify(chain=hv.chain_params, recover_parameter=True):
+                public_keys.append(format(Base58(key, prefix=hv.prefix), hv.prefix))
         else:
-            tx = TransactionBuilder(tx=trx, hive_instance=stm)
+            tx = TransactionBuilder(tx=trx, hive_instance=hv)
             public_keys = tx.get_potential_signatures()
         accounts = []
         empty_public_keys = []
@@ -3288,17 +3288,17 @@ def info(objects):
         General information about the blockchain, a block, an account,
         a post/comment and a public key
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
     if not objects:
         t = PrettyTable(["Key", "Value"])
         t.align = "l"
-        info = stm.get_dynamic_global_properties()
-        median_price = stm.get_current_median_history()
-        hive_per_mvest = stm.get_hive_per_mvest()
-        chain_props = stm.get_chain_properties()
-        price = (Amount(median_price["base"], hive_instance=stm).amount / Amount(median_price["quote"], hive_instance=stm).amount)
+        info = hv.get_dynamic_global_properties()
+        median_price = hv.get_current_median_history()
+        hive_per_mvest = hv.get_hive_per_mvest()
+        chain_props = hv.get_chain_properties()
+        price = (Amount(median_price["base"], hive_instance=hv).amount / Amount(median_price["quote"], hive_instance=hv).amount)
         for key in info:
             t.add_row([key, info[key]])
         t.add_row(["hive per mvest", hive_per_mvest])
@@ -3312,11 +3312,11 @@ def info(objects):
             if re.match("^[0-9-]*:[0-9-]", obj):
                 obj, tran_nr = obj.split(":")
             if int(obj) < 1:
-                b = Blockchain(hive_instance=stm)
+                b = Blockchain(hive_instance=hv)
                 block_number = b.get_current_block_num() + int(obj) - 1
             else:
                 block_number = obj
-            block = Block(block_number, hive_instance=stm)
+            block = Block(block_number, hive_instance=hv)
             if block:
                 t = PrettyTable(["Key", "Value"])
                 t.align = "l"
@@ -3348,7 +3348,7 @@ def info(objects):
             else:
                 print("Block number %s unknown" % obj)
         elif re.match("^[a-zA-Z0-9\-\._]{2,16}$", obj):
-            account = Account(obj, hive_instance=stm)
+            account = Account(obj, hive_instance=hv)
             t = PrettyTable(["Key", "Value"])
             t.align = "l"
             account_json = account.json()
@@ -3369,7 +3369,7 @@ def info(objects):
 
             # witness available?
             try:
-                witness = Witness(obj, hive_instance=stm)
+                witness = Witness(obj, hive_instance=hv)
                 witness_json = witness.json()
                 t = PrettyTable(["Key", "Value"])
                 t.align = "l"
@@ -3382,11 +3382,11 @@ def info(objects):
             except exceptions.WitnessDoesNotExistsException as e:
                 print(str(e))
         # Public Key
-        elif re.match("^" + stm.prefix + ".{48,55}$", obj):
-            account = stm.wallet.getAccountFromPublicKey(obj)
+        elif re.match("^" + hv.prefix + ".{48,55}$", obj):
+            account = hv.wallet.getAccountFromPublicKey(obj)
             if account:
-                account = Account(account, hive_instance=stm)
-                key_type = stm.wallet.getKeyType(account, obj)
+                account = Account(account, hive_instance=hv)
+                key_type = hv.wallet.getKeyType(account, obj)
                 t = PrettyTable(["Account", "Key_type"])
                 t.align = "l"
                 t.add_row([account["name"], key_type])
@@ -3395,7 +3395,7 @@ def info(objects):
                 print("Public Key %s not known" % obj)
         # Post identifier
         elif re.match(".*@.{3,16}/.*$", obj):
-            post = Comment(obj, hive_instance=stm)
+            post = Comment(obj, hive_instance=hv)
             post_json = post.json()
             if post_json:
                 t = PrettyTable(["Key", "Value"])
@@ -3426,18 +3426,18 @@ def userdata(account, signing_account):
 
         The request has to be signed by the requested account or an admin account.
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
-    if not unlock_wallet(stm):
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
+    if not unlock_wallet(hv):
         return
     if not account:
-        if "default_account" in stm.config:
-            account = stm.config["default_account"]
-    account = Account(account, hive_instance=stm)
+        if "default_account" in hv.config:
+            account = hv.config["default_account"]
+    account = Account(account, hive_instance=hv)
     if signing_account is not None:
-        signing_account = Account(signing_account, hive_instance=stm)
-    c = Conveyor(hive_instance=stm)
+        signing_account = Account(signing_account, hive_instance=hv)
+    c = Conveyor(hive_instance=hv)
     user_data = c.get_user_data(account, signing_account=signing_account)
     t = PrettyTable(["Key", "Value"])
     t.align = "l"
@@ -3455,18 +3455,18 @@ def featureflags(account, signing_account):
 
         The request has to be signed by the requested account or an admin account.
     """
-    stm = shared_hive_instance()
-    if stm.rpc is not None:
-        stm.rpc.rpcconnect()
-    if not unlock_wallet(stm):
+    hv = shared_hive_instance()
+    if hv.rpc is not None:
+        hv.rpc.rpcconnect()
+    if not unlock_wallet(hv):
         return
     if not account:
-        if "default_account" in stm.config:
-            account = stm.config["default_account"]
-    account = Account(account, hive_instance=stm)
+        if "default_account" in hv.config:
+            account = hv.config["default_account"]
+    account = Account(account, hive_instance=hv)
     if signing_account is not None:
-        signing_account = Account(signing_account, hive_instance=stm)
-    c = Conveyor(hive_instance=stm)
+        signing_account = Account(signing_account, hive_instance=hv)
+    c = Conveyor(hive_instance=hv)
     user_data = c.get_feature_flags(account, signing_account=signing_account)
     t = PrettyTable(["Key", "Value"])
     t.align = "l"

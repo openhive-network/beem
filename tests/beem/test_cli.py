@@ -32,8 +32,8 @@ class Testcases(unittest.TestCase):
         nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
         cls.node_list = nodelist.get_nodes(exclude_limited=True)
        
-        # stm = shared_hive_instance()
-        # stm.config.refreshBackup()
+        # hv = shared_hive_instance()
+        # hv.config.refreshBackup()
         runner = CliRunner()
         result = runner.invoke(cli, ['-o', 'set', 'default_vote_weight', '100'])
         if result.exit_code != 0:
@@ -59,8 +59,8 @@ class Testcases(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        stm = shared_hive_instance()
-        stm.config.recover_with_latest_backup()
+        hv = shared_hive_instance()
+        hv.config.recover_with_latest_backup()
 
     def test_balance(self):
         runner = CliRunner()

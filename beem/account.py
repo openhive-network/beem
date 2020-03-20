@@ -48,8 +48,8 @@ class Account(BlockchainObject):
 
             >>> from beem.account import Account
             >>> from beem import Hive
-            >>> stm = Hive()
-            >>> account = Account("gtg", hive_instance=stm)
+            >>> hv = Hive()
+            >>> account = Account("gtg", hive_instance=hv)
             >>> print(account)
             <Account gtg>
             >>> print(account.balances) # doctest: +SKIP
@@ -244,7 +244,7 @@ class Account(BlockchainObject):
             current_pct = current_mana / max_mana * 100
         else:
             current_pct = 0
-        max_rc_creation_adjustment = Amount(rc_param["max_rc_creation_adjustment"], hive_instance=self.hive)
+        max_rc_creation_adjuhvent = Amount(rc_param["max_rc_creation_adjustment"], hive_instance=self.hive)
         return {"last_mana": last_mana, "last_update_time": last_update_time, "current_mana": current_mana,
                 "max_mana": max_mana, "current_pct": current_pct, "max_rc_creation_adjustment": max_rc_creation_adjustment}
 
@@ -660,8 +660,8 @@ class Account(BlockchainObject):
 
                 >>> from beem.account import Account
                 >>> from beem import Hive
-                >>> stm = Hive()
-                >>> account = Account("hiveit", hive_instance=stm)
+                >>> hv = Hive()
+                >>> account = Account("hiveit", hive_instance=hv)
                 >>> account.get_feed(0, 1, raw_data=True)
                 []
 
@@ -722,8 +722,8 @@ class Account(BlockchainObject):
 
                 >>> from beem.account import Account
                 >>> from beem import Hive
-                >>> stm = Hive()
-                >>> account = Account("hiveit", hive_instance=stm)
+                >>> hv = Hive()
+                >>> account = Account("hiveit", hive_instance=hv)
                 >>> account.get_feed_entries(0, 1)
                 []
 
@@ -745,8 +745,8 @@ class Account(BlockchainObject):
 
                 >>> from beem.account import Account
                 >>> from beem import Hive
-                >>> stm = Hive()
-                >>> account = Account("hiveit", hive_instance=stm)
+                >>> hv = Hive()
+                >>> account = Account("hiveit", hive_instance=hv)
                 >>> entry = account.get_blog_entries(0, 1, raw_data=True)[0]
                 >>> print("%s - %s - %s - %s" % (entry["author"], entry["permlink"], entry["blog"], entry["reblog_on"]))
                 hiveit - firstpost - hiveit - 1970-01-01T00:00:00
@@ -769,8 +769,8 @@ class Account(BlockchainObject):
 
                 >>> from beem.account import Account
                 >>> from beem import Hive
-                >>> stm = Hive()
-                >>> account = Account("hiveit", hive_instance=stm)
+                >>> hv = Hive()
+                >>> account = Account("hiveit", hive_instance=hv)
                 >>> account.get_blog(0, 1)
                 [<Comment @hiveit/firstpost>]
 
@@ -838,8 +838,8 @@ class Account(BlockchainObject):
 
                 >>> from beem.account import Account
                 >>> from beem import Hive
-                >>> stm = Hive()
-                >>> account = Account("hiveit", hive_instance=stm)
+                >>> hv = Hive()
+                >>> account = Account("hiveit", hive_instance=hv)
                 >>> account.get_blog_authors()
                 []
 
@@ -1426,8 +1426,8 @@ class Account(BlockchainObject):
 
                 >>> from beem.account import Account
                 >>> from beem import Hive
-                >>> stm = Hive()
-                >>> account = Account("beem.app", hive_instance=stm)
+                >>> hv = Hive()
+                >>> account = Account("beem.app", hive_instance=hv)
                 >>> account.get_tags_used_by_author()
                 []
 
@@ -1484,8 +1484,8 @@ class Account(BlockchainObject):
 
                 >>> from beem.account import Account
                 >>> from beem import Hive
-                >>> stm = Hive()
-                >>> account = Account("beem.app", hive_instance=stm)
+                >>> hv = Hive()
+                >>> account = Account("beem.app", hive_instance=hv)
                 >>> account.get_account_votes()
                 []
 
@@ -2462,8 +2462,8 @@ class Account(BlockchainObject):
                 from beem.account import Account
                 from beem import Hive
                 active_wif = "5xxxx"
-                stm = Hive(keys=[active_wif])
-                acc = Account("test", hive_instance=stm)
+                hv = Hive(keys=[active_wif])
+                acc = Account("test", hive_instance=hv)
                 acc.transfer("test1", 1, "HIVE", "test")
 
         """

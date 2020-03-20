@@ -17,13 +17,13 @@ def profiling(node, name_list, shared_instance=True, clear_acc_cache=False, clea
     print("shared_instance %d clear_acc_cache %d clear_all_cache %d" %
           (shared_instance, clear_acc_cache, clear_all_cache))
     if not shared_instance:
-        stm = Hive(node=node)
-        print(str(stm))
+        hv = Hive(node=node)
+        print(str(hv))
     else:
-        stm = None
+        hv = None
     acc_dict = {}
     for name in name_list:
-        acc = Account(name, hive_instance=stm)
+        acc = Account(name, hive_instance=hv)
         acc_dict[name] = acc
         if clear_acc_cache:
             acc.clear_cache()
@@ -31,13 +31,13 @@ def profiling(node, name_list, shared_instance=True, clear_acc_cache=False, clea
     if clear_all_cache:
         clear_cache()
     if not shared_instance:
-        del stm.rpc
+        del hv.rpc
 
 
 if __name__ == "__main__":
-    stm = Hive()
-    print("Shared instance: " + str(stm))
-    set_shared_hive_instance(stm)
+    hv = Hive()
+    print("Shared instance: " + str(hv))
+    set_shared_hive_instance(hv)
     b = Blockchain()
     account_list = []
     for a in b.get_all_accounts(limit=500):

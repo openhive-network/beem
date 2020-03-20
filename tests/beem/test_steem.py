@@ -401,39 +401,39 @@ class Testcases(unittest.TestCase):
         self.assertTrue(bts.get_blockchain_version() is not None)
 
     def test_hp_to_rshares(self):
-        stm = self.bts
-        rshares = stm.hp_to_rshares(stm.vests_to_hp(1e6))
+        hv = self.bts
+        rshares = hv.hp_to_rshares(hv.vests_to_hp(1e6))
         self.assertTrue(abs(rshares - 20000000000.0) < 2)
 
     def test_rshares_to_vests(self):
-        stm = self.bts
-        rshares = stm.hp_to_rshares(stm.vests_to_hp(1e6))
-        rshares2 = stm.vests_to_rshares(1e6)
+        hv = self.bts
+        rshares = hv.hp_to_rshares(hv.vests_to_hp(1e6))
+        rshares2 = hv.vests_to_rshares(1e6)
         self.assertTrue(abs(rshares - rshares2) < 2)
 
     def test_hp_to_hbd(self):
-        stm = self.bts
+        hv = self.bts
         hp = 500
-        ret = stm.hp_to_hbd(hp)
+        ret = hv.hp_to_hbd(hp)
         self.assertTrue(ret is not None)
 
     def test_hbd_to_rshares(self):
-        stm = self.bts
+        hv = self.bts
         test_values = [1, 10, 100, 1e3, 1e4, 1e5, 1e6, 1e7]
         for v in test_values:
             try:
-                hbd = round(stm.rshares_to_hbd(stm.hbd_to_rshares(v)), 5)
+                hbd = round(hv.rshares_to_hbd(hv.hbd_to_rshares(v)), 5)
             except ValueError:  # Reward pool smaller than 1e7 HBD (e.g. caused by a very low hive price)
                 continue
             self.assertEqual(hbd, v)
 
     def test_rshares_to_vote_pct(self):
-        stm = self.bts
+        hv = self.bts
         hp = 1000
         voting_power = 9000
         for vote_pct in range(500, 10000, 500):
-            rshares = stm.hp_to_rshares(hp, voting_power=voting_power, vote_pct=vote_pct)
-            vote_pct_ret = stm.rshares_to_vote_pct(rshares, hive_power=hp, voting_power=voting_power)
+            rshares = hv.hp_to_rshares(hp, voting_power=voting_power, vote_pct=vote_pct)
+            vote_pct_ret = hv.rshares_to_vote_pct(rshares, hive_power=hp, voting_power=voting_power)
             self.assertEqual(vote_pct_ret, vote_pct)
 
     def test_sign(self):

@@ -32,14 +32,14 @@ if __name__ == "__main__":
     for node in nodes:
         print("Current node:", node)
         try:
-            stm = Hive(node=node, num_retries=3)
-            blockchain = Blockchain(hive_instance=stm)
-            account = Account("gtg", hive_instance=stm)
+            hv = Hive(node=node, num_retries=3)
+            blockchain = Blockchain(hive_instance=hv)
+            account = Account("gtg", hive_instance=hv)
             virtual_op_count = account.virtual_op_count()
-            blockchain_version = stm.get_blockchain_version()
+            blockchain_version = hv.get_blockchain_version()
 
             last_block_id = 19273700
-            last_block = Block(last_block_id, hive_instance=stm)
+            last_block = Block(last_block_id, hive_instance=hv)
             startTime = datetime.now()
 
             stopTime = last_block.time() + timedelta(seconds=how_many_minutes * 60)

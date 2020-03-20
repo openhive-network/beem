@@ -32,8 +32,8 @@ class Testcases(unittest.TestCase):
         )
 
     def test_constants(self):
-        stm = self.appbase
-        hive_conf = stm.get_config()
+        hv = self.appbase
+        hive_conf = hv.get_config()
         if "HIVE_100_PERCENT" in hive_conf:
             HIVE_100_PERCENT = hive_conf['HIVE_100_PERCENT']
         else:

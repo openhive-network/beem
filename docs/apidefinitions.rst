@@ -146,8 +146,8 @@ get_chain_properties
 .. code-block:: python
 
     from beem import Hive
-    stm = Hive()
-    print(stm.get_chain_properties())
+    hv = Hive()
+    print(hv.get_chain_properties())
 
 get_comment_discussions_by_payout
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -165,8 +165,8 @@ get_config
 .. code-block:: python
 
     from beem import Hive
-    stm = Hive()
-    print(stm.get_config())
+    hv = Hive()
+    print(hv.get_config())
 
 get_content
 ~~~~~~~~~~~
@@ -208,8 +208,8 @@ get_current_median_history_price
 .. code-block:: python
 
     from beem import Hive
-    stm = Hive()
-    print(stm.get_current_median_history())
+    hv = Hive()
+    print(hv.get_current_median_history())
 
 
 get_discussions_by_active
@@ -337,8 +337,8 @@ get_dynamic_global_properties
 .. code-block:: python
 
     from beem import Hive
-    stm = Hive()
-    print(stm.get_dynamic_global_properties())
+    hv = Hive()
+    print(hv.get_dynamic_global_properties())
 
 get_escrow
 ~~~~~~~~~~
@@ -384,8 +384,8 @@ get_feed_history
 .. code-block:: python
 
     from beem import Hive
-    stm = Hive()
-    print(stm.get_feed_history())
+    hv = Hive()
+    print(hv.get_feed_history())
     
 get_follow_count
 ~~~~~~~~~~~~~~~~
@@ -422,8 +422,8 @@ get_hardfork_version
 .. code-block:: python
 
     from beem import Hive
-    stm = Hive()
-    print(stm.get_hardfork_properties()["hf_version"])
+    hv = Hive()
+    print(hv.get_hardfork_properties()["hf_version"])
 
 get_key_references
 ~~~~~~~~~~~~~~~~~~
@@ -462,8 +462,8 @@ get_next_scheduled_hardfork
 .. code-block:: python
 
     from beem import Hive
-    stm = Hive()
-    print(stm.get_hardfork_properties())
+    hv = Hive()
+    print(hv.get_hardfork_properties())
 
 get_open_orders
 ~~~~~~~~~~~~~~~
@@ -586,8 +586,8 @@ get_reward_fund
 .. code-block:: python
 
     from beem import Hive
-    stm = Hive()
-    print(stm.get_reward_funds())
+    hv = Hive()
+    print(hv.get_reward_funds())
 
 get_savings_withdraw_from
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -730,8 +730,8 @@ get_witness_schedule
 .. code-block:: python
 
     from beem import Hive
-    stm = Hive()
-    print(stm.get_witness_schedule())
+    hv = Hive()
+    print(hv.get_witness_schedule())
 
 get_witnesses
 ~~~~~~~~~~~~~

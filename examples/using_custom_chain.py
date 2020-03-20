@@ -22,7 +22,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 if __name__ == "__main__":
-    stm = Hive(node=["https://testnet.hiveitdev.com"],
+    hv = Hive(node=["https://testnet.hiveitdev.com"],
                 custom_chains={"TESTNETHF20":
                                {'chain_assets':
                                 [
@@ -33,5 +33,5 @@ if __name__ == "__main__":
                                 'chain_id': '46d82ab7d8db682eb1959aed0ada039a6d49afa1602491f93dde9cac3e8e6c32',
                                 'min_version': '0.20.0',
                                 'prefix': 'TST'}})
-    print(stm.get_blockchain_version())
-    print(stm.get_config()["HIVE_CHAIN_ID"])
+    print(hv.get_blockchain_version())
+    print(hv.get_config()["HIVE_CHAIN_ID"])

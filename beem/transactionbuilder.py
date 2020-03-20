@@ -42,8 +42,8 @@ class TransactionBuilder(dict):
            from beembase.operations import Transfer
            from beem import Hive
            wif = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
-           stm = Hive(nobroadcast=True, keys={'active': wif})
-           tx = TransactionBuilder(hive_instance=stm)
+           hv = Hive(nobroadcast=True, keys={'active': wif})
+           tx = TransactionBuilder(hive_instance=hv)
            transfer = {"from": "test", "to": "test1", "amount": "1 HIVE", "memo": ""}
            tx.appendOps(Transfer(transfer))
            tx.appendSigner("test", "active") # or tx.appendWif(wif)

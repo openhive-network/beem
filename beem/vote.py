@@ -32,8 +32,8 @@ class Vote(BlockchainObject):
 
            >>> from beem.vote import Vote
            >>> from beem import Hive
-           >>> stm = Hive()
-           >>> v = Vote("@gtg/hive-pressure-4-need-for-speed|gandalf", hive_instance=stm)
+           >>> hv = Hive()
+           >>> v = Vote("@gtg/hive-pressure-4-need-for-speed|gandalf", hive_instance=hv)
 
     """
     type_id = 11

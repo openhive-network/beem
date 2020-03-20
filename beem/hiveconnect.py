@@ -60,9 +60,9 @@ class HiveConnect(object):
             from beembase import operations
             from beem.hiveconnect import HiveConnect
             from pprint import pprint
-            stm = Hive(nobroadcast=True, unsigned=True)
-            sc2 = HiveConnect(hive_instance=stm)
-            tx = TransactionBuilder(hive_instance=stm)
+            hv = Hive(nobroadcast=True, unsigned=True)
+            sc2 = HiveConnect(hive_instance=hv)
+            tx = TransactionBuilder(hive_instance=hv)
             op = operations.Transfer(**{"from": 'test',
                                         "to": 'test1',
                                         "amount": '1.000 HIVE',

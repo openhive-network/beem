@@ -36,11 +36,11 @@ class Testcases(unittest.TestCase):
     ])
     def test_assert(self, node_param):
         if node_param == "normal":
-            stm = self.bts
+            hv = self.bts
         else:
-            stm = self.hiveit
+            hv = self.hiveit
         with self.assertRaises(AssetDoesNotExistsException):
-            Asset("FOObarNonExisting", full=False, hive_instance=stm)
+            Asset("FOObarNonExisting", full=False, hive_instance=hv)
 
     @parameterized.expand([
         ("normal", "HBD", "HBD", 3, "@@000000013"),
@@ -52,10 +52,10 @@ class Testcases(unittest.TestCase):
     ])
     def test_properties(self, node_param, data, symbol_str, precision, asset_str):
         if node_param == "normal":
-            stm = self.bts
+            hv = self.bts
         else:
-            stm = self.testnet
-        asset = Asset(data, full=False, hive_instance=stm)
+            hv = self.testnet
+        asset = Asset(data, full=False, hive_instance=hv)
         self.assertEqual(asset.symbol, symbol_str)
         self.assertEqual(asset.precision, precision)
         self.assertEqual(asset.asset, asset_str)
@@ -66,22 +66,22 @@ class Testcases(unittest.TestCase):
     ])
     def test_assert_equal(self, node_param):
         if node_param == "normal":
-            stm = self.bts
+            hv = self.bts
         else:
-            stm = self.hiveit
-        asset1 = Asset("HBD", full=False, hive_instance=stm)
-        asset2 = Asset("HBD", full=False, hive_instance=stm)
+            hv = self.hiveit
+        asset1 = Asset("HBD", full=False, hive_instance=hv)
+        asset2 = Asset("HBD", full=False, hive_instance=hv)
         self.assertTrue(asset1 == asset2)
         self.assertTrue(asset1 == "HBD")
         self.assertTrue(asset2 == "HBD")
-        asset3 = Asset("HIVE", full=False, hive_instance=stm)
+        asset3 = Asset("HIVE", full=False, hive_instance=hv)
         self.assertTrue(asset1 != asset3)
         self.assertTrue(asset3 != "HBD")
         self.assertTrue(asset1 != "HIVE")
 
         a = {'asset': '@@000000021', 'precision': 3, 'id': 'HIVE', 'symbol': 'HIVE'}
         b = {'asset': '@@000000021', 'precision': 3, 'id': '@@000000021', 'symbol': 'HIVE'}
-        self.assertTrue(Asset(a, hive_instance=stm) == Asset(b, hive_instance=stm))
+        self.assertTrue(Asset(a, hive_instance=hv) == Asset(b, hive_instance=hv))
 
     """
     # Mocker comes from pytest-mock, providing an easy way to have patched objects

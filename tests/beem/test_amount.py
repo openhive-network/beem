@@ -42,56 +42,56 @@ class Testcases(unittest.TestCase):
         self.assertIsInstance(ret["amount"], Decimal)
 
     def test_init(self):
-        stm = self.bts
+        hv = self.bts
         # String init
-        asset = Asset("HBD", hive_instance=stm)
+        asset = Asset("HBD", hive_instance=hv)
         symbol = asset["symbol"]
         precision = asset["precision"]
-        amount = Amount("1 {}".format(symbol), hive_instance=stm)
+        amount = Amount("1 {}".format(symbol), hive_instance=hv)
         self.dotest(amount, 1, symbol)
 
         # Amount init
-        amount = Amount(amount, hive_instance=stm)
+        amount = Amount(amount, hive_instance=hv)
         self.dotest(amount, 1, symbol)
 
         # blockchain dict init
         amount = Amount({
             "amount": 1 * 10 ** precision,
             "asset_id": asset["id"]
-        }, hive_instance=stm)
+        }, hive_instance=hv)
         self.dotest(amount, 1, symbol)
 
         # API dict init
         amount = Amount({
             "amount": 1.3 * 10 ** precision,
             "asset": asset["id"]
-        }, hive_instance=stm)
+        }, hive_instance=hv)
         self.dotest(amount, 1.3, symbol)
 
         # Asset as symbol
-        amount = Amount(1.3, Asset("HBD"), hive_instance=stm)
+        amount = Amount(1.3, Asset("HBD"), hive_instance=hv)
         self.dotest(amount, 1.3, symbol)
 
         # Asset as symbol
-        amount = Amount(1.3, symbol, hive_instance=stm)
+        amount = Amount(1.3, symbol, hive_instance=hv)
         self.dotest(amount, 1.3, symbol)
 
         # keyword inits
-        amount = Amount(amount=1.3, asset=Asset("HBD", hive_instance=stm), hive_instance=stm)
+        amount = Amount(amount=1.3, asset=Asset("HBD", hive_instance=hv), hive_instance=hv)
         self.dotest(amount, 1.3, symbol)
         
-        amount = Amount(amount=1.3001, asset=Asset("HBD", hive_instance=stm), hive_instance=stm)
+        amount = Amount(amount=1.3001, asset=Asset("HBD", hive_instance=hv), hive_instance=hv)
         self.dotest(amount, 1.3001, symbol)        
 
-        amount = Amount(amount=1.3001, asset=Asset("HBD", hive_instance=stm), fixed_point_arithmetic=True, hive_instance=stm)
+        amount = Amount(amount=1.3001, asset=Asset("HBD", hive_instance=hv), fixed_point_arithmetic=True, hive_instance=hv)
         self.dotest(amount, 1.3, symbol)   
 
         # keyword inits
-        amount = Amount(amount=1.3, asset=dict(Asset("HBD", hive_instance=stm)), hive_instance=stm)
+        amount = Amount(amount=1.3, asset=dict(Asset("HBD", hive_instance=hv)), hive_instance=hv)
         self.dotest(amount, 1.3, symbol)
 
         # keyword inits
-        amount = Amount(amount=1.3, asset=symbol, hive_instance=stm)
+        amount = Amount(amount=1.3, asset=symbol, hive_instance=hv)
         self.dotest(amount, 1.3, symbol)
 
     def test_copy(self):

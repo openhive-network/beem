@@ -44,7 +44,7 @@ class BeemTest(object):
         self.ref_block_num = 34294
         self.ref_block_prefix = 3707022213
         self.expiration = "2016-04-06T08:29:27"
-        self.stm = Hive(offline=True)
+        self.hv = Hive(offline=True)
 
     def doit(self, printWire=False, ops=None):
         ops = [Operation(ops)]

@@ -39,7 +39,7 @@ class Transaction(Benchmark):
         self.ref_block_num = 34294
         self.ref_block_prefix = 3707022213
         self.expiration = "2016-04-06T08:29:27"
-        self.stm = Hive(
+        self.hv = Hive(
             offline=True
         )        
 
@@ -61,7 +61,7 @@ class Transaction(Benchmark):
         self.op = operations.Transfer(**{
             "from": "foo",
             "to": "baar",
-            "amount": Amount("111.110 HIVE", hive_instance=self.stm),
+            "amount": Amount("111.110 HIVE", hive_instance=self.hv),
             "memo": "Fooo",
             "prefix": self.default_prefix
         })
