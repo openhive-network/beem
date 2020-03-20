@@ -20,7 +20,7 @@ from beemgraphenebase.types import (
 
 class Testcases(unittest.TestCase):
     def test_Amount(self):
-        a = "1.000 STEEM"
+        a = "1.000 HIVE"
         t = Amount(a)
         self.assertEqual(a, t.__str__())
         self.assertEqual(a, str(t))

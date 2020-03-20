@@ -26,12 +26,12 @@ from beembase.operationids import getOperationNameForId
 from beemgraphenebase.py23 import py23_bytes, bytes_types
 from beem.amount import Amount
 from beem.asset import Asset
-from beem.steem import Steem
+from beem.hive import Steem
 
 
 TEST_AGAINST_CLI_WALLET = False
 
-prefix = u"STEEM"
+prefix = u"HIVE"
 default_prefix = u"STM"
 wif = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
 ref_block_num = 34294
@@ -82,7 +82,7 @@ class Testcases(unittest.TestCase):
         self.op = operations.Transfer(**{
             "from": "foo",
             "to": "baar",
-            "amount": Amount("111.110 STEEM", steem_instance=self.stm),
+            "amount": Amount("111.110 HIVE", hive_instance=self.stm),
             "memo": "Fooo",
             "prefix": default_prefix
         })
@@ -99,7 +99,7 @@ class Testcases(unittest.TestCase):
                 'creator':
                 'xeroc',
                 'fee':
-                '10.000 STEEM',
+                '10.000 HIVE',
                 'json_metadata':
                 '',
                 'memo_key':
@@ -169,7 +169,7 @@ class Testcases(unittest.TestCase):
         self.op = operations.Transfer_to_vesting(**{
             "from": "foo",
             "to": "baar",
-            "amount": "111.110 STEEM",
+            "amount": "111.110 HIVE",
             "prefix": default_prefix
         })
 
@@ -235,7 +235,7 @@ class Testcases(unittest.TestCase):
             **{
                 "from": "testuser",
                 "to": "testuser",
-                "amount": "1.000 STEEM",
+                "amount": "1.000 HIVE",
                 "memo": "testmemo",
                 "prefix": default_prefix
             })
@@ -252,7 +252,7 @@ class Testcases(unittest.TestCase):
                 "from": "testuser",
                 "request_id": 9001,
                 "to": "testser",
-                "amount": "100.000 SBD",
+                "amount": "100.000 HBD",
                 "memo": "memohere",
                 "prefix": default_prefix
             })
@@ -281,8 +281,8 @@ class Testcases(unittest.TestCase):
             **{
                 "owner": "",
                 "orderid": 0,
-                "amount_to_sell": "0.000 STEEM",
-                "min_to_receive": "0.000 STEEM",
+                "amount_to_sell": "0.000 HIVE",
+                "min_to_receive": "0.000 HIVE",
                 "fill_or_kill": False,
                 "expiration": "2016-12-31T23:59:59",
                 "prefix": default_prefix
@@ -415,7 +415,7 @@ class Testcases(unittest.TestCase):
         self.op = operations.Convert(**{
             "owner": "xeroc",
             "requestid": 2342343235,
-            "amount": "100.000 SBD",
+            "amount": "100.000 HBD",
             "prefix": default_prefix
         })
 
@@ -597,8 +597,8 @@ class Testcases(unittest.TestCase):
             **{
                 "publisher": "xeroc",
                 "exchange_rate": {
-                    "base": "1.000 SBD",
-                    "quote": "4.123 STEEM"
+                    "base": "1.000 HBD",
+                    "quote": "4.123 HIVE"
                 },
                 "prefix": default_prefix
             })
@@ -634,12 +634,12 @@ class Testcases(unittest.TestCase):
                 "block_signing_key":
                 "STM6zLNtyFVToBsBZDsgMhgjpwysYVbsQD6YhP3kRkQhANUB4w7Qp",
                 "props": {
-                    "account_creation_fee": "10.000 STEEM",
+                    "account_creation_fee": "10.000 HIVE",
                     "maximum_block_size": 1111111,
-                    "sbd_interest_rate": 1000
+                    "hbd_interest_rate": 1000
                 },
                 "fee":
-                "10.000 STEEM",
+                "10.000 HIVE",
                 "prefix": default_prefix
             })
 
@@ -765,8 +765,8 @@ class Testcases(unittest.TestCase):
                 "permlink":
                 "piston",
                 "max_accepted_payout":
-                "1000000.000 SBD",
-                "percent_steem_dollars":
+                "1000000.000 HBD",
+                "percent_hive_dollars":
                 10000,
                 "allow_votes":
                 True,
@@ -808,7 +808,7 @@ class Testcases(unittest.TestCase):
     def test_request_account_recovery(self):
         self.op = operations.Request_account_recovery(
             **{
-                "recovery_account": "steem",
+                "recovery_account": "hive",
                 "account_to_recover": "alice",
                 "new_owner_authority": {
                     "weight_threshold": 1,
@@ -872,8 +872,8 @@ class Testcases(unittest.TestCase):
             **{
                 "from": "alice",
                 "to": "bob",
-                "sbd_amount": {"amount": "1000", "precision": 3, "nai": "@@000000013"},
-                "steem_amount": {"amount": "0", "precision": 3, "nai": "@@000000021"},
+                "hbd_amount": {"amount": "1000", "precision": 3, "nai": "@@000000013"},
+                "hive_amount": {"amount": "0", "precision": 3, "nai": "@@000000021"},
                 "escrow_id": 23456789,
                 "agent": "charlie",
                 "fee": {"amount": "100", "precision": 3, "nai": "@@000000013"},
@@ -914,8 +914,8 @@ class Testcases(unittest.TestCase):
                 "to": "bob",
                 "who": "charlie",
                 "escrow_id": 72526562,
-                "sbd_amount": {"amount": "5000", "precision": 3, "nai": "@@000000013"},
-                "steem_amount": {"amount": "0", "precision": 3, "nai": "@@000000021"},
+                "hbd_amount": {"amount": "5000", "precision": 3, "nai": "@@000000013"},
+                "hive_amount": {"amount": "0", "precision": 3, "nai": "@@000000021"},
                 "prefix": default_prefix,
             })
 
@@ -961,8 +961,8 @@ class Testcases(unittest.TestCase):
         self.op = operations.Claim_reward_balance(
             **{
                 "account": "alice",
-                "reward_steem": {"amount": "17", "precision": 3, "nai": "@@000000021"},
-                "reward_sbd": {"amount": "11", "precision": 3, "nai": "@@000000013"},
+                "reward_hive": {"amount": "17", "precision": 3, "nai": "@@000000021"},
+                "reward_hbd": {"amount": "11", "precision": 3, "nai": "@@000000013"},
                 "reward_vests": {"amount": "185025103", "precision": 6, "nai": "@@000000037"},
                 "prefix": default_prefix,
             })
@@ -992,7 +992,7 @@ class Testcases(unittest.TestCase):
             **{
                 "fee": {"amount": "3000", "precision": 3, "nai": "@@000000021"},
                 "delegation": {"amount": "0", "precision": 6, "nai": "@@000000037"},
-                "creator": "steemit",
+                "creator": "hiveit",
                 "new_account_name": "alice",
                 "owner": {
                     "weight_threshold": 1,
@@ -1051,10 +1051,10 @@ class Testcases(unittest.TestCase):
                     },
             "seller": "1.2.29",
             "amount_to_sell": {"amount": 100000,
-                               "asset_id": "SBD"
+                               "asset_id": "HBD"
                                },
             "min_to_receive": {"amount": 10000,
-                               "asset_id": "SBD"
+                               "asset_id": "HBD"
                                },
             "expiration": "2016-05-18T09:22:05",
             "fill_or_kill": False,
@@ -1072,11 +1072,11 @@ class Testcases(unittest.TestCase):
         from_account_id = "test"
         to_account_id = "test1"
         amount = 1000000
-        asset_id = "SBD"
+        asset_id = "HBD"
         message = "abcdefgABCDEFG0123456789"
         nonce = "5862723643998573708"
 
-        fee = objects.Asset(amount=0, asset_id="SBD")
+        fee = objects.Asset(amount=0, asset_id="HBD")
         amount = objects.Asset(amount=int(amount), asset_id=asset_id)
         encrypted_memo = memo.encode_memo(
             account.PrivateKey(wif),

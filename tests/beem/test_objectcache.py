@@ -7,7 +7,7 @@ from builtins import str
 import time
 import unittest
 from beem import Steem, exceptions
-from beem.instance import set_shared_steem_instance
+from beem.instance import set_shared_hive_instance
 from beem.blockchainobject import ObjectCache
 from beem.account import Account
 from beem.nodelist import NodeList

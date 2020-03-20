@@ -9,7 +9,7 @@ from pprint import pprint
 from beem import Steem, exceptions
 from beem.block import Block, BlockHeader
 from datetime import datetime
-from beem.instance import set_shared_steem_instance
+from beem.instance import set_shared_hive_instance
 from beem.nodelist import NodeList
 
 wif = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
@@ -19,7 +19,7 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        nodelist.update_nodes(steem_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
         cls.bts = Steem(
             node=nodelist.get_nodes(exclude_limited=True),
             nobroadcast=True,
@@ -29,13 +29,13 @@ class Testcases(unittest.TestCase):
         cls.test_block_id = 19273700
         # from getpass import getpass
         # self.bts.wallet.unlock(getpass())
-        set_shared_steem_instance(cls.bts)
+        set_shared_hive_instance(cls.bts)
         cls.bts.set_default_account("test")
 
     def test_block(self):
         bts = self.bts
         test_block_id = self.test_block_id
-        block = Block(test_block_id, steem_instance=bts)
+        block = Block(test_block_id, hive_instance=bts)
         self.assertEqual(block.identifier, test_block_id)
         self.assertTrue(isinstance(block.time(), datetime))
         self.assertTrue(isinstance(block, dict))
@@ -43,17 +43,17 @@ class Testcases(unittest.TestCase):
         self.assertTrue(len(block.operations))
         self.assertTrue(isinstance(block.ops_statistics(), dict))
 
-        block2 = Block(test_block_id + 1, steem_instance=bts)
+        block2 = Block(test_block_id + 1, hive_instance=bts)
         self.assertTrue(block2.time() > block.time())
         with self.assertRaises(
             exceptions.BlockDoesNotExistsException
         ):
-            Block(0, steem_instance=bts)
+            Block(0, hive_instance=bts)
 
     def test_block_only_ops(self):
         bts = self.bts
         test_block_id = self.test_block_id
-        block = Block(test_block_id, only_ops=True, steem_instance=bts)
+        block = Block(test_block_id, only_ops=True, hive_instance=bts)
         self.assertEqual(block.identifier, test_block_id)
         self.assertTrue(isinstance(block.time(), datetime))
         self.assertTrue(isinstance(block, dict))
@@ -61,27 +61,27 @@ class Testcases(unittest.TestCase):
         self.assertTrue(len(block.operations))
         self.assertTrue(isinstance(block.ops_statistics(), dict))
 
-        block2 = Block(test_block_id + 1, steem_instance=bts)
+        block2 = Block(test_block_id + 1, hive_instance=bts)
         self.assertTrue(block2.time() > block.time())
         with self.assertRaises(
             exceptions.BlockDoesNotExistsException
         ):
-            Block(0, steem_instance=bts)
+            Block(0, hive_instance=bts)
 
     def test_block_header(self):
         bts = self.bts
         test_block_id = self.test_block_id
-        block = BlockHeader(test_block_id, steem_instance=bts)
+        block = BlockHeader(test_block_id, hive_instance=bts)
         self.assertEqual(block.identifier, test_block_id)
         self.assertTrue(isinstance(block.time(), datetime))
         self.assertTrue(isinstance(block, dict))
 
-        block2 = BlockHeader(test_block_id + 1, steem_instance=bts)
+        block2 = BlockHeader(test_block_id + 1, hive_instance=bts)
         self.assertTrue(block2.time() > block.time())
         with self.assertRaises(
             exceptions.BlockDoesNotExistsException
         ):
-            BlockHeader(0, steem_instance=bts)
+            BlockHeader(0, hive_instance=bts)
 
     def test_export(self):
         bts = self.bts
@@ -94,7 +94,7 @@ class Testcases(unittest.TestCase):
         else:
             block = bts.rpc.get_block(block_num)
 
-        b = Block(block_num, steem_instance=bts)
+        b = Block(block_num, hive_instance=bts)
         keys = list(block.keys())
         json_content = b.json()
 
@@ -112,7 +112,7 @@ class Testcases(unittest.TestCase):
         else:
             block = bts.rpc.get_block_header(block_num)
 
-        b = BlockHeader(block_num, steem_instance=bts)
+        b = BlockHeader(block_num, hive_instance=bts)
         keys = list(block.keys())
         json_content = b.json()
 

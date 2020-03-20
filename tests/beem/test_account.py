@@ -17,7 +17,7 @@ from beem.amount import Amount
 from beem.asset import Asset
 from beem.utils import formatTimeString
 from beem.nodelist import NodeList
-from beem.instance import set_shared_steem_instance
+from beem.instance import set_shared_hive_instance
 
 wif = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
 
@@ -27,7 +27,7 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        nodelist.update_nodes(steem_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
         node_list = nodelist.get_nodes(exclude_limited=True)
       
         cls.bts = Steem(
@@ -39,22 +39,22 @@ class Testcases(unittest.TestCase):
             keys={"active": wif},
             num_retries=10
         )
-        cls.account = Account("beembot", steem_instance=cls.bts)
-        set_shared_steem_instance(cls.bts)
+        cls.account = Account("beembot", hive_instance=cls.bts)
+        set_shared_hive_instance(cls.bts)
 
     def test_account(self):
         stm = self.bts
         account = self.account
-        Account("beembot", steem_instance=stm)
+        Account("beembot", hive_instance=stm)
         with self.assertRaises(
             exceptions.AccountDoesNotExistsException
         ):
-            Account("DoesNotExistsXXX", steem_instance=stm)
+            Account("DoesNotExistsXXX", hive_instance=stm)
         # asset = Asset("1.3.0")
         # symbol = asset["symbol"]
         self.assertEqual(account.name, "beembot")
         self.assertEqual(account["name"], account.name)
-        self.assertIsInstance(account.get_balance("available", "SBD"), Amount)
+        self.assertIsInstance(account.get_balance("available", "HBD"), Amount)
         account.print_info()
         # self.assertIsInstance(account.balance({"symbol": symbol}), Amount)
         self.assertIsInstance(account.available_balances, list)
@@ -174,7 +174,7 @@ class Testcases(unittest.TestCase):
 
     def test_history2(self):
         stm = self.bts
-        account = Account("beembot", steem_instance=stm)
+        account = Account("beembot", hive_instance=stm)
         h_list = []
         max_index = account.virtual_op_count()
         for h in account.history(start=max_index - 4, stop=max_index, use_block_num=False, batch_size=2, raw_output=False):
@@ -206,7 +206,7 @@ class Testcases(unittest.TestCase):
 
     def test_history_reverse2(self):
         stm = self.bts
-        account = Account("beembot", steem_instance=stm)
+        account = Account("beembot", hive_instance=stm)
         h_list = []
         max_index = account.virtual_op_count()
         for h in account.history_reverse(start=max_index, stop=max_index - 4, use_block_num=False, batch_size=2, raw_output=False):
@@ -239,7 +239,7 @@ class Testcases(unittest.TestCase):
     def test_history_block_num(self):
         stm = self.bts
         zero_element = 0
-        account = Account("fullnodeupdate", steem_instance=stm)
+        account = Account("fullnodeupdate", hive_instance=stm)
         h_all_raw = []
         for h in account.history_reverse(raw_output=True):
             h_all_raw.append(h)
@@ -279,9 +279,9 @@ class Testcases(unittest.TestCase):
         vp = account.get_voting_power()
         self.assertTrue(vp >= 0)
         self.assertTrue(vp <= 100)
-        sp = account.get_steem_power()
-        self.assertTrue(sp >= 0)
-        vv = account.get_voting_value_SBD()
+        sp = account.get_hive_power()
+        self.assertTrue(hp >= 0)
+        vv = account.get_voting_value_HBD()
         self.assertTrue(vv >= 0)
         bw = account.get_bandwidth()
         # self.assertTrue(bw['used'] <= bw['allocated'])
@@ -295,8 +295,8 @@ class Testcases(unittest.TestCase):
 
     def test_MissingKeyError(self):
         w = self.account
-        w.steem.txbuffer.clear()
-        tx = w.convert("1 SBD")
+        w.hive.txbuffer.clear()
+        tx = w.convert("1 HBD")
         with self.assertRaises(
             exceptions.MissingKeyError
         ):
@@ -304,7 +304,7 @@ class Testcases(unittest.TestCase):
 
     def test_withdraw_vesting(self):
         w = self.account
-        w.steem.txbuffer.clear()
+        w.hive.txbuffer.clear()
         tx = w.withdraw_vesting("100 VESTS")
         self.assertEqual(
             (tx["operations"][0][0]),
@@ -317,7 +317,7 @@ class Testcases(unittest.TestCase):
 
     def test_delegate_vesting_shares(self):
         w = self.account
-        w.steem.txbuffer.clear()
+        w.hive.txbuffer.clear()
         tx = w.delegate_vesting_shares("test1", "100 VESTS")
         self.assertEqual(
             (tx["operations"][0][0]),
@@ -330,7 +330,7 @@ class Testcases(unittest.TestCase):
 
     def test_claim_reward_balance(self):
         w = self.account
-        w.steem.txbuffer.clear()
+        w.hive.txbuffer.clear()
         tx = w.claim_reward_balance()
         self.assertEqual(
             (tx["operations"][0][0]),
@@ -343,7 +343,7 @@ class Testcases(unittest.TestCase):
 
     def test_cancel_transfer_from_savings(self):
         w = self.account
-        w.steem.txbuffer.clear()
+        w.hive.txbuffer.clear()
         tx = w.cancel_transfer_from_savings(0)
         self.assertEqual(
             (tx["operations"][0][0]),
@@ -356,8 +356,8 @@ class Testcases(unittest.TestCase):
 
     def test_transfer_from_savings(self):
         w = self.account
-        w.steem.txbuffer.clear()
-        tx = w.transfer_from_savings(1, "STEEM", "")
+        w.hive.txbuffer.clear()
+        tx = w.transfer_from_savings(1, "HIVE", "")
         self.assertEqual(
             (tx["operations"][0][0]),
             "transfer_from_savings"
@@ -369,8 +369,8 @@ class Testcases(unittest.TestCase):
 
     def test_transfer_to_savings(self):
         w = self.account
-        w.steem.txbuffer.clear()
-        tx = w.transfer_to_savings(1, "STEEM", "")
+        w.hive.txbuffer.clear()
+        tx = w.transfer_to_savings(1, "HIVE", "")
         self.assertEqual(
             (tx["operations"][0][0]),
             "transfer_to_savings"
@@ -382,8 +382,8 @@ class Testcases(unittest.TestCase):
 
     def test_convert(self):
         w = self.account
-        w.steem.txbuffer.clear()
-        tx = w.convert("1 SBD")
+        w.hive.txbuffer.clear()
+        tx = w.convert("1 HBD")
         self.assertEqual(
             (tx["operations"][0][0]),
             "convert"
@@ -395,8 +395,8 @@ class Testcases(unittest.TestCase):
 
     def test_transfer_to_vesting(self):
         w = self.account
-        w.steem.txbuffer.clear()
-        tx = w.transfer_to_vesting("1 STEEM")
+        w.hive.txbuffer.clear()
+        tx = w.transfer_to_vesting("1 HIVE")
         self.assertEqual(
             (tx["operations"][0][0]),
             "transfer_to_vesting"
@@ -407,14 +407,14 @@ class Testcases(unittest.TestCase):
             op["from"])
 
     def test_json_export(self):
-        account = Account("beembot", steem_instance=self.bts)
-        if account.steem.rpc.get_use_appbase():
+        account = Account("beembot", hive_instance=self.bts)
+        if account.hive.rpc.get_use_appbase():
             content = self.bts.rpc.find_accounts({'accounts': [account["name"]]}, api="database")["accounts"][0]
         else:
             content = self.bts.rpc.get_accounts([account["name"]])[0]
         keys = list(content.keys())
         json_content = account.json()
-        exclude_list = ['owner_challenged', 'average_bandwidth']  # ['json_metadata', 'reputation', 'active_votes', 'savings_sbd_seconds']
+        exclude_list = ['owner_challenged', 'average_bandwidth']  # ['json_metadata', 'reputation', 'active_votes', 'savings_hbd_seconds']
         for k in keys:
             if k not in exclude_list:
                 if isinstance(content[k], dict) and isinstance(json_content[k], list):
@@ -425,9 +425,9 @@ class Testcases(unittest.TestCase):
 
     def test_estimate_virtual_op_num(self):
         stm = self.bts
-        account = Account("gtg", steem_instance=stm)
+        account = Account("gtg", hive_instance=stm)
         block_num = 21248120
-        block = Block(block_num, steem_instance=stm)
+        block = Block(block_num, hive_instance=stm)
         op_num1 = account.estimate_virtual_op_num(block.time(), stop_diff=1, max_count=100)
         op_num2 = account.estimate_virtual_op_num(block_num, stop_diff=1, max_count=100)
         op_num3 = account.estimate_virtual_op_num(block_num, stop_diff=100, max_count=100)
@@ -463,7 +463,7 @@ class Testcases(unittest.TestCase):
 
     def test_history_votes(self):
         stm = self.bts
-        account = Account("gtg", steem_instance=stm)
+        account = Account("gtg", hive_instance=stm)
         utc = pytz.timezone('UTC')
         limit_time = utc.localize(datetime.utcnow()) - timedelta(days=2)
         votes_list = []
@@ -486,7 +486,7 @@ class Testcases(unittest.TestCase):
         self.assertTrue(comments[0].depth > 0)
 
     def test_blog_history(self):
-        account = Account("holger80", steem_instance=self.bts)
+        account = Account("holger80", hive_instance=self.bts)
         posts = []
         for p in account.blog_history(limit=5):
             if p["author"] != account["name"]:
@@ -506,7 +506,7 @@ class Testcases(unittest.TestCase):
         self.assertTrue(replies[0].is_comment())
         self.assertTrue(replies[0].depth > 0)
 
-    def test_get_vote_pct_for_SBD(self):
+    def test_get_vote_pct_for_HBD(self):
         account = self.account
         for vote_pwr in range(5, 100, 5):
-            self.assertTrue(9900 <= account.get_vote_pct_for_SBD(account.get_voting_value_SBD(voting_power=vote_pwr), voting_power=vote_pwr) <= 11000)
+            self.assertTrue(9900 <= account.get_vote_pct_for_HBD(account.get_voting_value_HBD(voting_power=vote_pwr), voting_power=vote_pwr) <= 11000)

@@ -13,37 +13,37 @@ from beem import Steem
 from beem.blockchain import Blockchain
 from beem.exceptions import BlockWaitTimeExceeded
 from beem.block import Block
-from beem.instance import set_shared_steem_instance
+from beem.instance import set_shared_hive_instance
 from beem.nodelist import NodeList
 from beembase.signedtransactions import Signed_Transaction
 
 wif = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
-nodes_appbase = ["https://api.steemitstage.com", "https://api.steem.house", "https://api.steemit.com"]
+nodes_appbase = ["https://api.hiveitstage.com", "https://api.hive.house", "https://api.hiveit.com"]
 
 
 class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        nodelist.update_nodes(steem_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
         cls.bts = Steem(
             node=nodelist.get_nodes(exclude_limited=True),
             nobroadcast=True,
             keys={"active": wif},
             num_retries=10
         )
-        b = Blockchain(steem_instance=cls.bts)
+        b = Blockchain(hive_instance=cls.bts)
         num = b.get_current_block_num()
         cls.start = num - 25
         cls.stop = num
 
         # from getpass import getpass
         # self.bts.wallet.unlock(getpass())
-        set_shared_steem_instance(cls.bts)
+        set_shared_hive_instance(cls.bts)
 
     def test_blockchain(self):
         bts = self.bts
-        b = Blockchain(steem_instance=bts)
+        b = Blockchain(hive_instance=bts)
         num = b.get_current_block_num()
         self.assertTrue(num > 0)
         self.assertTrue(isinstance(num, int))
@@ -58,10 +58,10 @@ class Testcases(unittest.TestCase):
 
     def test_estimate_block_num(self):
         bts = self.bts
-        b = Blockchain(steem_instance=bts)
+        b = Blockchain(hive_instance=bts)
         last_block = b.get_current_block()
         num = last_block.identifier
-        old_block = Block(num - 60, steem_instance=bts)
+        old_block = Block(num - 60, hive_instance=bts)
         date = old_block.time()
         est_block_num = b.get_estimated_block_num(date, accurate=False)
         self.assertTrue((est_block_num - (old_block.identifier)) < 10)
@@ -73,7 +73,7 @@ class Testcases(unittest.TestCase):
 
     def test_get_all_accounts(self):
         bts = self.bts
-        b = Blockchain(steem_instance=bts)
+        b = Blockchain(hive_instance=bts)
         accounts = []
         limit = 200
         for acc in b.get_all_accounts(steps=100, limit=limit):
@@ -83,7 +83,7 @@ class Testcases(unittest.TestCase):
 
     def test_awaitTX(self):
         bts = self.bts
-        b = Blockchain(steem_instance=bts)
+        b = Blockchain(hive_instance=bts)
         trans = {'ref_block_num': 3855, 'ref_block_prefix': 1730859721,
                  'expiration': '2018-03-09T06:21:06', 'operations': [],
                  'extensions': [], 'signatures':
@@ -98,7 +98,7 @@ class Testcases(unittest.TestCase):
         bts = self.bts
         start = self.start
         stop = self.stop
-        b = Blockchain(steem_instance=bts)
+        b = Blockchain(hive_instance=bts)
         ops_stream = []
         opNames = ["transfer", "vote"]
         for op in b.stream(opNames=opNames, start=start, stop=stop):
@@ -189,7 +189,7 @@ class Testcases(unittest.TestCase):
 
     def test_stream2(self):
         bts = self.bts
-        b = Blockchain(steem_instance=bts)
+        b = Blockchain(hive_instance=bts)
         stop_block = b.get_current_block_num()
         start_block = stop_block - 10
         ops_stream = []
@@ -199,7 +199,7 @@ class Testcases(unittest.TestCase):
 
     def test_wait_for_and_get_block(self):
         bts = self.bts
-        b = Blockchain(steem_instance=bts, max_block_wait_repetition=18)
+        b = Blockchain(hive_instance=bts, max_block_wait_repetition=18)
         start_num = b.get_current_block_num()
         blocknum = start_num
         last_fetched_block_num = None
@@ -209,7 +209,7 @@ class Testcases(unittest.TestCase):
             blocknum = last_fetched_block_num + 1
         self.assertEqual(last_fetched_block_num, start_num + 2)
 
-        b2 = Blockchain(steem_instance=bts, max_block_wait_repetition=1)
+        b2 = Blockchain(hive_instance=bts, max_block_wait_repetition=1)
         with self.assertRaises(
             BlockWaitTimeExceeded
         ):
@@ -220,15 +220,15 @@ class Testcases(unittest.TestCase):
 
     def test_hash_op(self):
         bts = self.bts
-        b = Blockchain(steem_instance=bts)
-        op1 = {'type': 'vote_operation', 'value': {'voter': 'ubg', 'author': 'yesslife', 'permlink': 'steemit-sandwich-contest-week-25-2da-entry', 'weight': 100}}
-        op2 = ['vote', {'voter': 'ubg', 'author': 'yesslife', 'permlink': 'steemit-sandwich-contest-week-25-2da-entry', 'weight': 100}]
+        b = Blockchain(hive_instance=bts)
+        op1 = {'type': 'vote_operation', 'value': {'voter': 'ubg', 'author': 'yesslife', 'permlink': 'hiveit-sandwich-contest-week-25-2da-entry', 'weight': 100}}
+        op2 = ['vote', {'voter': 'ubg', 'author': 'yesslife', 'permlink': 'hiveit-sandwich-contest-week-25-2da-entry', 'weight': 100}]
         hash1 = b.hash_op(op1)
         hash2 = b.hash_op(op2)
         self.assertEqual(hash1, hash2)
 
     def test_signing_appbase(self):
-        b = Blockchain(steem_instance=self.bts)
+        b = Blockchain(hive_instance=self.bts)
         st = None
         for block in b.blocks(start=25304468, stop=25304468):
             for trx in block.transactions:

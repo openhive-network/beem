@@ -51,8 +51,8 @@ class AccountSnapshot(list):
         self.reward_timestamps = []
         self.author_rewards = []
         self.curation_rewards = []
-        self.curation_per_1000_SP_timestamp = []
-        self.curation_per_1000_SP = []
+        self.curation_per_1000_HP_timestamp = []
+        self.curation_per_1000_HP = []
         self.out_vote_timestamp = []
         self.out_vote_weight = []
         self.in_vote_timestamp = []
@@ -501,8 +501,8 @@ class AccountSnapshot(list):
 
     def build_curation_arrays(self, end_date=None, sum_days=7):
         """ Build curation arrays"""
-        self.curation_per_1000_SP_timestamp = []
-        self.curation_per_1000_SP = []
+        self.curation_per_1000_HP_timestamp = []
+        self.curation_per_1000_HP = []
         if sum_days <= 0:
             raise ValueError("sum_days must be greater than 0")
         index = 0
@@ -523,8 +523,8 @@ class AccountSnapshot(list):
             if ts < end_date:
                 curation_sum += curation_1k_hp
             else:
-                self.curation_per_1000_SP_timestamp.append(end_date)
-                self.curation_per_1000_SP.append(curation_sum)
+                self.curation_per_1000_HP_timestamp.append(end_date)
+                self.curation_per_1000_HP.append(curation_sum)
                 end_date = end_date + timedelta(days=sum_days)
                 curation_sum = 0
 

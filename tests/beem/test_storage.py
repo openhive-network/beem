@@ -19,7 +19,7 @@ from beem.wallet import Wallet
 from beem.witness import Witness
 from beem.account import Account
 from beemgraphenebase.account import PrivateKey
-from beem.instance import set_shared_steem_instance, shared_steem_instance
+from beem.instance import set_shared_hive_instance, shared_hive_instance
 from beem.nodelist import NodeList
 # Py3 compatibility
 import sys
@@ -30,10 +30,10 @@ wif = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
 class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        stm = shared_steem_instance()
+        stm = shared_hive_instance()
         stm.config.refreshBackup()
         nodelist = NodeList()
-        nodelist.update_nodes(steem_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
 
         cls.stm = Steem(
             node=nodelist.get_nodes(exclude_limited=True),
@@ -45,10 +45,10 @@ class Testcases(unittest.TestCase):
         )
 
         cls.stm.set_default_account("test")
-        set_shared_steem_instance(cls.stm)
+        set_shared_hive_instance(cls.stm)
         # self.stm.newWallet("TestingOneTwoThree")
 
-        cls.wallet = Wallet(steem_instance=cls.stm)
+        cls.wallet = Wallet(hive_instance=cls.stm)
         cls.wallet.wipe(True)
         cls.wallet.newWallet(pwd="TestingOneTwoThree")
         cls.wallet.unlock(pwd="TestingOneTwoThree")
@@ -56,7 +56,7 @@ class Testcases(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        stm = shared_steem_instance()
+        stm = shared_hive_instance()
         stm.config.recover_with_latest_backup()
 
     def test_set_default_account(self):

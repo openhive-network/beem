@@ -12,7 +12,7 @@ from pprint import pprint
 from beem import Steem
 from beem.blockchain import Blockchain
 from beem.block import Block
-from beem.instance import set_shared_steem_instance
+from beem.instance import set_shared_hive_instance
 from beem.utils import formatTimeString
 from beem.nodelist import NodeList
 
@@ -23,7 +23,7 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        nodelist.update_nodes(steem_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
         cls.bts = Steem(
             node=nodelist.get_nodes(exclude_limited=True),
             nobroadcast=True,
@@ -34,10 +34,10 @@ class Testcases(unittest.TestCase):
         )
         # from getpass import getpass
         # self.bts.wallet.unlock(getpass())
-        set_shared_steem_instance(cls.bts)
+        set_shared_hive_instance(cls.bts)
         cls.bts.set_default_account("test")
 
-        b = Blockchain(steem_instance=cls.bts)
+        b = Blockchain(hive_instance=cls.bts)
         num = b.get_current_block_num()
         cls.start = num - 100
         cls.stop = num
@@ -45,7 +45,7 @@ class Testcases(unittest.TestCase):
 
     def test_stream_batch(self):
         bts = self.bts
-        b = Blockchain(steem_instance=bts)
+        b = Blockchain(hive_instance=bts)
         ops_stream = []
         opNames = ["transfer", "vote"]
         for op in b.stream(opNames=opNames, start=self.start, stop=self.stop, max_batch_size=self.max_batch_size, threading=False):
@@ -77,7 +77,7 @@ class Testcases(unittest.TestCase):
 
     def test_stream_batch2(self):
         bts = self.bts
-        b = Blockchain(steem_instance=bts)
+        b = Blockchain(hive_instance=bts)
         ops_stream = []
         start_block = 25097000
         stop_block = 25097100

@@ -6,7 +6,7 @@ from builtins import super
 import unittest
 from parameterized import parameterized
 from beem import Steem
-from beem.instance import set_shared_steem_instance
+from beem.instance import set_shared_hive_instance
 from beem.transactionbuilder import TransactionBuilder
 from beembase.signedtransactions import Signed_Transaction
 from beembase.operations import Transfer
@@ -32,7 +32,7 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        nodelist.update_nodes(steem_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
         node_list = nodelist.get_nodes(exclude_limited=True)
         cls.stm = Steem(
             node=node_list,
@@ -40,24 +40,24 @@ class Testcases(unittest.TestCase):
             nobroadcast=True,
             num_retries=10
         )
-        cls.steemit = Steem(
-            node="https://api.steemit.com",
+        cls.hiveit = Steem(
+            node="https://api.hiveit.com",
             nobroadcast=True,
             keys={"active": wif, "owner": wif, "memo": wif},
             num_retries=10
         )
-        set_shared_steem_instance(cls.stm)
+        set_shared_hive_instance(cls.stm)
         cls.stm.set_default_account("test")
 
     def test_emptyTransaction(self):
         stm = self.stm
-        tx = TransactionBuilder(steem_instance=stm)
+        tx = TransactionBuilder(hive_instance=stm)
         self.assertTrue(tx.is_empty())
         self.assertTrue(tx["ref_block_num"] is not None)
 
     def test_verify_transaction(self):
         stm = self.stm
-        block = Block(22005665, steem_instance=stm)
+        block = Block(22005665, hive_instance=stm)
         trx = block.transactions[28]
         signed_tx = Signed_Transaction(trx)
         key = signed_tx.verify(chain=stm.chain_params, recover_parameter=False)

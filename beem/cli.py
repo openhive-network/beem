@@ -2590,7 +2590,7 @@ def curation(authorperm, account, limit, min_vote, max_vote, min_performance, ma
         elif payout is not None:
             payout = None
         curation_rewards_HBD = comment.get_curation_rewards(pending_payout_HBD=True, pending_payout_value=payout)
-        curation_rewards_SP = comment.get_curation_rewards(pending_payout_HBD=False, pending_payout_value=payout)
+        curation_rewards_HP = comment.get_curation_rewards(pending_payout_HBD=False, pending_payout_value=payout)
         rows = []
         sum_curation = [0, 0, 0, 0]
         max_curation = [0, 0, 0, 0, 0, 0]
@@ -2598,7 +2598,7 @@ def curation(authorperm, account, limit, min_vote, max_vote, min_performance, ma
         for vote in comment["active_votes"]:
             vote_HBD = stm.rshares_to_hbd(int(vote["rshares"]))
             curation_HBD = curation_rewards_HBD["active_votes"][vote["voter"]]
-            curation_SP = curation_rewards_SP["active_votes"][vote["voter"]]
+            curation_HP = curation_rewards_HP["active_votes"][vote["voter"]]
             if vote_HBD > 0:
                 penalty = ((comment.get_curation_penalty(vote_time=vote["time"])) * vote_HBD)
                 performance = (float(curation_HBD) / vote_HBD * 100)
@@ -2608,13 +2608,13 @@ def curation(authorperm, account, limit, min_vote, max_vote, min_performance, ma
             vote_befor_min = (((vote["time"]) - comment["created"]).total_seconds() / 60)
             sum_curation[0] += vote_HBD
             sum_curation[1] += penalty
-            sum_curation[2] += float(curation_SP)
+            sum_curation[2] += float(curation_HP)
             sum_curation[3] += float(curation_HBD)
             row = [vote["voter"],
                    vote_befor_min,
                    vote_HBD,
                    penalty,
-                   float(curation_SP),
+                   float(curation_HP),
                    performance]
             if row[-1] > max_curation[-1]:
                 max_curation = row
@@ -2782,11 +2782,11 @@ def rewards(accounts, only_sum, post, comment, curation, length, author, permlin
                     payout_HIVE = Amount(v["hive_payout"], hive_instance=stm)
                     sum_reward[0] += float(payout_HBD)
                     sum_reward[1] += float(payout_HIVE)
-                    payout_SP = stm.vests_to_sp(Amount(v["vesting_payout"], hive_instance=stm))
-                    sum_reward[2] += float(payout_SP)
+                    payout_HP = stm.vests_to_sp(Amount(v["vesting_payout"], hive_instance=stm))
+                    sum_reward[2] += float(payout_HP)
                     liquid_USD = float(payout_HBD) / float(latest) * float(median_price) + float(payout_HIVE) * float(median_price)
                     sum_reward[3] += liquid_USD
-                    invested_USD = float(payout_SP) * float(median_price)
+                    invested_USD = float(payout_HP) * float(median_price)
                     sum_reward[4] += invested_USD
                     if c.is_comment():
                         permlink_row = c.parent_permlink
@@ -2800,15 +2800,15 @@ def rewards(accounts, only_sum, post, comment, curation, length, author, permlin
                                  ((now - formatTimeString(v["timestamp"])).total_seconds() / 60 / 60 / 24),
                                  (payout_HBD),
                                  (payout_HIVE),
-                                 (payout_SP),
+                                 (payout_HP),
                                  (liquid_USD),
                                  (invested_USD)])
                 elif v["type"] == "curation_reward":
                     reward = Amount(v["reward"], hive_instance=stm)
-                    payout_SP = stm.vests_to_sp(reward)
+                    payout_HP = stm.vests_to_sp(reward)
                     liquid_USD = 0
-                    invested_USD = float(payout_SP) * float(median_price)
-                    sum_reward[2] += float(payout_SP)
+                    invested_USD = float(payout_HP) * float(median_price)
+                    sum_reward[2] += float(payout_HP)
                     sum_reward[4] += invested_USD
                     if title:
                         c = Comment(construct_authorperm(v["comment_author"], v["comment_permlink"]), hive_instance=stm)
@@ -2820,7 +2820,7 @@ def rewards(accounts, only_sum, post, comment, curation, length, author, permlin
                                  ((now - formatTimeString(v["timestamp"])).total_seconds() / 60 / 60 / 24),
                                  0.000,
                                  0.000,
-                                 payout_SP,
+                                 payout_HP,
                                  (liquid_USD),
                                  (invested_USD)])
         sortedList = sorted(rows, key=lambda row: (row[2]), reverse=False)
@@ -2981,11 +2981,11 @@ def pending(accounts, only_sum, post, comment, curation, length, author, permlin
                     continue
                 payout_HBD = author_reward["payout_HBD"]
                 sum_reward[0] += float(payout_HBD)
-                payout_SP = author_reward["payout_SP"]
-                sum_reward[1] += float(payout_SP)
+                payout_HP = author_reward["payout_HP"]
+                sum_reward[1] += float(payout_HP)
                 liquid_USD = float(author_reward["payout_HBD"]) / float(latest) * float(median_price)
                 sum_reward[2] += liquid_USD
-                invested_USD = float(author_reward["payout_SP"]) * float(median_price)
+                invested_USD = float(author_reward["payout_HP"]) * float(median_price)
                 sum_reward[3] += invested_USD
                 if v.is_comment():
                     permlink_row = v.permlink
@@ -2998,7 +2998,7 @@ def pending(accounts, only_sum, post, comment, curation, length, author, permlin
                              permlink_row,
                              ((v["created"] - limit_time).total_seconds() / 60 / 60 / 24),
                              (payout_HBD),
-                             (payout_SP),
+                             (payout_HP),
                              (liquid_USD),
                              (invested_USD)])
         if curation:
@@ -3011,10 +3011,10 @@ def pending(accounts, only_sum, post, comment, curation, length, author, permlin
                 days_to_payout = ((c["created"] - limit_time).total_seconds() / 60 / 60 / 24)
                 if days_to_payout < 0:
                     continue
-                payout_SP = rewards["active_votes"][account["name"]]
+                payout_HP = rewards["active_votes"][account["name"]]
                 liquid_USD = 0
-                invested_USD = float(payout_SP) * float(median_price)
-                sum_reward[1] += float(payout_SP)
+                invested_USD = float(payout_HP) * float(median_price)
+                sum_reward[1] += float(payout_HP)
                 sum_reward[3] += invested_USD
                 if title:
                     permlink_row = c.title
@@ -3024,7 +3024,7 @@ def pending(accounts, only_sum, post, comment, curation, length, author, permlin
                              permlink_row,
                              days_to_payout,
                              0.000,
-                             payout_SP,
+                             payout_HP,
                              (liquid_USD),
                              (invested_USD)])
         sortedList = sorted(rows, key=lambda row: (row[2]), reverse=True)

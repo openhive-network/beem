@@ -241,8 +241,8 @@ Lets calculate the curation reward from the last 7 days:
     reward_vests = Amount("0 VESTS")
     for reward in acc.history_reverse(stop=stop, only_ops=["curation_reward"]):
                 reward_vests += Amount(reward['reward'])
-    curation_rewards_SP = acc.hive.vests_to_sp(reward_vests.amount)
-    print("Rewards are %.3f HP" % curation_rewards_SP)
+    curation_rewards_HP = acc.hive.vests_to_hp(reward_vests.amount)
+    print("Rewards are %.3f HP" % curation_rewards_HP)
 
 Lets display all Posts from an account:
 

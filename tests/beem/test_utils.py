@@ -45,7 +45,7 @@ class Testcases(unittest.TestCase):
     def test_authorperm_resolve(self):
         self.assertEqual(resolve_authorperm('https://d.tube/#!/v/pottlund/m5cqkd1a'),
                          ('pottlund', 'm5cqkd1a'))
-        self.assertEqual(resolve_authorperm("https://steemit.com/witness-category/@gtg/24lfrm-gtg-witness-log"),
+        self.assertEqual(resolve_authorperm("https://hiveit.com/witness-category/@gtg/24lfrm-gtg-witness-log"),
                          ('gtg', '24lfrm-gtg-witness-log'))
         self.assertEqual(resolve_authorperm("@gtg/24lfrm-gtg-witness-log"),
                          ('gtg', '24lfrm-gtg-witness-log'))

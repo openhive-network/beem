@@ -12,7 +12,7 @@ from beem.account import Account
 from beem.amount import Amount
 from beem.asset import Asset
 from beem.wallet import Wallet
-from beem.instance import set_shared_steem_instance, shared_steem_instance
+from beem.instance import set_shared_hive_instance, shared_hive_instance
 from beem.nodelist import NodeList
 
 wif = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
@@ -21,10 +21,10 @@ wif = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
 class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        stm = shared_steem_instance()
+        stm = shared_hive_instance()
         stm.config.refreshBackup()
         nodelist = NodeList()
-        nodelist.update_nodes(steem_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
 
         cls.stm = Steem(
             node=nodelist.get_nodes(exclude_limited=True),
@@ -35,10 +35,10 @@ class Testcases(unittest.TestCase):
             # Overwrite wallet to use this list of wifs only
         )
         cls.stm.set_default_account("test")
-        set_shared_steem_instance(cls.stm)
+        set_shared_hive_instance(cls.stm)
         # self.stm.newWallet("TestingOneTwoThree")
 
-        cls.wallet = Wallet(steem_instance=cls.stm)
+        cls.wallet = Wallet(hive_instance=cls.stm)
         cls.wallet.wipe(True)
         cls.wallet.newWallet(pwd="TestingOneTwoThree")
         cls.wallet.unlock(pwd="TestingOneTwoThree")
@@ -46,12 +46,12 @@ class Testcases(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        stm = shared_steem_instance()
+        stm = shared_hive_instance()
         stm.config.recover_with_latest_backup()
 
     def test_wallet_lock(self):
         stm = self.stm
-        self.wallet.steem = stm
+        self.wallet.hive = stm
         self.wallet.unlock(pwd="TestingOneTwoThree")
         self.assertTrue(self.wallet.unlocked())
         self.assertFalse(self.wallet.locked())
@@ -60,7 +60,7 @@ class Testcases(unittest.TestCase):
 
     def test_change_masterpassword(self):
         stm = self.stm
-        self.wallet.steem = stm
+        self.wallet.hive = stm
         self.wallet.unlock(pwd="TestingOneTwoThree")
         self.assertTrue(self.wallet.unlocked())
         self.wallet.changePassphrase("newPass")
@@ -73,7 +73,7 @@ class Testcases(unittest.TestCase):
 
     def test_Keys(self):
         stm = self.stm
-        self.wallet.steem = stm
+        self.wallet.hive = stm
         self.wallet.unlock(pwd="TestingOneTwoThree")
         keys = self.wallet.getPublicKeys()
         self.assertTrue(len(keys) > 0)
@@ -83,7 +83,7 @@ class Testcases(unittest.TestCase):
 
     def test_account_by_pub(self):
         stm = self.stm
-        self.wallet.steem = stm
+        self.wallet.hive = stm
         self.wallet.unlock(pwd="TestingOneTwoThree")
         acc = Account("gtg")
         pub = acc["owner"]["key_auths"][0][0]
@@ -103,7 +103,7 @@ class Testcases(unittest.TestCase):
 
     def test_pub_lookup(self):
         stm = self.stm
-        self.wallet.steem = stm
+        self.wallet.hive = stm
         self.wallet.unlock(pwd="TestingOneTwoThree")
         with self.assertRaises(
             exceptions.MissingKeyError
@@ -124,7 +124,7 @@ class Testcases(unittest.TestCase):
 
     def test_pub_lookup_keys(self):
         stm = self.stm
-        self.wallet.steem = stm
+        self.wallet.hive = stm
         self.wallet.unlock(pwd="TestingOneTwoThree")
         with self.assertRaises(
             exceptions.MissingKeyError
@@ -141,7 +141,7 @@ class Testcases(unittest.TestCase):
 
     def test_encrypt(self):
         stm = self.stm
-        self.wallet.steem = stm
+        self.wallet.hive = stm
         self.wallet.unlock(pwd="TestingOneTwoThree")
         self.wallet.masterpassword = "TestingOneTwoThree"
         self.assertEqual([self.wallet.encrypt_wif("5HqUkGuo62BfcJU5vNhTXKJRXuUi9QSE6jp8C3uBJ2BVHtB8WSd"),
@@ -155,7 +155,7 @@ class Testcases(unittest.TestCase):
 
     def test_deencrypt(self):
         stm = self.stm
-        self.wallet.steem = stm
+        self.wallet.hive = stm
         self.wallet.unlock(pwd="TestingOneTwoThree")
         self.wallet.masterpassword = "TestingOneTwoThree"
         self.assertEqual([self.wallet.decrypt_wif("6PRN5mjUTtud6fUXbJXezfn6oABoSr6GSLjMbrGXRZxSUcxThxsUW8epQi"),

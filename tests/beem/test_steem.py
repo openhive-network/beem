@@ -19,7 +19,7 @@ from beem.wallet import Wallet
 from beem.witness import Witness
 from beem.account import Account
 from beemgraphenebase.account import PrivateKey
-from beem.instance import set_shared_steem_instance
+from beem.instance import set_shared_hive_instance
 from beem.nodelist import NodeList
 # Py3 compatibility
 import sys
@@ -32,7 +32,7 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.nodelist = NodeList()
-        cls.nodelist.update_nodes(steem_instance=Steem(node=cls.nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        cls.nodelist.update_nodes(hive_instance=Steem(node=cls.nodelist.get_nodes(exclude_limited=False), num_retries=10))
         cls.bts = Steem(
             node=cls.nodelist.get_nodes(exclude_limited=True),
             nobroadcast=True,
@@ -40,14 +40,14 @@ class Testcases(unittest.TestCase):
             data_refresh_time_seconds=900,
             keys={"active": wif, "owner": wif, "memo": wif},
             num_retries=10)
-        cls.account = Account("test", full=True, steem_instance=cls.bts)
+        cls.account = Account("test", full=True, hive_instance=cls.bts)
 
     def test_transfer(self):
         bts = self.bts
         acc = self.account
-        acc.steem.txbuffer.clear()
+        acc.hive.txbuffer.clear()
         tx = acc.transfer(
-            "test", 1.33, "SBD", memo="Foobar", account="test1")
+            "test", 1.33, "HBD", memo="Foobar", account="test1")
         self.assertEqual(
             tx["operations"][0][0],
             "transfer"
@@ -58,7 +58,7 @@ class Testcases(unittest.TestCase):
         self.assertEqual(op["memo"], "Foobar")
         self.assertEqual(op["from"], "test1")
         self.assertEqual(op["to"], "test")
-        amount = Amount(op["amount"], steem_instance=bts)
+        amount = Amount(op["amount"], hive_instance=bts)
         self.assertEqual(float(amount), 1.33)
 
     def test_create_account(self):
@@ -204,9 +204,9 @@ class Testcases(unittest.TestCase):
         tx1 = bts.new_tx()
         tx2 = bts.new_tx()
 
-        acc.transfer("test1", 1, "STEEM", append_to=tx1)
-        acc.transfer("test1", 2, "STEEM", append_to=tx2)
-        acc.transfer("test1", 3, "STEEM", append_to=tx1)
+        acc.transfer("test1", 1, "HIVE", append_to=tx1)
+        acc.transfer("test1", 2, "HIVE", append_to=tx2)
+        acc.transfer("test1", 3, "HIVE", append_to=tx1)
         tx1 = tx1.json()
         tx2 = tx2.json()
         ops1 = tx1["operations"]
@@ -288,8 +288,8 @@ class Testcases(unittest.TestCase):
         acc = self.account
         prefix = "STM"
         pkey = 'STM55VCzsb47NZwWe5F3qyQKedX9iHBHMVVFSc96PDvV7wuj7W86n'
-        self.assertEqual(acc.steem.prefix, prefix)
-        acc.steem.txbuffer.clear()
+        self.assertEqual(acc.hive.prefix, prefix)
+        acc.hive.txbuffer.clear()
         tx = acc.update_memo_key(pkey)
         self.assertEqual(
             (tx["operations"][0][0]),
@@ -302,7 +302,7 @@ class Testcases(unittest.TestCase):
 
     def test_approvewitness(self):
         w = self.account
-        w.steem.txbuffer.clear()
+        w.hive.txbuffer.clear()
         tx = w.approvewitness("test1")
         self.assertEqual(
             (tx["operations"][0][0]),
@@ -351,8 +351,8 @@ class Testcases(unittest.TestCase):
         self.assertIn(
             "gtg",
             op["author"])
-        self.assertEqual('1000000.000 SBD', op["max_accepted_payout"])
-        self.assertEqual(10000, op["percent_steem_dollars"])
+        self.assertEqual('1000000.000 HBD', op["max_accepted_payout"])
+        self.assertEqual(10000, op["percent_hive_dollars"])
         self.assertEqual(True, op["allow_votes"])
         self.assertEqual(True, op["allow_curation_rewards"])
         self.assertEqual("witness-gtg-log", op["permlink"])
@@ -400,40 +400,40 @@ class Testcases(unittest.TestCase):
         self.assertTrue(bts.get_block_interval() is not None)
         self.assertTrue(bts.get_blockchain_version() is not None)
 
-    def test_sp_to_rshares(self):
+    def test_hp_to_rshares(self):
         stm = self.bts
-        rshares = stm.sp_to_rshares(stm.vests_to_sp(1e6))
+        rshares = stm.hp_to_rshares(stm.vests_to_hp(1e6))
         self.assertTrue(abs(rshares - 20000000000.0) < 2)
 
     def test_rshares_to_vests(self):
         stm = self.bts
-        rshares = stm.sp_to_rshares(stm.vests_to_sp(1e6))
+        rshares = stm.hp_to_rshares(stm.vests_to_hp(1e6))
         rshares2 = stm.vests_to_rshares(1e6)
         self.assertTrue(abs(rshares - rshares2) < 2)
 
-    def test_sp_to_sbd(self):
+    def test_hp_to_hbd(self):
         stm = self.bts
-        sp = 500
-        ret = stm.sp_to_sbd(sp)
+        hp = 500
+        ret = stm.hp_to_hbd(hp)
         self.assertTrue(ret is not None)
 
-    def test_sbd_to_rshares(self):
+    def test_hbd_to_rshares(self):
         stm = self.bts
         test_values = [1, 10, 100, 1e3, 1e4, 1e5, 1e6, 1e7]
         for v in test_values:
             try:
-                sbd = round(stm.rshares_to_sbd(stm.sbd_to_rshares(v)), 5)
-            except ValueError:  # Reward pool smaller than 1e7 SBD (e.g. caused by a very low steem price)
+                hbd = round(stm.rshares_to_hbd(stm.hbd_to_rshares(v)), 5)
+            except ValueError:  # Reward pool smaller than 1e7 HBD (e.g. caused by a very low hive price)
                 continue
-            self.assertEqual(sbd, v)
+            self.assertEqual(hbd, v)
 
     def test_rshares_to_vote_pct(self):
         stm = self.bts
-        sp = 1000
+        hp = 1000
         voting_power = 9000
         for vote_pct in range(500, 10000, 500):
-            rshares = stm.sp_to_rshares(sp, voting_power=voting_power, vote_pct=vote_pct)
-            vote_pct_ret = stm.rshares_to_vote_pct(rshares, steem_power=sp, voting_power=voting_power)
+            rshares = stm.hp_to_rshares(hp, voting_power=voting_power, vote_pct=vote_pct)
+            vote_pct_ret = stm.rshares_to_vote_pct(rshares, hive_power=hp, voting_power=voting_power)
             self.assertEqual(vote_pct_ret, vote_pct)
 
     def test_sign(self):

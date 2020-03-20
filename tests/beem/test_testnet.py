@@ -20,7 +20,7 @@ from beemapi import exceptions
 from beem.amount import Amount
 from beem.witness import Witness
 from beem.account import Account
-from beem.instance import set_shared_steem_instance, shared_steem_instance
+from beem.instance import set_shared_hive_instance, shared_hive_instance
 from beem.blockchain import Blockchain
 from beem.block import Block
 from beem.memo import Memo
@@ -41,7 +41,7 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        # stm = shared_steem_instance()
+        # stm = shared_hive_instance()
         # stm.config.refreshBackup()
         # nodes = nodelist.get_testnet()
         cls.nodes = nodelist.get_nodes()
@@ -90,7 +90,7 @@ class Testcases(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        stm = shared_steem_instance()
+        stm = shared_hive_instance()
         stm.config.recover_with_latest_backup()
 
     def test_wallet_keys(self):
@@ -119,9 +119,9 @@ class Testcases(unittest.TestCase):
         bts.wallet.unlock("123")
         # bts.wallet.addPrivateKey(self.active_key)
         # bts.prefix ="STX"
-        acc = Account("beem", steem_instance=bts)
+        acc = Account("beem", hive_instance=bts)
         tx = acc.transfer(
-            "beem1", 1.33, "SBD", memo="Foobar")
+            "beem1", 1.33, "HBD", memo="Foobar")
         self.assertEqual(
             tx["operations"][0][0],
             "transfer"
@@ -131,7 +131,7 @@ class Testcases(unittest.TestCase):
         self.assertIn("memo", op)
         self.assertEqual(op["from"], "beem")
         self.assertEqual(op["to"], "beem1")
-        amount = Amount(op["amount"], steem_instance=bts)
+        amount = Amount(op["amount"], hive_instance=bts)
         self.assertEqual(float(amount), 1.33)
         bts.nobroadcast = True
 
@@ -139,9 +139,9 @@ class Testcases(unittest.TestCase):
         bts = self.bts
         bts.nobroadcast = False
         bts.wallet.unlock("123")
-        acc = Account("beem", steem_instance=bts)
+        acc = Account("beem", hive_instance=bts)
         tx = acc.transfer(
-            "beem1", 1.33, "SBD", memo="#Foobar")
+            "beem1", 1.33, "HBD", memo="#Foobar")
         self.assertEqual(
             tx["operations"][0][0],
             "transfer"
@@ -149,23 +149,23 @@ class Testcases(unittest.TestCase):
         op = tx["operations"][0][1]
         self.assertIn("memo", op)
         self.assertIn("#", op["memo"])
-        m = Memo(from_account=op["from"], to_account=op["to"], steem_instance=bts)
+        m = Memo(from_account=op["from"], to_account=op["to"], hive_instance=bts)
         memo = m.decrypt(op["memo"])
         self.assertEqual(memo, "Foobar")
 
         self.assertEqual(op["from"], "beem")
         self.assertEqual(op["to"], "beem1")
-        amount = Amount(op["amount"], steem_instance=bts)
+        amount = Amount(op["amount"], hive_instance=bts)
         self.assertEqual(float(amount), 1.33)
         bts.nobroadcast = True
 
     def test_transfer_1of1(self):
-        steem = self.bts
-        steem.nobroadcast = False
-        tx = TransactionBuilder(use_condenser_api=True, steem_instance=steem)
+        hive = self.bts
+        hive.nobroadcast = False
+        tx = TransactionBuilder(use_condenser_api=True, hive_instance=hive)
         tx.appendOps(Transfer(**{"from": 'beem',
                                  "to": 'beem1',
-                                 "amount": Amount("0.01 STEEM", steem_instance=steem),
+                                 "amount": Amount("0.01 HIVE", hive_instance=hive),
                                  "memo": '1 of 1 transaction'}))
         self.assertEqual(
             tx["operations"][0]["type"],
@@ -176,16 +176,16 @@ class Testcases(unittest.TestCase):
         tx.sign()
         self.assertEqual(len(tx['signatures']), 1)
         tx.broadcast()
-        steem.nobroadcast = True
+        hive.nobroadcast = True
 
     def test_transfer_2of2_simple(self):
         # Send a 2 of 2 transaction from elf which needs beem4's cosign to send funds
-        steem = self.bts
-        steem.nobroadcast = False
-        tx = TransactionBuilder(use_condenser_api=True, steem_instance=steem)
+        hive = self.bts
+        hive.nobroadcast = False
+        tx = TransactionBuilder(use_condenser_api=True, hive_instance=hive)
         tx.appendOps(Transfer(**{"from": 'beem5',
                                  "to": 'beem1',
-                                 "amount": Amount("0.01 STEEM", steem_instance=steem),
+                                 "amount": Amount("0.01 HIVE", hive_instance=hive),
                                  "memo": '2 of 2 simple transaction'}))
 
         tx.appendWif(self.active_private_key_of_beem5)
@@ -195,43 +195,43 @@ class Testcases(unittest.TestCase):
         tx.sign(reconstruct_tx=False)
         self.assertEqual(len(tx['signatures']), 2)
         tx.broadcast()
-        steem.nobroadcast = True
+        hive.nobroadcast = True
 
     
     def test_transfer_2of2_wallet(self):
         # Send a 2 of 2 transaction from beem5 which needs beem4's cosign to send
         # priv key of beem5 and beem4 are stored in the wallet
         # appendSigner fetches both keys and signs automatically with both keys.
-        steem = self.bts
-        steem.nobroadcast = False
-        steem.wallet.unlock("123")
+        hive = self.bts
+        hive.nobroadcast = False
+        hive.wallet.unlock("123")
 
-        tx = TransactionBuilder(use_condenser_api=True, steem_instance=steem)
+        tx = TransactionBuilder(use_condenser_api=True, hive_instance=hive)
         tx.appendOps(Transfer(**{"from": 'beem5',
                                  "to": 'beem1',
-                                 "amount": Amount("0.01 STEEM", steem_instance=steem),
+                                 "amount": Amount("0.01 HIVE", hive_instance=hive),
                                  "memo": '2 of 2 serialized/deserialized transaction'}))
 
         tx.appendSigner("beem5", "active")
         tx.sign()
         self.assertEqual(len(tx['signatures']), 2)
         tx.broadcast()
-        steem.nobroadcast = True
+        hive.nobroadcast = True
 
     def test_transfer_2of2_serialized_deserialized(self):
         # Send a 2 of 2 transaction from beem5 which needs beem4's cosign to send
         # funds but sign the transaction with beem5's key and then serialize the transaction
         # and deserialize the transaction.  After that, sign with beem4's key.
-        steem = self.bts
-        steem.nobroadcast = False
-        steem.wallet.unlock("123")
-        # steem.wallet.removeAccount("beem4")
-        steem.wallet.removePrivateKeyFromPublicKey(str(PublicKey(self.active_private_key_of_beem4, prefix=core_unit)))
+        hive = self.bts
+        hive.nobroadcast = False
+        hive.wallet.unlock("123")
+        # hive.wallet.removeAccount("beem4")
+        hive.wallet.removePrivateKeyFromPublicKey(str(PublicKey(self.active_private_key_of_beem4, prefix=core_unit)))
 
-        tx = TransactionBuilder(use_condenser_api=True, steem_instance=steem)
+        tx = TransactionBuilder(use_condenser_api=True, hive_instance=hive)
         tx.appendOps(Transfer(**{"from": 'beem5',
                                  "to": 'beem1',
-                                 "amount": Amount("0.01 STEEM", steem_instance=steem),
+                                 "amount": Amount("0.01 HIVE", hive_instance=hive),
                                  "memo": '2 of 2 serialized/deserialized transaction'}))
 
         tx.appendSigner("beem5", "active")
@@ -239,33 +239,33 @@ class Testcases(unittest.TestCase):
         tx.sign()
         tx.clearWifs()
         self.assertEqual(len(tx['signatures']), 1)
-        # steem.wallet.removeAccount("beem5")
-        steem.wallet.removePrivateKeyFromPublicKey(str(PublicKey(self.active_private_key_of_beem5, prefix=core_unit)))
+        # hive.wallet.removeAccount("beem5")
+        hive.wallet.removePrivateKeyFromPublicKey(str(PublicKey(self.active_private_key_of_beem5, prefix=core_unit)))
         tx_json = tx.json()
         del tx
-        new_tx = TransactionBuilder(tx=tx_json, steem_instance=steem)
+        new_tx = TransactionBuilder(tx=tx_json, hive_instance=hive)
         self.assertEqual(len(new_tx['signatures']), 1)
-        steem.wallet.addPrivateKey(self.active_private_key_of_beem4)
+        hive.wallet.addPrivateKey(self.active_private_key_of_beem4)
         new_tx.appendMissingSignatures()
         new_tx.sign(reconstruct_tx=False)
         self.assertEqual(len(new_tx['signatures']), 2)
         new_tx.broadcast()
-        steem.nobroadcast = True
+        hive.nobroadcast = True
 
     def test_transfer_2of2_offline(self):
         # Send a 2 of 2 transaction from beem5 which needs beem4's cosign to send
         # funds but sign the transaction with beem5's key and then serialize the transaction
         # and deserialize the transaction.  After that, sign with beem4's key.
-        steem = self.bts
-        steem.nobroadcast = False
-        steem.wallet.unlock("123")
-        # steem.wallet.removeAccount("beem4")
-        steem.wallet.removePrivateKeyFromPublicKey(str(PublicKey(self.active_private_key_of_beem4, prefix=core_unit)))
+        hive = self.bts
+        hive.nobroadcast = False
+        hive.wallet.unlock("123")
+        # hive.wallet.removeAccount("beem4")
+        hive.wallet.removePrivateKeyFromPublicKey(str(PublicKey(self.active_private_key_of_beem4, prefix=core_unit)))
 
-        tx = TransactionBuilder(use_condenser_api=True, steem_instance=steem)
+        tx = TransactionBuilder(use_condenser_api=True, hive_instance=hive)
         tx.appendOps(Transfer(**{"from": 'beem5',
                                  "to": 'beem',
-                                 "amount": Amount("0.01 STEEM", steem_instance=steem),
+                                 "amount": Amount("0.01 HIVE", hive_instance=hive),
                                  "memo": '2 of 2 serialized/deserialized transaction'}))
 
         tx.appendSigner("beem5", "active")
@@ -273,15 +273,15 @@ class Testcases(unittest.TestCase):
         tx.sign()
         tx.clearWifs()
         self.assertEqual(len(tx['signatures']), 1)
-        # steem.wallet.removeAccount("beem5")
-        steem.wallet.removePrivateKeyFromPublicKey(str(PublicKey(self.active_private_key_of_beem5, prefix=core_unit)))
-        steem.wallet.addPrivateKey(self.active_private_key_of_beem4)
+        # hive.wallet.removeAccount("beem5")
+        hive.wallet.removePrivateKeyFromPublicKey(str(PublicKey(self.active_private_key_of_beem5, prefix=core_unit)))
+        hive.wallet.addPrivateKey(self.active_private_key_of_beem4)
         tx.appendMissingSignatures()
         tx.sign(reconstruct_tx=False)
         self.assertEqual(len(tx['signatures']), 2)
         tx.broadcast()
-        steem.nobroadcast = True
-        steem.wallet.addPrivateKey(self.active_private_key_of_beem5)
+        hive.nobroadcast = True
+        hive.wallet.addPrivateKey(self.active_private_key_of_beem5)
 
     
     def test_transfer_2of2_wif(self):
@@ -289,17 +289,17 @@ class Testcases(unittest.TestCase):
         # Send a 2 of 2 transaction from elf which needs beem4's cosign to send
         # funds but sign the transaction with elf's key and then serialize the transaction
         # and deserialize the transaction.  After that, sign with beem4's key.
-        steem = Steem(
+        hive = Steem(
             node=self.nodes,
             num_retries=10,
             keys=[self.active_private_key_of_beem5],
             expiration=360,
         )
 
-        tx = TransactionBuilder(use_condenser_api=True, steem_instance=steem)
+        tx = TransactionBuilder(use_condenser_api=True, hive_instance=hive)
         tx.appendOps(Transfer(**{"from": 'beem5',
                                  "to": 'beem',
-                                 "amount": Amount("0.01 STEEM", steem_instance=steem),
+                                 "amount": Amount("0.01 HIVE", hive_instance=hive),
                                  "memo": '2 of 2 serialized/deserialized transaction'}))
 
         tx.appendSigner("beem5", "active")
@@ -308,16 +308,16 @@ class Testcases(unittest.TestCase):
         tx.clearWifs()
         self.assertEqual(len(tx['signatures']), 1)
         tx_json = tx.json()
-        del steem
+        del hive
         del tx
 
-        steem = Steem(
+        hive = Steem(
             node=self.nodes,
             num_retries=10,
             keys=[self.active_private_key_of_beem4],
             expiration=360,
         )
-        new_tx = TransactionBuilder(tx=tx_json, steem_instance=steem)
+        new_tx = TransactionBuilder(tx=tx_json, hive_instance=hive)
         new_tx.appendMissingSignatures()
         new_tx.sign(reconstruct_tx=False)
         self.assertEqual(len(new_tx['signatures']), 2)
@@ -326,12 +326,12 @@ class Testcases(unittest.TestCase):
     def test_verifyAuthority(self):
         stm = self.bts
         stm.wallet.unlock("123")
-        tx = TransactionBuilder(use_condenser_api=True, steem_instance=stm)
+        tx = TransactionBuilder(use_condenser_api=True, hive_instance=stm)
         tx.appendOps(Transfer(**{"from": "beem",
                                  "to": "beem1",
-                                 "amount": Amount("1.300 SBD", steem_instance=stm),
+                                 "amount": Amount("1.300 HBD", hive_instance=stm),
                                  "memo": "Foobar"}))
-        account = Account("beem", steem_instance=stm)
+        account = Account("beem", hive_instance=stm)
         tx.appendSigner(account, "active")
         self.assertTrue(len(tx.wifs) > 0)
         tx.sign()
@@ -414,10 +414,10 @@ class Testcases(unittest.TestCase):
         tx1 = bts.new_tx()
         tx2 = bts.new_tx()
 
-        acc = Account("beem", steem_instance=bts)
-        acc.transfer("beem1", 1, "STEEM", append_to=tx1)
-        acc.transfer("beem1", 2, "STEEM", append_to=tx2)
-        acc.transfer("beem1", 3, "STEEM", append_to=tx1)
+        acc = Account("beem", hive_instance=bts)
+        acc.transfer("beem1", 1, "HIVE", append_to=tx1)
+        acc.transfer("beem1", 2, "HIVE", append_to=tx2)
+        acc.transfer("beem1", 3, "HIVE", append_to=tx1)
         tx1 = tx1.json()
         tx2 = tx2.json()
         ops1 = tx1["operations"]
@@ -447,8 +447,8 @@ class Testcases(unittest.TestCase):
     def test_allow(self):
         bts = self.bts
         self.assertIn(bts.prefix, "STX")
-        acc = Account("beem", steem_instance=bts)
-        self.assertIn(acc.steem.prefix, "STX")
+        acc = Account("beem", hive_instance=bts)
+        self.assertIn(acc.hive.prefix, "STX")
         tx = acc.allow(
             "STX55VCzsb47NZwWe5F3qyQKedX9iHBHMVVFSc96PDvV7wuj7W86n",
             account="beem",
@@ -469,7 +469,7 @@ class Testcases(unittest.TestCase):
 
     def test_disallow(self):
         bts = self.bts
-        acc = Account("beem", steem_instance=bts)
+        acc = Account("beem", hive_instance=bts)
         if sys.version > '3':
             _assertRaisesRegex = self.assertRaisesRegex
         else:
@@ -493,7 +493,7 @@ class Testcases(unittest.TestCase):
         bts = self.bts
         bts.wallet.unlock("123")
         self.assertEqual(bts.prefix, "STX")
-        acc = Account("beem", steem_instance=bts)
+        acc = Account("beem", hive_instance=bts)
         tx = acc.update_memo_key("STX55VCzsb47NZwWe5F3qyQKedX9iHBHMVVFSc96PDvV7wuj7W86n")
         self.assertEqual(
             (tx["operations"][0][0]),
@@ -506,7 +506,7 @@ class Testcases(unittest.TestCase):
 
     def test_approvewitness(self):
         bts = self.bts
-        w = Account("beem", steem_instance=bts)
+        w = Account("beem", hive_instance=bts)
         tx = w.approvewitness("beem1")
         self.assertEqual(
             (tx["operations"][0][0]),
@@ -523,10 +523,10 @@ class Testcases(unittest.TestCase):
                     nobroadcast=True,
                     expiration=120,
                     num_retries=10)
-        tx = TransactionBuilder(use_condenser_api=True, steem_instance=stm)
+        tx = TransactionBuilder(use_condenser_api=True, hive_instance=stm)
         tx.appendOps(Transfer(**{"from": "beem",
                                  "to": "beem1",
-                                 "amount": Amount("1 STEEM", steem_instance=stm),
+                                 "amount": Amount("1 HIVE", hive_instance=stm),
                                  "memo": ""}))
         with self.assertRaises(
             MissingKeyError
@@ -547,12 +547,12 @@ class Testcases(unittest.TestCase):
                     nobroadcast=True,
                     expiration=120,
                     num_retries=10)
-        tx = TransactionBuilder(use_condenser_api=True, steem_instance=stm)
+        tx = TransactionBuilder(use_condenser_api=True, hive_instance=stm)
         tx.appendOps(Transfer(**{"from": "beem",
                                  "to": "beem1",
-                                 "amount": Amount("1 STEEM", steem_instance=stm),
+                                 "amount": Amount("1 HIVE", hive_instance=stm),
                                  "memo": ""}))
-        account = Account("beem", steem_instance=stm)
+        account = Account("beem", hive_instance=stm)
         with self.assertRaises(
             AssertionError
         ):
@@ -569,12 +569,12 @@ class Testcases(unittest.TestCase):
                     nobroadcast=True,
                     expiration=120,
                     num_retries=10)
-        tx = TransactionBuilder(use_condenser_api=True, steem_instance=stm)
+        tx = TransactionBuilder(use_condenser_api=True, hive_instance=stm)
         tx.appendOps(Transfer(**{"from": "beem",
                                  "to": "beem1",
-                                 "amount": Amount("1 STEEM", steem_instance=stm),
+                                 "amount": Amount("1 HIVE", hive_instance=stm),
                                  "memo": ""}))
-        account = Account("beem2", steem_instance=stm)
+        account = Account("beem2", hive_instance=stm)
         tx.appendSigner(account, "active")
         tx.appendWif(self.posting_key)
         self.assertTrue(len(tx.wifs) > 0)
@@ -593,10 +593,10 @@ class Testcases(unittest.TestCase):
                     expiration=120,
                     num_retries=10)
 
-        tx = TransactionBuilder(use_condenser_api=True, expiration=10, steem_instance=stm)
+        tx = TransactionBuilder(use_condenser_api=True, expiration=10, hive_instance=stm)
         tx.appendOps(Transfer(**{"from": "beem",
                                  "to": "beem1",
-                                 "amount": Amount("1 STEEM", steem_instance=stm),
+                                 "amount": Amount("1 HIVE", hive_instance=stm),
                                  "memo": ""}))
         tx.appendSigner("beem", "active")
         tx.sign()
@@ -606,16 +606,16 @@ class Testcases(unittest.TestCase):
         stm = self.bts
         opTransfer = Transfer(**{"from": "beem",
                                  "to": "beem1",
-                                 "amount": Amount("1 STEEM", steem_instance=stm),
+                                 "amount": Amount("1 HIVE", hive_instance=stm),
                                  "memo": ""})
-        tx1 = TransactionBuilder(use_condenser_api=True, steem_instance=stm)
+        tx1 = TransactionBuilder(use_condenser_api=True, hive_instance=stm)
         tx1.appendOps(opTransfer)
-        tx = TransactionBuilder(tx1, steem_instance=stm)
+        tx = TransactionBuilder(tx1, hive_instance=stm)
         self.assertFalse(tx.is_empty())
         self.assertTrue(len(tx.list_operations()) == 1)
         self.assertTrue(repr(tx) is not None)
         self.assertTrue(str(tx) is not None)
-        account = Account("beem", steem_instance=stm)
+        account = Account("beem", hive_instance=stm)
         tx.appendSigner(account, "active")
         self.assertTrue(len(tx.wifs) > 0)
         tx.sign()
@@ -629,7 +629,7 @@ class Testcases(unittest.TestCase):
                     nobroadcast=True,
                     expiration=120,
                     num_retries=10)
-        account = Account("beem", steem_instance=stm)
+        account = Account("beem", hive_instance=stm)
         account.follow("beem1")
 
     def test_follow_posting_key(self):
@@ -639,5 +639,5 @@ class Testcases(unittest.TestCase):
                     nobroadcast=True,
                     expiration=120,
                     num_retries=10)
-        account = Account("beem", steem_instance=stm)
+        account = Account("beem", hive_instance=stm)
         account.follow("beem1")

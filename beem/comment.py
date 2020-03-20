@@ -454,7 +454,7 @@ class Comment(BlockchainObject):
 
                 {
                     'pending_rewards': True,
-                    'payout_SP': 0.912 HIVE,
+                    'payout_HP': 0.912 HIVE,
                     'payout_HBD': 3.583 HBD,
                     'total_payout_HBD': 7.166 HBD
                 }
@@ -462,7 +462,7 @@ class Comment(BlockchainObject):
         """
         if not self.is_pending():
             return {'pending_rewards': False,
-                    "payout_SP": Amount(0, self.hive.hive_symbol, hive_instance=self.hive),
+                    "payout_HP": Amount(0, self.hive.hive_symbol, hive_instance=self.hive),
                     "payout_HBD": Amount(0, self.hive.hbd_symbol, hive_instance=self.hive),
                     "total_payout_HBD": Amount(self["total_payout_value"], hive_instance=self.hive)}
 
@@ -482,7 +482,7 @@ class Comment(BlockchainObject):
         if median_hist is not None:
             hbd_hive = author_tokens * self["percent_hive_dollars"] / 20000.
             vesting_hive = median_price.as_base(self.hive.hive_symbol) * (author_tokens - hbd_hive)
-            return {'pending_rewards': True, "payout_SP": vesting_hive, "payout_HBD": hbd_hive, "total_payout_HBD": author_tokens}
+            return {'pending_rewards': True, "payout_HP": vesting_hive, "payout_HBD": hbd_hive, "total_payout_HBD": author_tokens}
         else:
             return {'pending_rewards': True, "total_payout": author_tokens}
 

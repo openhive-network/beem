@@ -19,9 +19,9 @@ from beem.wallet import Wallet
 from beem.witness import Witness
 from beem.account import Account
 from beemgraphenebase.account import PrivateKey
-from beem.instance import set_shared_steem_instance
+from beem.instance import set_shared_hive_instance
 from beem.nodelist import NodeList
-from beem.steemconnect import SteemConnect
+from beem.hiveconnect import SteemConnect
 # Py3 compatibility
 import sys
 core_unit = "STM"
@@ -32,7 +32,7 @@ class Testcases(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         nodelist = NodeList()
-        nodelist.update_nodes(steem_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
+        nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
         cls.bts = Steem(
             node=nodelist.get_nodes(exclude_limited=True),
             nobroadcast=True,
@@ -40,17 +40,17 @@ class Testcases(unittest.TestCase):
             data_refresh_time_seconds=900,
             num_retries=10)
 
-        cls.account = Account("test", full=True, steem_instance=cls.bts)
+        cls.account = Account("test", full=True, hive_instance=cls.bts)
 
     def test_transfer(self):
         bts = self.bts
         acc = self.account
-        acc.steem.txbuffer.clear()
+        acc.hive.txbuffer.clear()
         tx = acc.transfer(
-            "test1", 1.000, "STEEM", memo="test")
-        sc2 = SteemConnect(steem_instance=bts)
+            "test1", 1.000, "HIVE", memo="test")
+        sc2 = SteemConnect(hive_instance=bts)
         url = sc2.url_from_tx(tx)
-        url_test = 'https://steemconnect.com/sign/transfer?from=test&to=test1&amount=1.000+STEEM&memo=test'
+        url_test = 'https://hiveconnect.com/sign/transfer?from=test&to=test1&amount=1.000+HIVE&memo=test'
         self.assertEqual(len(url), len(url_test))
         self.assertEqual(len(url.split('?')), 2)
         self.assertEqual(url.split('?')[0], url_test.split('?')[0])
@@ -63,9 +63,9 @@ class Testcases(unittest.TestCase):
 
     def test_login_url(self):
         bts = self.bts
-        sc2 = SteemConnect(steem_instance=bts)
+        sc2 = SteemConnect(hive_instance=bts)
         url = sc2.get_login_url("localhost", scope="login,vote")
-        url_test = 'https://steemconnect.com/oauth2/authorize?client_id=None&redirect_uri=localhost&scope=login,vote'
+        url_test = 'https://hiveconnect.com/oauth2/authorize?client_id=None&redirect_uri=localhost&scope=login,vote'
         self.assertEqual(len(url), len(url_test))
         self.assertEqual(len(url.split('?')), 2)
         self.assertEqual(url.split('?')[0], url_test.split('?')[0])

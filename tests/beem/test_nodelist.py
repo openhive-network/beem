@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from builtins import super
 import unittest
 from beem import Steem, exceptions
-from beem.instance import set_shared_steem_instance
+from beem.instance import set_shared_hive_instance
 from beem.account import Account
 from beem.nodelist import NodeList
 
@@ -19,7 +19,7 @@ class Testcases(unittest.TestCase):
             nobroadcast=True,
             num_retries=10
         )
-        set_shared_steem_instance(cls.bts)
+        set_shared_hive_instance(cls.bts)
 
     def test_get_nodes(self):
         nodelist = NodeList()
@@ -31,6 +31,6 @@ class Testcases(unittest.TestCase):
     def test_nodes_update(self):
         nodelist = NodeList()
         all_nodes = nodelist.get_nodes(exclude_limited=False, dev=True, testnet=True)
-        nodelist.update_nodes(steem_instance=self.bts)
+        nodelist.update_nodes(hive_instance=self.bts)
         nodes = nodelist.get_nodes()
         self.assertIn(nodes[0], all_nodes)
