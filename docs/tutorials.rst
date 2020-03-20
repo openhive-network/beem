@@ -208,7 +208,7 @@ the complete queue is sended at once to the node. The result is a list with repl
 .. code-block:: python
 
     from beem import Hive
-    hv = Hive("https://api.hiveit.com")
+    hv = Hive("https://api.hive.blog")
     hv.rpc.get_config(add_to_queue=True)
     hv.rpc.rpc_queue
 

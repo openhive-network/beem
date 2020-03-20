@@ -23,8 +23,8 @@ class Testcases(unittest.TestCase):
             nobroadcast=True,
             num_retries=10
         )
-        cls.hiveit = Steem(
-            node="https://api.hiveit.com",
+        cls.hiveio = Steem(
+            node="https://api.hive.blog",
             nobroadcast=True,
             num_retries=10
         )
@@ -32,13 +32,13 @@ class Testcases(unittest.TestCase):
 
     @parameterized.expand([
         ("normal"),
-        ("hiveit"),
+        ("hiveio"),
     ])
     def test_assert(self, node_param):
         if node_param == "normal":
             hv = self.bts
         else:
-            hv = self.hiveit
+            hv = self.hiveio
         with self.assertRaises(AssetDoesNotExistsException):
             Asset("FOObarNonExisting", full=False, hive_instance=hv)
 
@@ -62,13 +62,13 @@ class Testcases(unittest.TestCase):
 
     @parameterized.expand([
         ("normal"),
-        ("hiveit"),
+        ("hiveio"),
     ])
     def test_assert_equal(self, node_param):
         if node_param == "normal":
             hv = self.bts
         else:
-            hv = self.hiveit
+            hv = self.hiveio
         asset1 = Asset("HBD", full=False, hive_instance=hv)
         asset2 = Asset("HBD", full=False, hive_instance=hv)
         self.assertTrue(asset1 == asset2)

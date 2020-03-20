@@ -32,8 +32,8 @@ class Testcases(unittest.TestCase):
             keys={"active": wif},
             num_retries=10
         )
-        cls.hiveit = Steem(
-            node="https://api.hiveit.com",
+        cls.hiveio = Steem(
+            node="https://api.hive.blog",
             nobroadcast=True,
             unsigned=True,
             keys={"active": wif},

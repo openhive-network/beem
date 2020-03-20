@@ -18,7 +18,7 @@ from beem.nodelist import NodeList
 from beembase.signedtransactions import Signed_Transaction
 
 wif = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
-nodes_appbase = ["https://api.hiveitstage.com", "https://api.hive.house", "https://api.hiveit.com"]
+nodes_appbase = ["https://api.hiveitstage.com", "https://api.hive.house", "https://api.hive.blog"]
 
 
 class Testcases(unittest.TestCase):
@@ -221,8 +221,8 @@ class Testcases(unittest.TestCase):
     def test_hash_op(self):
         bts = self.bts
         b = Blockchain(hive_instance=bts)
-        op1 = {'type': 'vote_operation', 'value': {'voter': 'ubg', 'author': 'yesslife', 'permlink': 'hiveit-sandwich-contest-week-25-2da-entry', 'weight': 100}}
-        op2 = ['vote', {'voter': 'ubg', 'author': 'yesslife', 'permlink': 'hiveit-sandwich-contest-week-25-2da-entry', 'weight': 100}]
+        op1 = {'type': 'vote_operation', 'value': {'voter': 'ubg', 'author': 'yesslife', 'permlink': 'hiveio-sandwich-contest-week-25-2da-entry', 'weight': 100}}
+        op2 = ['vote', {'voter': 'ubg', 'author': 'yesslife', 'permlink': 'hiveio-sandwich-contest-week-25-2da-entry', 'weight': 100}]
         hash1 = b.hash_op(op1)
         hash2 = b.hash_op(op2)
         self.assertEqual(hash1, hash2)

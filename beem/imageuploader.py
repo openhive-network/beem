@@ -20,7 +20,7 @@ from beemgraphenebase.ecdsasig import sign_message, verify_message
 class ImageUploader(object):
     def __init__(
         self,
-        base_url="https://hiveitimages.com",
+        base_url="https://hiveitimages.com", #TODO
         challenge="ImageSigningChallenge",
         hive_instance=None,
     ):

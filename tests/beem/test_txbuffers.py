@@ -40,8 +40,8 @@ class Testcases(unittest.TestCase):
             nobroadcast=True,
             num_retries=10
         )
-        cls.hiveit = Steem(
-            node="https://api.hiveit.com",
+        cls.hiveio = Steem(
+            node="https://api.hive.blog",
             nobroadcast=True,
             keys={"active": wif, "owner": wif, "memo": wif},
             num_retries=10

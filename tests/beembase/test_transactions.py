@@ -992,7 +992,7 @@ class Testcases(unittest.TestCase):
             **{
                 "fee": {"amount": "3000", "precision": 3, "nai": "@@000000021"},
                 "delegation": {"amount": "0", "precision": 6, "nai": "@@000000037"},
-                "creator": "hiveit",
+                "creator": "hiveio",
                 "new_account_name": "alice",
                 "owner": {
                     "weight_threshold": 1,

@@ -33,9 +33,9 @@ class Testcases(unittest.TestCase):
         nodelist = NodeList()
         nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(normal=True, appbase=True), num_retries=3))
         cls.nodes = nodelist.get_nodes()
-        if "https://api.hiveit.com" in cls.nodes:
-            cls.nodes.remove("https://api.hiveit.com")
-        cls.nodes_hiveit = ["https://api.hiveit.com"]
+        if "https://api.hive.blog" in cls.nodes:
+            cls.nodes.remove("https://api.hive.blog")
+        cls.nodes_hiveit = ["https://api.hive.blog"]
 
         cls.appbase = Steem(
             node=cls.nodes,

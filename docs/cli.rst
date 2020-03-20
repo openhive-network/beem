@@ -63,7 +63,7 @@ Upvoting a post:
 
 ::
 
-   beempy upvote --account <account_name> https://hiveit.com/funny/@mynameisbrian/the-content-stand-a-comic
+   beempy upvote --account <account_name> https://hive.blog/funny/@mynameisbrian/the-content-stand-a-comic
 
 
 Setting Defaults
@@ -108,7 +108,7 @@ You can see all available commands with ``beempy --help``
 
    Options:
      -n, --node TEXT        URL for public Hive API (e.g.
-                            https://api.hiveit.com)
+                            https://api.hive.blog)
      -o, --offline          Prevent connecting to network
      -d, --no-broadcast     Do not broadcast
      -p, --no-wallet        Do not load the wallet

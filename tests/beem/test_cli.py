@@ -154,14 +154,14 @@ class Testcases(unittest.TestCase):
 
     def test_upvote(self):
         runner = CliRunner()
-        result = runner.invoke(cli, ['-ds', 'upvote', '@hiveit/firstpost'], input="test\n")
+        result = runner.invoke(cli, ['-ds', 'upvote', '@hiveio/firstpost'], input="test\n")
         self.assertEqual(result.exit_code, 0)
-        result = runner.invoke(cli, ['-ds', 'upvote', '--weight', '100', '@hiveit/firstpost'], input="test\n")
+        result = runner.invoke(cli, ['-ds', 'upvote', '--weight', '100', '@hiveio/firstpost'], input="test\n")
         self.assertEqual(result.exit_code, 0)
 
     def test_downvote(self):
         runner = CliRunner()
-        result = runner.invoke(cli, ['-ds', 'downvote', '--weight', '100', '@hiveit/firstpost'], input="test\n")
+        result = runner.invoke(cli, ['-ds', 'downvote', '--weight', '100', '@hiveio/firstpost'], input="test\n")
         self.assertEqual(result.exit_code, 0)
 
     def test_transfer(self):
@@ -315,7 +315,7 @@ class Testcases(unittest.TestCase):
 
     def test_rehive(self):
         runner = CliRunner()
-        result = runner.invoke(cli, ['-dso', 'rehive', '@hiveit/firstposte'], input="test\n")
+        result = runner.invoke(cli, ['-dso', 'rehive', '@hiveio/firstposte'], input="test\n")
         self.assertEqual(result.exit_code, 0)
 
     def test_follow_unfollow(self):

@@ -115,7 +115,7 @@ class GrapheneRPC(object):
             ws = GrapheneRPC("wss://hived.pevo.science","","")
             print(ws.get_account_count())
 
-            ws = GrapheneRPC("https://api.hiveit.com","","")
+            ws = GrapheneRPC("https://api.hive.blog","","")
             print(ws.get_account_count())
 
     .. note:: This class allows to call methods available via

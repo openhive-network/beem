@@ -70,9 +70,9 @@ if __name__ == '__main__':
         long_description=get_long_description(),
         download_url='https://github.com/thecrazygmn/beem/tarball/' + VERSION,
         author='Holger Nahrstaedt',
-        author_email='thecrazygm@nahrstaedt.de',
+        author_email='thecrazygm@gmail.com',
         maintainer='Holger Nahrstaedt',
-        maintainer_email='thecrazygm@nahrstaedt.de',
+        maintainer_email='thecrazygm@gmail.com',
         url='http://www.github.com/thecrazygmn/beem',
         keywords=['hive', 'library', 'api', 'rpc'],
         packages=[

@@ -26,8 +26,8 @@ class Testcases(unittest.TestCase):
             keys={"active": wif},
             num_retries=10
         )
-        cls.hiveit = Steem(
-            node="https://api.hiveit.com",
+        cls.hiveio = Steem(
+            node="https://api.hive.blog",
             nobroadcast=True,
             unsigned=True,
             keys={"active": wif},
@@ -40,13 +40,13 @@ class Testcases(unittest.TestCase):
 
     @parameterized.expand([
         ("normal"),
-        ("hiveit"),
+        ("hiveio"),
     ])
     def test_feed_publish(self, node_param):
         if node_param == "normal":
             bts = self.bts
         else:
-            bts = self.hiveit
+            bts = self.hiveio
         bts.txbuffer.clear()
         w = Witness("gtg", hive_instance=bts)
         tx = w.feed_publish("4 HBD", "1 HIVE")
@@ -61,13 +61,13 @@ class Testcases(unittest.TestCase):
 
     @parameterized.expand([
         ("normal"),
-        ("hiveit"),
+        ("hiveio"),
     ])
     def test_update(self, node_param):
         if node_param == "normal":
             bts = self.bts
         else:
-            bts = self.hiveit
+            bts = self.hiveio
         bts.txbuffer.clear()
         w = Witness("gtg", hive_instance=bts)
         props = {"account_creation_fee": "0.1 HIVE",
@@ -82,13 +82,13 @@ class Testcases(unittest.TestCase):
 
     @parameterized.expand([
         ("normal"),
-        ("hiveit"),
+        ("hiveio"),
     ])
     def test_witnesses(self, node_param):
         if node_param == "normal":
             bts = self.bts
         else:
-            bts = self.hiveit
+            bts = self.hiveio
         w = Witnesses(hive_instance=bts)
         w.printAsTable()
         self.assertTrue(len(w) > 0)
@@ -96,13 +96,13 @@ class Testcases(unittest.TestCase):
 
     @parameterized.expand([
         ("normal"),
-        ("hiveit"),
+        ("hiveio"),
     ])
     def test_WitnessesVotedByAccount(self, node_param):
         if node_param == "normal":
             bts = self.bts
         else:
-            bts = self.hiveit
+            bts = self.hiveio
         w = WitnessesVotedByAccount("gtg", hive_instance=bts)
         w.printAsTable()
         self.assertTrue(len(w) > 0)
@@ -110,13 +110,13 @@ class Testcases(unittest.TestCase):
 
     @parameterized.expand([
         ("normal"),
-        ("hiveit"),
+        ("hiveio"),
     ])
     def test_WitnessesRankedByVote(self, node_param):
         if node_param == "normal":
             bts = self.bts
         else:
-            bts = self.hiveit
+            bts = self.hiveio
         w = WitnessesRankedByVote(hive_instance=bts)
         w.printAsTable()
         self.assertTrue(len(w) > 0)
@@ -124,13 +124,13 @@ class Testcases(unittest.TestCase):
 
     @parameterized.expand([
         ("normal"),
-        ("hiveit"),
+        ("hiveio"),
     ])
     def test_export(self, node_param):
         if node_param == "normal":
             bts = self.bts
         else:
-            bts = self.hiveit
+            bts = self.hiveio
         owner = "gtg"
         if bts.rpc.get_use_appbase():
             witness = bts.rpc.find_witnesses({'owners': [owner]}, api="database")['witnesses']

@@ -32,7 +32,7 @@ class Query(dict):
         .. testcode::
 
             from beem.discussions import Query
-            query = Query(limit=10, tag="hiveit")
+            query = Query(limit=10, tag="hiveio")
 
     """
     def __init__(self, limit=0, tag="", truncate_body=0,
@@ -77,7 +77,7 @@ class Discussions(object):
             .. testcode::
 
                 from beem.discussions import Query, Discussions
-                query = Query(limit=51, tag="hiveit")
+                query = Query(limit=51, tag="hiveio")
                 discussions = Discussions()
                 count = 0
                 for d in discussions.get_discussions("tags", query, limit=200):
@@ -573,7 +573,7 @@ class Discussions_by_comments(list):
         .. testcode::
 
             from beem.discussions import Query, Discussions_by_comments
-            q = Query(limit=10, start_author="hiveit", start_permlink="firstpost")
+            q = Query(limit=10, start_author="hiveio", start_permlink="firstpost")
             for h in Discussions_by_comments(q):
                 print(h)
 
@@ -635,7 +635,7 @@ class Replies_by_last_update(list):
         .. testcode::
 
             from beem.discussions import Query, Replies_by_last_update
-            q = Query(limit=10, start_parent_author="hiveit", start_permlink="firstpost")
+            q = Query(limit=10, start_parent_author="hiveio", start_permlink="firstpost")
             for h in Replies_by_last_update(q):
                 print(h)
 

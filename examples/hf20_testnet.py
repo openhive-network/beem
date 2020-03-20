@@ -24,7 +24,7 @@ logging.basicConfig(level=logging.INFO)
 if __name__ == "__main__":
     # hv = Hive(node="https://testnet.timcliff.com/")
     # hv = Hive(node="https://testnet.hiveitdev.com")
-    hv = Hive(node="https://api.hiveit.com")
+    hv = Hive(node="https://api.hive.blog")
     hv.wallet.unlock(pwd="pwd123")
 
     account = Account("beembot", hive_instance=hv)

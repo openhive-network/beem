@@ -148,7 +148,7 @@ def resolve_authorperm(identifier):
 
             >>> from beem.utils import resolve_authorperm
             >>> author, permlink = resolve_authorperm('https://d.tube/#!/v/pottlund/m5cqkd1a')
-            >>> author, permlink = resolve_authorperm("https://hiveit.com/witness-category/@gtg/24lfrm-gtg-witness-log")
+            >>> author, permlink = resolve_authorperm("https://hive.blog/witness-category/@gtg/24lfrm-gtg-witness-log")
             >>> author, permlink = resolve_authorperm("@gtg/24lfrm-gtg-witness-log")
             >>> author, permlink = resolve_authorperm("https://busy.org/@gtg/24lfrm-gtg-witness-log")
 

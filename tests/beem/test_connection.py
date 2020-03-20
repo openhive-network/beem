@@ -15,7 +15,7 @@ class Testcases(unittest.TestCase):
         nodelist = NodeList()
         nodelist.update_nodes(hive_instance=Steem(node=nodelist.get_nodes(exclude_limited=False), num_retries=10))
         b1 = Steem(
-            node="https://api.hiveit.com",
+            node="https://api.hive.blog",
             nobroadcast=True,
             num_retries=10
         )

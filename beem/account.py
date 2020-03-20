@@ -388,7 +388,7 @@ class Account(BlockchainObject):
             print(ret)
 
     def get_reputation(self):
-        """ Returns the account reputation in the (hiveit) normalized form
+        """ Returns the account reputation in the (hiveio) normalized form
         """
         if not self.hive.is_connected():
             return None
@@ -661,7 +661,7 @@ class Account(BlockchainObject):
                 >>> from beem.account import Account
                 >>> from beem import Hive
                 >>> hv = Hive()
-                >>> account = Account("hiveit", hive_instance=hv)
+                >>> account = Account("hiveio", hive_instance=hv)
                 >>> account.get_feed(0, 1, raw_data=True)
                 []
 
@@ -723,7 +723,7 @@ class Account(BlockchainObject):
                 >>> from beem.account import Account
                 >>> from beem import Hive
                 >>> hv = Hive()
-                >>> account = Account("hiveit", hive_instance=hv)
+                >>> account = Account("hiveio", hive_instance=hv)
                 >>> account.get_feed_entries(0, 1)
                 []
 
@@ -746,10 +746,10 @@ class Account(BlockchainObject):
                 >>> from beem.account import Account
                 >>> from beem import Hive
                 >>> hv = Hive()
-                >>> account = Account("hiveit", hive_instance=hv)
+                >>> account = Account("hiveio", hive_instance=hv)
                 >>> entry = account.get_blog_entries(0, 1, raw_data=True)[0]
                 >>> print("%s - %s - %s - %s" % (entry["author"], entry["permlink"], entry["blog"], entry["reblog_on"]))
-                hiveit - firstpost - hiveit - 1970-01-01T00:00:00
+                hiveio - firstpost - hiveio - 1970-01-01T00:00:00
 
         """
         return self.get_blog(start_entry_id=start_entry_id, limit=limit, raw_data=raw_data, short_entries=True, account=account)
@@ -770,9 +770,9 @@ class Account(BlockchainObject):
                 >>> from beem.account import Account
                 >>> from beem import Hive
                 >>> hv = Hive()
-                >>> account = Account("hiveit", hive_instance=hv)
+                >>> account = Account("hiveio", hive_instance=hv)
                 >>> account.get_blog(0, 1)
-                [<Comment @hiveit/firstpost>]
+                [<Comment @hiveio/firstpost>]
 
         """
         if account is None:
@@ -839,7 +839,7 @@ class Account(BlockchainObject):
                 >>> from beem.account import Account
                 >>> from beem import Hive
                 >>> hv = Hive()
-                >>> account = Account("hiveit", hive_instance=hv)
+                >>> account = Account("hiveio", hive_instance=hv)
                 >>> account.get_blog_authors()
                 []
 
@@ -1393,7 +1393,7 @@ class Account(BlockchainObject):
             .. code-block:: python
 
                 >>> from beem.account import Account
-                >>> account = Account("hiveit")
+                >>> account = Account("hiveio")
                 >>> print(account.verify_account_authority(["STM7Q2rLBqzPzFeteQZewv9Lu3NLE69fZoLeL6YK59t7UmssCBNTU"])["valid"])
                 False
 
@@ -3047,7 +3047,7 @@ class Account(BlockchainObject):
             .. code-block:: python
 
                 from beem.account import Account
-                acc = Account("hiveitblog")
+                acc = Account("hiveioblog")
                 for post in acc.blog_history(limit=10):
                     print(post)
 

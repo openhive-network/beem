@@ -153,7 +153,7 @@ def node_answer_time(node):
 
 @click.group(chain=True)
 @click.option(
-    '--node', '-n', default="", help="URL for public Hive API (e.g. https://api.hiveit.com)")
+    '--node', '-n', default="", help="URL for public Hive API (e.g. https://api.hive.blog)")
 @click.option(
     '--offline', '-o', is_flag=True, default=False, help="Prevent connecting to network")
 @click.option(
