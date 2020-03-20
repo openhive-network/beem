@@ -35,7 +35,7 @@ if __name__ == "__main__":
     stm = Hive(offline=True)
 
     op = operations.Transfer({'from': 'beembot',
-                              'to': 'holger80',
+                              'to': 'thecrazygm',
                               'amount': "0.001 HBD",
                               'memo': ""})
     tb = TransactionBuilder(hive_instance=stm)

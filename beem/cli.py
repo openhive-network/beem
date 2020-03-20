@@ -3160,7 +3160,7 @@ def customjson(jsonid, json_data, account, active):
     """Broadcasts a custom json
     
         First parameter is the cusom json id, the second field is a json file or a json key value combination
-        e.g. beempy customjson -a holger80 dw-heist username holger80 amount 100
+        e.g. beempy customjson -a thecrazygm dw-heist username thecrazygm amount 100
     """
     if jsonid is None:
         print("First argument must be the custom_json id")

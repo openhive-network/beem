@@ -63,7 +63,7 @@ class RC(object):
 
             from beem.rc import RC
             comment_dict = {
-                            "permlink": "test", "author": "holger80",
+                            "permlink": "test", "author": "thecrazygm",
                             "body": "test", "parent_permlink": "",
                             "parent_author": "", "title": "test",
                             "json_metadata": {"foo": "bar"}

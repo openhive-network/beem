@@ -508,7 +508,7 @@ class Comment(BlockchainObject):
                         'st3llar': 0.000 HIVE, 'crokkon': 0.015 HIVE, 'feedyourminnows': 0.003 HIVE,
                         'isnochys': 0.003 HIVE, 'loshcat': 0.001 HIVE, 'greenorange': 0.000 HIVE,
                         'qustodian': 0.123 HIVE, 'jpphotography': 0.002 HIVE, 'thinkingmind': 0.001 HIVE,
-                        'oups': 0.006 HIVE, 'mattockfs': 0.001 HIVE, 'holger80': 0.003 HIVE, 'michaelizer': 0.004 HIVE,
+                        'oups': 0.006 HIVE, 'mattockfs': 0.001 HIVE, 'thecrazygm': 0.003 HIVE, 'michaelizer': 0.004 HIVE,
                         'flugschwein': 0.010 HIVE, 'ulisessabeque': 0.000 HIVE, 'hakancelik': 0.002 HIVE, 'sbi2': 0.008 HIVE,
                         'zcool': 0.000 HIVE, 'hivehq': 0.002 HIVE, 'rowdiya': 0.000 HIVE, 'qurator-tier-1-2': 0.012 HIVE
                     }

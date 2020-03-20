@@ -49,7 +49,7 @@ if __name__ == "__main__":
     start_time = time.time()
     last_node = blockchain.hive.rpc.url
     print("Current node:", last_node)
-    for entry in blockchain.blocks(start=last_block_id, max_batch_size=max_batch_size, threading=threading, thread_num=thread_num, thread_limit=1200):
+    for entry in blockchain.blocks(start=last_block_id, max_batch_size=max_batch_size, threading=threading, thread_num=thread_num,):
         block_no = entry.identifier
         if "block" in entry:
             trxs = entry["block"]["transactions"]

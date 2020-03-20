@@ -17,9 +17,9 @@ logging.basicConfig(level=logging.INFO)
 
 if __name__ == "__main__":
     stm = Hive("https://api.hiveit.com")
-    beem_acc = Account("holger80", hive_instance=stm)
+    beem_acc = Account("thecrazygm", hive_instance=stm)
     stm2 = hiveHive(nodes=["https://api.hiveit.com"])
-    hive_acc = hiveAccount("holger80", hived_instance=stm2)
+    hive_acc = hiveAccount("thecrazygm", hived_instance=stm2)
 
     # profile
     print("beem_acc.profile  {}".format(beem_acc.profile))
@@ -49,8 +49,8 @@ if __name__ == "__main__":
     print("beem_acc.get_following()  {}".format(beem_acc.get_following()))
     print("hive_acc.get_following() {}".format(hive_acc.get_following()))
     # has_voted()
-    print("beem_acc.has_voted()  {}".format(beem_acc.has_voted("@holger80/api-methods-list-for-appbase")))
-    print("hive_acc.has_voted() {}".format(hive_acc.has_voted(hivePost("@holger80/api-methods-list-for-appbase"))))
+    print("beem_acc.has_voted()  {}".format(beem_acc.has_voted("@thecrazygm/api-methods-list-for-appbase")))
+    print("hive_acc.has_voted() {}".format(hive_acc.has_voted(hivePost("@thecrazygm/api-methods-list-for-appbase"))))
     # curation_stats()
     print("beem_acc.curation_stats()  {}".format(beem_acc.curation_stats()))
     print("hive_acc.curation_stats() {}".format(hive_acc.curation_stats()))

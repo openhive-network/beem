@@ -62,7 +62,7 @@ Manual installation
 You can install beem from this repository if you want the latest
 but possibly non-compiling version::
 
-    git clone https://github.com/holgern/beem.git
+    git clone https://github.com/thecrazygmn/beem.git
     cd beem
     python setup.py build
     

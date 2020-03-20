@@ -8,7 +8,7 @@ Repository
 
 The repository of beem is currently located at:
 
-    https://github.com/holgern/beem
+    https://github.com/thecrazygmn/beem
 
 Flow
 ----
@@ -26,7 +26,7 @@ How to Contribute
 1. Fork or branch from the master.
 2. Create commits following the commit style
 3. Start a pull request to the master branch
-4. Wait for a @holger80 or another member to review
+4. Wait for a @thecrazygm or another member to review
 
 Issues
 ------

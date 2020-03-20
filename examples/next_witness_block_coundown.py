@@ -24,7 +24,7 @@ def convert_block_diff_to_time_string(block_diff_est):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        witness = "holger80"
+        witness = "thecrazygm"
     else:
         witness = sys.argv[1]
     stm = Hive()

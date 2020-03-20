@@ -24,27 +24,27 @@ The library name is derived from a beam machine, similar to the analogy between 
 Current build status
 --------------------
 
-.. image:: https://travis-ci.org/holgern/beem.svg?branch=master
-    :target: https://travis-ci.org/holgern/beem
+.. image:: https://travis-ci.org/thecrazygmn/beem.svg?branch=master
+    :target: https://travis-ci.org/thecrazygmn/beem
 
 .. image:: https://ci.appveyor.com/api/projects/status/ig8oqp8bt2fmr09a?svg=true
-    :target: https://ci.appveyor.com/project/holger80/beem
+    :target: https://ci.appveyor.com/project/thecrazygm/beem
 
-.. image:: https://circleci.com/gh/holgern/beem.svg?style=svg
-    :target: https://circleci.com/gh/holgern/beem
+.. image:: https://circleci.com/gh/thecrazygmn/beem.svg?style=svg
+    :target: https://circleci.com/gh/thecrazygmn/beem
 
 .. image:: https://readthedocs.org/projects/beem/badge/?version=latest
   :target: http://beem.readthedocs.org/en/latest/?badge=latest
 
 .. image:: https://api.codacy.com/project/badge/Grade/e5476faf97df4c658697b8e7a7efebd7
-    :target: https://www.codacy.com/app/holgern/beem?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=holgern/beem&amp;utm_campaign=Badge_Grade
+    :target: https://www.codacy.com/app/thecrazygmn/beem?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=thecrazygmn/beem&amp;utm_campaign=Badge_Grade
 
-.. image:: https://pyup.io/repos/github/holgern/beem/shield.svg
-     :target: https://pyup.io/repos/github/holgern/beem/
+.. image:: https://pyup.io/repos/github/thecrazygmn/beem/shield.svg
+     :target: https://pyup.io/repos/github/thecrazygmn/beem/
      :alt: Updates
 
 .. image:: https://api.codeclimate.com/v1/badges/e7bdb5b4aa7ab160a780/test_coverage
-   :target: https://codeclimate.com/github/holgern/beem/test_coverage
+   :target: https://codeclimate.com/github/thecrazygmn/beem/test_coverage
    :alt: Test Coverage
 
 Support & Documentation
@@ -120,7 +120,7 @@ Install or update beem by pip::
 You can install beem from this repository if you want the latest
 but possibly non-compiling version::
 
-    git clone https://github.com/holgern/beem.git
+    git clone https://github.com/thecrazygmn/beem.git
     cd beem
     python setup.py build
 

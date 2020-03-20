@@ -2227,7 +2227,7 @@ class Account(BlockchainObject):
                     'location': 'Germany',
                     'profile_image': 'https://c1.staticflickr.com/5/4715/38733717165_7070227c89_n.jpg',
                     'cover_image': 'https://farm1.staticflickr.com/894/26382750057_69f5c8e568.jpg',
-                    'website': 'https://github.com/holgern/beem'
+                    'website': 'https://github.com/thecrazygmn/beem'
                 }
 
             .. code-block:: python

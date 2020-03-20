@@ -251,7 +251,7 @@ Lets display all Posts from an account:
     from beem.account import Account
     from beem.comment import Comment
     from beem.exceptions import ContentDoesNotExistsException
-    account = Account("holger80")
+    account = Account("thecrazygm")
     c_list = {}
     for c in map(Comment, account.history(only_ops=["comment"])):
         if c.permlink in c_list:

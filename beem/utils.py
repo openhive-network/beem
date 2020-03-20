@@ -89,7 +89,7 @@ def parse_time(block_time):
        into datetime object.
     """
     utc = pytz.timezone("UTC")
-    return utc.localize(datetime.strptime(block_time, timeFormat))
+    return utc.localize(datetime.strptime(str(block_time), timeFormat))
 
 
 def assets_from_string(text):
