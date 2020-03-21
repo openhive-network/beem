@@ -6,7 +6,7 @@ default_prefix = "STM"
 known_chains = {
     "HIVEAPPBASE": {
         "chain_id": "0" * int(256 / 4),
-        "min_version": '0.19.10',
+        "min_version": '0.23.0',
         "prefix": "STM",
         "chain_assets": [
             {"asset": "@@000000013", "symbol": "HBD", "precision": 3, "id": 0},
@@ -16,7 +16,7 @@ known_chains = {
     },
     "HIVE": {
         "chain_id": "0" * int(256 / 4),
-        "min_version": '0.19.5',
+        "min_version": '0.23.0',
         "prefix": "STM",
         "chain_assets": [
             {"asset": "HBD", "symbol": "HBD", "precision": 3, "id": 0},

@@ -10,13 +10,13 @@ import logging
 from datetime import datetime, timedelta
 from beem.instance import shared_hive_instance
 from .utils import (
-    formatTimeFromNow, formatTime, formatTimeString, assets_from_string, parse_time, addTzInfo)
+    formatTimeFromNow, formatTimeString, assets_from_string, parse_time, addTzInfo)
 from .asset import Asset
 from .amount import Amount
 from .price import Price, Order, FilledOrder
 from .account import Account
 from beembase import operations
-from beemgraphenebase.py23 import bytes_types, integer_types, string_types, text_type
+from beemgraphenebase.py23 import integer_types, string_types, text_type
 REQUEST_MODULE = None
 if not REQUEST_MODULE:
     try:
@@ -145,7 +145,6 @@ class Market(dict):
         # Core Exchange rate
         self.hive.rpc.set_next_node_on_empty_reply(True)
         ticker = self.hive.rpc.get_ticker(api="market_history")
-
         if raw_data:
             return ticker
 
@@ -168,8 +167,8 @@ class Market(dict):
             hive_instance=self.hive
         )
         data["percent_change"] = float(ticker["percent_change"])
-        data["hbd_volume"] = Amount(ticker["hbd_volume"], hive_instance=self.hive)
-        data["hive_volume"] = Amount(ticker["hive_volume"], hive_instance=self.hive)
+        data["sbd_volume"] = Amount(ticker["sbd_volume"], hive_instance=self.hive)
+        data["steem_volume"] = Amount(ticker["steem_volume"], hive_instance=self.hive)
 
         return data
 
@@ -786,11 +785,12 @@ class Market(dict):
         prices = {}
         responses = []
         urls = [
+            "https://ionomy.com/api/v1/public/market-summary?market=btc-hive",
             # "https://poloniex.com/public?command=returnTicker",
-            "https://bittrex.com/api/v1.1/public/getmarketsummary?market=BTC-HIVE",
-            "https://api.binance.com/api/v1/ticker/24hr",
-            "https://api.huobi.pro/market/history/kline?period=1day&size=1&symbol=hivebtc",
-            "https://crix-api.upbit.com/v1/crix/trades/ticks?code=CRIX.UPBIT.BTC-HIVE&count=1",
+            #"https://bittrex.com/api/v1.1/public/getmarketsummary?market=BTC-HIVE",
+            #"https://api.binance.com/api/v1/ticker/24hr",
+            #"https://api.huobi.pro/market/history/kline?period=1day&size=1&symbol=hivebtc",
+            #"https://crix-api.upbit.com/v1/crix/trades/ticks?code=CRIX.UPBIT.BTC-HIVE&count=1",
         ]
         headers = {'Content-type': 'application/x-www-form-urlencoded',
                    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36'}
@@ -821,6 +821,11 @@ class Market(dict):
                     prices['huobi'] = {
                         'price': float(data['close']),
                         'volume': float(data['vol'])}
+                elif "ionomy" in r.url:
+                    data = r.json()['data']
+                    prices['ionomy'] = {
+                        'price': float(data['price']),
+                        'volume': float(data['volume'])}
                 elif "upbit" in r.url:
                     data = r.json()[-1]
                     prices['upbit'] = {
