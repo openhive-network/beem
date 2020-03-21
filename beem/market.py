@@ -120,8 +120,8 @@ class Market(dict):
             * ``latest``: Price of the order last filled
             * ``lowest_ask``: Price of the lowest ask
             * ``highest_bid``: Price of the highest bid
-            * ``hbd_volume``: Volume of HBD
-            * ``hive_volume``: Volume of HIVE
+            * ``sbd_volume``: Volume of HBD
+            * ``steem_volume``: Volume of HIVE
             * ``percent_change``: 24h change percentage (in %)
 
             .. note::
@@ -136,8 +136,8 @@ class Market(dict):
                     'latest': 0.0,
                     'lowest_ask': 0.3249636958897082,
                     'percent_change': 0.0,
-                    'hbd_volume': 108329611.0,
-                    'hive_volume': 355094043.0
+                    'sbd_volume': 108329611.0,
+                    'steem_volume': 355094043.0
                 }
 
         """
@@ -190,8 +190,8 @@ class Market(dict):
         if raw_data:
             return volume
         return {
-            self["base"]["symbol"]: Amount(volume["hbd_volume"], hive_instance=self.hive),
-            self["quote"]["symbol"]: Amount(volume["hive_volume"], hive_instance=self.hive)
+            self["base"]["symbol"]: Amount(volume["sbd_volume"], hive_instance=self.hive),
+            self["quote"]["symbol"]: Amount(volume["steem_volume"], hive_instance=self.hive)
         }
 
     def orderbook(self, limit=25, raw_data=False):
@@ -433,9 +433,9 @@ class Market(dict):
                         'open': '2016-07-08T11:25:00',
                         'open_hbd': 534928,
                         'open_hive': 1661266,
-                        'hbd_volume': 9714435,
+                        'sbd_volume': 9714435,
                         'seconds': 300,
-                        'hive_volume': 30088443
+                        'steem_volume': 30088443
                     }
 
         """
