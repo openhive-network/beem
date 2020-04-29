@@ -251,9 +251,17 @@ class TransactionBuilder(dict):
             ops.extend([Operation(op, appbase=appbase, prefix=self.hive.prefix)])
 
         # We no wrap everything into an actual transaction
-        expiration = formatTimeFromNow(
-            self.expiration or self.hive.expiration
-        )
+        # calculation expiration time from last block time not system time
+        # it fixes transaction expiration error when pushing transactions 
+        # when blocks are moved forward with debug_produce_block*
+        import dateutil.parser
+        from datetime import timedelta
+        now = dateutil.parser.parse(self.hive.rpc.get_dynamic_global_properties().get('time'))
+        expiration = now + timedelta(seconds = int(self.expiration or self.hive.expiration))
+        expiration = expiration.replace(microsecond = 0).isoformat()
+        #expiration = formatTimeFromNow(
+        #    self.expiration or self.hive.expiration
+        #)
         if ref_block_num is None or ref_block_prefix is None:
             ref_block_num, ref_block_prefix = transactions.getBlockParams(
                 self.hive.rpc)
