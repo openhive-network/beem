@@ -405,7 +405,7 @@ class Update_proposal(GrapheneObject):
 
         super(Update_proposal, self).__init__(
             OrderedDict([
-                ('proposal_id', Uint64(kwargs['proposal_id'])),
+                ('proposal_id', Uint64(kwargs["proposal_id"])),
                 ('creator', String(kwargs["creator"])),
                 ('daily_pay', Amount(kwargs["daily_pay"], prefix = prefix)),
                 ('subject', String(kwargs["subject"])),
