@@ -441,13 +441,13 @@ class Witness_set_properties(GrapheneObject):
                 is_hex = False
             if isinstance(k[1], int) and k[0] in ["account_subsidy_budget", "account_subsidy_decay", "maximum_block_size"]:
                 props[k[0]] = (hexlify(Uint32(k[1]).__bytes__())).decode()
-            elif isinstance(k[1], int) and k[0] in ["hbd_interest_rate"]:
+            elif isinstance(k[1], int) and k[0] in ["hbd_interest_rate", "sbd_interest_rate"]:
                 props[k[0]] = (hexlify(Uint16(k[1]).__bytes__())).decode()
             elif not isinstance(k[1], str) and k[0] in ["account_creation_fee"]:
                 props[k[0]] = (hexlify(Amount(k[1], prefix=prefix).__bytes__())).decode()
             elif not is_hex and isinstance(k[1], str) and k[0] in ["account_creation_fee"]:
                 props[k[0]] = (hexlify(Amount(k[1], prefix=prefix).__bytes__())).decode()
-            elif not isinstance(k[1], str) and k[0] in ["hbd_exchange_rate"]:
+            elif not isinstance(k[1], str) and k[0] in ["hbd_exchange_rate", "sbd_exchange_rate"]:
                 if 'prefix' not in k[1]:
                     k[1]['prefix'] = prefix
                 props[k[0]] = (hexlify(ExchangeRate(k[1]).__bytes__())).decode()
@@ -566,19 +566,30 @@ class Comment_options(GrapheneObject):
         if "extensions" in kwargs and kwargs["extensions"]:
             extensions = Array([CommentOptionExtensions(o) for o in kwargs["extensions"]])
 
-        super(Comment_options, self).__init__(
-            OrderedDict([
-                ('author', String(kwargs["author"])),
-                ('permlink', String(kwargs["permlink"])),
-                ('max_accepted_payout',
-                 Amount(kwargs["max_accepted_payout"], prefix=prefix)),
-                ('percent_hive_dollars',
-                 Uint16(int(kwargs["percent_hive_dollars"]))),
-                ('allow_votes', Bool(bool(kwargs["allow_votes"]))),
-                ('allow_curation_rewards',
-                 Bool(bool(kwargs["allow_curation_rewards"]))),
-                ('extensions', extensions),
-            ]))
+        if 'percent_hbd' in kwargs:
+            print("Comment_options: ", kwargs)
+            super(Comment_options, self).__init__(
+                OrderedDict([
+                    ('author', String(kwargs["author"])),
+                    ('permlink', String(kwargs["permlink"])),
+                    ('max_accepted_payout', Amount(kwargs["max_accepted_payout"], prefix=prefix)),
+                    ('percent_hbd', Uint16(int(kwargs["percent_hbd"]))),
+                    ('allow_votes', Bool(bool(kwargs["allow_votes"]))),
+                    ('allow_curation_rewards', Bool(bool(kwargs["allow_curation_rewards"]))),
+                    ('extensions', extensions),
+                ]))
+        else:
+            print("Comment_options: ", kwargs)
+            super(Comment_options, self).__init__(
+                OrderedDict([
+                    ('author', String(kwargs["author"])),
+                    ('permlink', String(kwargs["permlink"])),
+                    ('max_accepted_payout', Amount(kwargs["max_accepted_payout"], prefix=prefix)),
+                    ('percent_steem_dollars', Uint16(int(kwargs["percent_steem_dollars"]))),
+                    ('allow_votes', Bool(bool(kwargs["allow_votes"]))),
+                    ('allow_curation_rewards', Bool(bool(kwargs["allow_curation_rewards"]))),
+                    ('extensions', extensions),
+                ]))
 
 
 class Delete_comment(GrapheneObject):
@@ -806,19 +817,19 @@ class Claim_reward_balance(GrapheneObject):
         if len(args) == 1 and len(kwargs) == 0:
             kwargs = args[0]
         prefix = kwargs.get("prefix", default_prefix)
-        if "reward_hbd" in kwargs:
+        if "reward_hbd" or "reward_sbd" in kwargs:
             super(Claim_reward_balance, self).__init__(
                 OrderedDict([
                     ('account', String(kwargs["account"])),
-                    ('reward_hive', Amount(kwargs["reward_hive"], prefix=prefix)),
-                    ('reward_hbd', Amount(kwargs["reward_hbd"], prefix=prefix)),
+                    ('reward_hive', Amount(kwargs["reward_hive"], prefix=prefix)) if 'reward_hive' in kwargs else ('reward_steem', Amount(kwargs["reward_steem"], prefix=prefix)),
+                    ('reward_hbd', Amount(kwargs["reward_hbd"], prefix=prefix)) if 'reward_hbd' in kwargs else ('reward_hbd', Amount(kwargs["reward_hbd"], prefix=prefix)),
                     ('reward_vests', Amount(kwargs["reward_vests"], prefix=prefix)),
                 ]))
         else:
             super(Claim_reward_balance, self).__init__(
                 OrderedDict([
                     ('account', String(kwargs["account"])),
-                    ('reward_hive', Amount(kwargs["reward_hive"], prefix=prefix)),
+                    ('reward_hive', Amount(kwargs["reward_hive"], prefix=prefix)) if 'reward_hive' in kwargs else ('reward_steem', Amount(kwargs["reward_steem"], prefix=prefix)),
                     ('reward_vests', Amount(kwargs["reward_vests"], prefix=prefix)),
                 ]))
 
@@ -895,8 +906,8 @@ class Escrow_transfer(GrapheneObject):
                 ('to', String(kwargs["to"])),
                 ('agent', String(kwargs["agent"])),
                 ('escrow_id', Uint32(kwargs["escrow_id"])),
-                ('hbd_amount', Amount(kwargs["hbd_amount"], prefix=prefix)),
-                ('hive_amount', Amount(kwargs["hive_amount"], prefix=prefix)),
+                ('hbd_amount', Amount(kwargs["hbd_amount"], prefix=prefix)) if 'hbd_amount' in kwargs else ('sbd_amount', Amount(kwargs["sbd_amount"], prefix=prefix)),
+                ('hive_amount', Amount(kwargs["hive_amount"], prefix=prefix)) if 'hive_amount' in kwargs else ('steem_amount', Amount(kwargs["steem_amount"], prefix=prefix)),
                 ('fee', Amount(kwargs["fee"], prefix=prefix)),
                 ('ratification_deadline', PointInTime(kwargs["ratification_deadline"])),
                 ('escrow_expiration', PointInTime(kwargs["escrow_expiration"])),
@@ -932,8 +943,8 @@ class Escrow_release(GrapheneObject):
                 ('to', String(kwargs["to"])),
                 ('who', String(kwargs["who"])),
                 ('escrow_id', Uint32(kwargs["escrow_id"])),
-                ('hbd_amount', Amount(kwargs["hbd_amount"], prefix=prefix)),
-                ('hive_amount', Amount(kwargs["hive_amount"], prefix=prefix)),
+                ('hbd_amount', Amount(kwargs["hbd_amount"], prefix=prefix)) if 'hbd_amount' in kwargs else ('sbd_amount', Amount(kwargs["sbd_amount"], prefix=prefix)),
+                ('hive_amount', Amount(kwargs["hive_amount"], prefix=prefix)) if 'hive_amount' in kwargs else ('steem_amount', Amount(kwargs["steem_amount"], prefix=prefix)),
             ]))
 
 
