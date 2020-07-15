@@ -48,10 +48,10 @@ known_chains = {
         "chain_id":
         "18dcf0a285365fc58b71f18b3d3fec954aa0c141c44e4e5cb4cf777b9eab274e",
         "min_version": '0.20.0',
-        "prefix": "TST",
+        "prefix": "STM",
         "chain_assets": [
-            {"asset": "@@000000013", "symbol": "TBD", "precision": 3, "id": 0},
-            {"asset": "@@000000021", "symbol": "TESTS", "precision": 3, "id": 1},
+            {"asset": "@@000000013", "symbol": "HBD", "precision": 3, "id": 0},
+            {"asset": "@@000000021", "symbol": "HIVE", "precision": 3, "id": 1},
             {"asset": "@@000000037", "symbol": "VESTS", "precision": 6, "id": 2}
         ],
     },
