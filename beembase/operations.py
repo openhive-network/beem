@@ -388,7 +388,7 @@ class Remove_proposal(GrapheneObject):
 
         super(Remove_proposal, self).__init__(
             OrderedDict([
-                ('proposal_owner', String(kwargs["voter"])),
+                ('proposal_owner', String(kwargs["proposal_owner"])),
                 ('proposal_ids', Array(proposal_ids)),
                 ('extensions', extensions)
             ]))
