@@ -326,7 +326,7 @@ class UpdateProposalEndDate(GrapheneObject):
 
             super(UpdateProposalEndDate, self).__init__(
                 OrderedDict([
-                    ('end_date', Amount(kwargs["end_date"])),
+                    ('end_date', PointInTime(kwargs["end_date"])),
                 ]))
 
 
