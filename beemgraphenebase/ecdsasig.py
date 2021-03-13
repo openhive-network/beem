@@ -103,7 +103,13 @@ def recover_public_key(digest, signature, i, message=None):
         if not isinstance(message, bytes_types):
             message = py23_bytes(message, "utf-8")
         sigder = encode_dss_signature(r, s)
-        public_key = ec.EllipticCurvePublicNumbers(Q._Point__x, Q._Point__y, ec.SECP256K1()).public_key(default_backend())
+        try:
+            public_key = ec.EllipticCurvePublicNumbers(Q._Point__x, Q._Point__y, ec.SECP256K1()).public_key(
+                default_backend())
+        except:
+            Q_point = Q.to_affine()
+            public_key = ec.EllipticCurvePublicNumbers(int(Q_point.x()), int(Q_point.y()), ec.SECP256K1()).public_key(
+                default_backend())
         public_key.verify(sigder, message, ec.ECDSA(hashes.SHA256()))
         return public_key
     else:
