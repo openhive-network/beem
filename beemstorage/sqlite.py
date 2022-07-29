@@ -50,13 +50,8 @@ class SQLiteFile:
         
         self.sqlite_file = os.path.join(self.data_dir, self.storageDatabase)
 
-        """ Ensure that the directory in which the data is stored
-            exists
-        """
-        if os.path.isdir(self.data_dir):  # pragma: no cover
-            return
-        else:  # pragma: no cover
-            os.makedirs(self.data_dir)
+        # Ensure that the directory in which the data is stored exists
+        os.makedirs(self.data_dir, exist_ok=True)
 
     def sqlite3_backup(self, backupdir):
         """ Create timestamped database copy
