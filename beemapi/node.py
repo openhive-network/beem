@@ -143,6 +143,12 @@ class Nodes(list):
         if self.node is not None:
             self.node.error_cnt = 0
 
+    def reset_all_error_counters(self):
+        """Set node and call error counts for current node to zero"""
+        if self.node is not None:
+            self.node.error_cnt = 0
+            self.node.error_cnt_call = 0
+
     def sleep_and_check_retries(self, errorMsg=None, sleep=True, call_retry=False, showMsg=True):
         """Sleep and check if num_retries is reached"""
         if errorMsg:
