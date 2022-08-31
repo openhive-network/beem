@@ -191,7 +191,7 @@ class GrapheneRPC(object):
         while True:
             if next_url:
                 self.url = next(self.nodes)
-                self.nodes.reset_error_cnt_call()
+                self.nodes.reset_all_error_counters()
                 log.debug("Trying to connect to node %s" % self.url)
                 if self.url[:3] == "wss":
                     self.ws = create_ws_instance(use_ssl=True)
@@ -468,15 +468,15 @@ class GrapheneRPC(object):
                         ret_list.append(r["result"])
                     else:
                         ret_list.append(r)
-                self.nodes.reset_error_cnt_call()
+                self.nodes.reset_all_error_counters()
                 return ret_list
             elif isinstance(ret, dict) and "result" in ret:
-                self.nodes.reset_error_cnt_call()
+                self.nodes.reset_all_error_counters()
                 return ret["result"]
             elif isinstance(ret, int):
                 raise RPCError("Client returned invalid format. Expected JSON! Output: %s" % (str(ret)))
             else:
-                self.nodes.reset_error_cnt_call()
+                self.nodes.reset_all_error_counters()
                 return ret
         return ret
 
