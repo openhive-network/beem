@@ -1007,13 +1007,8 @@ class Account(BlockchainObject):
         if not self.blockchain.is_connected():
             raise OfflineHasNoRPCException("No RPC available in offline mode!")
         self.blockchain.rpc.set_next_node_on_empty_reply(False)
-        if self.blockchain.rpc.get_use_appbase():
-            try:
-                return self.blockchain.rpc.get_follow_count({'account': account}, api='follow')
-            except:
-                return self.blockchain.rpc.get_follow_count(account, api='condenser')
-        else:
-            return self.blockchain.rpc.get_follow_count(account, api='follow')
+
+        return self.blockchain.rpc.get_follow_count(account, api='condenser')
 
     def get_followers(self, raw_name_list=True, limit=100):
         """ Returns the account followers as list
