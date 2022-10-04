@@ -862,14 +862,14 @@ class Account(BlockchainObject):
         if self.blockchain.rpc.get_use_appbase():
             try:
                 if raw_data and short_entries:
-                    ret = self.blockchain.rpc.get_blog_entries({'account': account, 'start_entry_id': start_entry_id, 'limit': limit}, api='follow')
+                    ret = self.blockchain.rpc.get_blog_entries({'account': account, 'start_entry_id': start_entry_id, 'limit': limit}, api='condenser')
                     if isinstance(ret, dict) and "blog" in ret:
                         ret = ret["blog"]
                     return [
                         c for c in ret
                     ]
                 elif raw_data:
-                    ret = self.blockchain.rpc.get_blog({'account': account, 'start_entry_id': start_entry_id, 'limit': limit}, api='follow')
+                    ret = self.blockchain.rpc.get_blog({'account': account, 'start_entry_id': start_entry_id, 'limit': limit}, api='condenser')
                     if isinstance(ret, dict) and "blog" in ret:
                         ret = ret["blog"]
                     return [
@@ -877,7 +877,7 @@ class Account(BlockchainObject):
                     ]
                 elif not raw_data:
                     from .comment import Comment
-                    ret = self.blockchain.rpc.get_blog({'account': account, 'start_entry_id': start_entry_id, 'limit': limit}, api='follow')
+                    ret = self.blockchain.rpc.get_blog({'account': account, 'start_entry_id': start_entry_id, 'limit': limit}, api='condenser')
                     if isinstance(ret, dict) and "blog" in ret:
                         ret = ret["blog"]
                     return [
@@ -889,17 +889,17 @@ class Account(BlockchainObject):
         if not self.blockchain.rpc.get_use_appbase() or not success:
             if raw_data and short_entries:
                 return [
-                    c for c in self.blockchain.rpc.get_blog_entries(account, start_entry_id, limit, api='follow')
+                    c for c in self.blockchain.rpc.get_blog_entries(account, start_entry_id, limit, api='condenser')
                 ]
 
             elif raw_data:
                 return [
-                    c for c in self.blockchain.rpc.get_blog(account, start_entry_id, limit, api='follow')
+                    c for c in self.blockchain.rpc.get_blog(account, start_entry_id, limit, api='condenser')
                 ]
 
             else:
                 from .comment import Comment
-                blog_list = self.blockchain.rpc.get_blog(account, start_entry_id, limit, api='follow')
+                blog_list = self.blockchain.rpc.get_blog(account, start_entry_id, limit, api='condenser')
                 if blog_list is None:
                     return []
                 return [
@@ -991,13 +991,7 @@ class Account(BlockchainObject):
         if not self.blockchain.is_connected():
             raise OfflineHasNoRPCException("No RPC available in offline mode!")
         self.blockchain.rpc.set_next_node_on_empty_reply(False)
-        if self.blockchain.rpc.get_use_appbase():
-            try:
-                return self.blockchain.rpc.get_blog_authors({'blog_account': account}, api='follow')['blog_authors']
-            except:
-                return self.blockchain.rpc.get_blog_authors(account, api='follow')
-        else:
-            return self.blockchain.rpc.get_blog_authors(account, api='follow')
+        return self.blockchain.rpc.get_blog_authors(account, api='condenser')
 
     def get_follow_count(self, account=None):
         """ get_follow_count """
@@ -1007,13 +1001,8 @@ class Account(BlockchainObject):
         if not self.blockchain.is_connected():
             raise OfflineHasNoRPCException("No RPC available in offline mode!")
         self.blockchain.rpc.set_next_node_on_empty_reply(False)
-        if self.blockchain.rpc.get_use_appbase():
-            try:
-                return self.blockchain.rpc.get_follow_count({'account': account}, api='follow')
-            except:
-                return self.blockchain.rpc.get_follow_count(account, api='condenser')
-        else:
-            return self.blockchain.rpc.get_follow_count(account, api='follow')
+
+        return self.blockchain.rpc.get_follow_count(account, api='condenser')
 
     def get_followers(self, raw_name_list=True, limit=100):
         """ Returns the account followers as list
@@ -1092,30 +1081,18 @@ class Account(BlockchainObject):
             if self.blockchain.rpc.get_use_appbase():
                 query = {'account': self.name, 'start': last_user, 'type': what, 'limit': limit}
                 if direction == "follower":
-                    try:
-                        followers = self.blockchain.rpc.get_followers(query, api='follow')
-                    except:
-                        followers = self.blockchain.rpc.get_followers(self.name, last_user, what, limit, api='condenser')
+                    followers = self.blockchain.rpc.get_followers(self.name, last_user, what, limit, api='condenser')
                     if isinstance(followers, dict) and 'followers' in followers:
                         followers = followers['followers']
                 elif direction == "following":
-                    try:
-                        followers = self.blockchain.rpc.get_following(query, api='follow')
-                    except:
-                        followers = self.blockchain.rpc.get_following(self.name, last_user, what, limit, api='condenser')
+                    followers = self.blockchain.rpc.get_following(self.name, last_user, what, limit, api='condenser')
                     if isinstance(followers, dict) and 'following' in followers:
                         followers = followers['following']
             else:
                 if direction == "follower":
-                    try:
-                        followers = self.blockchain.rpc.get_followers(self.name, last_user, what, limit, api='follow')
-                    except:
-                        followers = self.blockchain.rpc.get_followers([self.name, last_user, what, limit], api='condenser')
+                    followers = self.blockchain.rpc.get_followers([self.name, last_user, what, limit], api='condenser')
                 elif direction == "following":
-                    try:
-                        followers = self.blockchain.rpc.get_following(self.name, last_user, what, limit, api='follow')
-                    except:
-                        followers = self.blockchain.rpc.get_following(self.name, last_user, what, limit, api='condenser')
+                    followers = self.blockchain.rpc.get_following(self.name, last_user, what, limit, api='condenser')
             if cnt == 0:
                 followers_list = followers
             elif followers is not None and len(followers) > 1:
