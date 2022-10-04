@@ -16,7 +16,7 @@ except LookupError:
     ascii = codecs.lookup('ascii')
     codecs.register(lambda name, enc=ascii: {True: enc}.get(name == 'mbcs'))
 
-VERSION = '0.24.22'
+VERSION = '0.26.0'
 
 tests_require = ['mock >= 2.0.0', 'pytest', 'pytest-mock', 'parameterized']
 
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     setup(
         name='beem',
         version=VERSION,
-        description='Unofficial Python library for HIVE and STEEM',
+        description='Unofficial Python library for HIVE',
         long_description=get_long_description(),
         download_url='https://github.com/holgern/beem/tarball/' + VERSION,
         author='Holger Nahrstaedt',
@@ -74,7 +74,7 @@ if __name__ == '__main__':
         maintainer='Holger Nahrstaedt',
         maintainer_email='nahrstaedt@gmail.com',
         url='http://www.github.com/holgern/beem',
-        keywords=['hive', 'steem', 'library', 'api', 'rpc'],
+        keywords=['hive', 'library', 'api', 'rpc'],
         packages=[
             "beem",
             "beemapi",
