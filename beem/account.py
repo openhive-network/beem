@@ -1092,30 +1092,18 @@ class Account(BlockchainObject):
             if self.blockchain.rpc.get_use_appbase():
                 query = {'account': self.name, 'start': last_user, 'type': what, 'limit': limit}
                 if direction == "follower":
-                    try:
-                        followers = self.blockchain.rpc.get_followers(query, api='follow')
-                    except:
-                        followers = self.blockchain.rpc.get_followers(self.name, last_user, what, limit, api='condenser')
+                    followers = self.blockchain.rpc.get_followers(self.name, last_user, what, limit, api='condenser')
                     if isinstance(followers, dict) and 'followers' in followers:
                         followers = followers['followers']
                 elif direction == "following":
-                    try:
-                        followers = self.blockchain.rpc.get_following(query, api='follow')
-                    except:
-                        followers = self.blockchain.rpc.get_following(self.name, last_user, what, limit, api='condenser')
+                    followers = self.blockchain.rpc.get_following(self.name, last_user, what, limit, api='condenser')
                     if isinstance(followers, dict) and 'following' in followers:
                         followers = followers['following']
             else:
                 if direction == "follower":
-                    try:
-                        followers = self.blockchain.rpc.get_followers(self.name, last_user, what, limit, api='follow')
-                    except:
-                        followers = self.blockchain.rpc.get_followers([self.name, last_user, what, limit], api='condenser')
+                    followers = self.blockchain.rpc.get_followers([self.name, last_user, what, limit], api='condenser')
                 elif direction == "following":
-                    try:
-                        followers = self.blockchain.rpc.get_following(self.name, last_user, what, limit, api='follow')
-                    except:
-                        followers = self.blockchain.rpc.get_following(self.name, last_user, what, limit, api='condenser')
+                    followers = self.blockchain.rpc.get_following(self.name, last_user, what, limit, api='condenser')
             if cnt == 0:
                 followers_list = followers
             elif followers is not None and len(followers) > 1:
