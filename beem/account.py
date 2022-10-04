@@ -862,14 +862,14 @@ class Account(BlockchainObject):
         if self.blockchain.rpc.get_use_appbase():
             try:
                 if raw_data and short_entries:
-                    ret = self.blockchain.rpc.get_blog_entries({'account': account, 'start_entry_id': start_entry_id, 'limit': limit}, api='follow')
+                    ret = self.blockchain.rpc.get_blog_entries({'account': account, 'start_entry_id': start_entry_id, 'limit': limit}, api='condenser')
                     if isinstance(ret, dict) and "blog" in ret:
                         ret = ret["blog"]
                     return [
                         c for c in ret
                     ]
                 elif raw_data:
-                    ret = self.blockchain.rpc.get_blog({'account': account, 'start_entry_id': start_entry_id, 'limit': limit}, api='follow')
+                    ret = self.blockchain.rpc.get_blog({'account': account, 'start_entry_id': start_entry_id, 'limit': limit}, api='condenser')
                     if isinstance(ret, dict) and "blog" in ret:
                         ret = ret["blog"]
                     return [
@@ -877,7 +877,7 @@ class Account(BlockchainObject):
                     ]
                 elif not raw_data:
                     from .comment import Comment
-                    ret = self.blockchain.rpc.get_blog({'account': account, 'start_entry_id': start_entry_id, 'limit': limit}, api='follow')
+                    ret = self.blockchain.rpc.get_blog({'account': account, 'start_entry_id': start_entry_id, 'limit': limit}, api='condenser')
                     if isinstance(ret, dict) and "blog" in ret:
                         ret = ret["blog"]
                     return [
@@ -889,17 +889,17 @@ class Account(BlockchainObject):
         if not self.blockchain.rpc.get_use_appbase() or not success:
             if raw_data and short_entries:
                 return [
-                    c for c in self.blockchain.rpc.get_blog_entries(account, start_entry_id, limit, api='follow')
+                    c for c in self.blockchain.rpc.get_blog_entries(account, start_entry_id, limit, api='condenser')
                 ]
 
             elif raw_data:
                 return [
-                    c for c in self.blockchain.rpc.get_blog(account, start_entry_id, limit, api='follow')
+                    c for c in self.blockchain.rpc.get_blog(account, start_entry_id, limit, api='condenser')
                 ]
 
             else:
                 from .comment import Comment
-                blog_list = self.blockchain.rpc.get_blog(account, start_entry_id, limit, api='follow')
+                blog_list = self.blockchain.rpc.get_blog(account, start_entry_id, limit, api='condenser')
                 if blog_list is None:
                     return []
                 return [
