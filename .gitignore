@@ -65,3 +65,4 @@ target/
 *.swp
 .ropeproject/
 */.ropeproject/
+.vscode/settings.json
