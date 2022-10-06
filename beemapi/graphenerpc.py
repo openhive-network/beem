@@ -317,10 +317,10 @@ class GrapheneRPC(object):
                 blockchain_name = sorted_prefix_count[0][0]
         if blockchain_name is None and 'HIVE_CHAIN_ID' in props and 'STEEM_CHAIN_ID' in props:
             del props['STEEM_CHAIN_ID']
-
-
+        
+        
         for key in props:
-
+            
             if key[-8:] == "CHAIN_ID" and blockchain_name is None:
                 chain_id = props[key]
                 blockchain_name = key.split("_")[0]
@@ -329,7 +329,7 @@ class GrapheneRPC(object):
             elif key[-13:] == "CHAIN_VERSION" and blockchain_name is None:
                 network_version = props[key]
             elif key[-13:] == "CHAIN_VERSION" and key.split("_")[0] == blockchain_name:
-                network_version = props[key]
+                network_version = props[key]            
             elif key[-14:] == "ADDRESS_PREFIX" and blockchain_name is None:
                 prefix = props[key]
             elif key[-14:] == "ADDRESS_PREFIX" and key.split("_")[0] == blockchain_name:

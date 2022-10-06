@@ -66,3 +66,6 @@ target/
 .ropeproject/
 */.ropeproject/
 .vscode/settings.json
+
+# IDEs
+.vscode
