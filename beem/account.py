@@ -159,7 +159,7 @@ class Account(BlockchainObject):
             "savings_sbd_seconds_last_update", "savings_sbd_last_interest_payment", "next_vesting_withdrawal",
             "last_market_bandwidth_update", "last_post", "last_root_post", "last_bandwidth_update",
             "hbd_seconds_last_update", "hbd_last_interest_payment", "savings_hbd_seconds_last_update",
-            "savings_hbd_last_interest_payment"            
+            "savings_hbd_last_interest_payment"
         ]
         for p in parse_times:
             if p in account and isinstance(account.get(p), string_types):
@@ -173,7 +173,7 @@ class Account(BlockchainObject):
             "reward_sbd_balance",
             "hbd_balance",
             "savings_hbd_balance",
-            "reward_hbd_balance",            
+            "reward_hbd_balance",
             "reward_steem_balance",
             "reward_hive_balance",
             "reward_vesting_balance",
@@ -217,7 +217,7 @@ class Account(BlockchainObject):
             "savings_sbd_seconds_last_update", "savings_sbd_last_interest_payment", "next_vesting_withdrawal",
             "last_market_bandwidth_update", "last_post", "last_root_post", "last_bandwidth_update",
             "hbd_seconds_last_update", "hbd_last_interest_payment", "savings_hbd_seconds_last_update",
-            "savings_hbd_last_interest_payment"            
+            "savings_hbd_last_interest_payment"
         ]
         for p in parse_times:
             if p in output:
@@ -236,7 +236,7 @@ class Account(BlockchainObject):
             "hbd_balance",
             "savings_hbd_balance",
             "reward_hbd_balance",
-            "reward_hive_balance",            
+            "reward_hive_balance",
             "reward_vesting_balance",
             "reward_vesting_steem",
             "vesting_shares",
@@ -483,7 +483,7 @@ class Account(BlockchainObject):
             props = self.blockchain.get_chain_properties()
             required_fee_token = Amount(props["account_creation_fee"], blockchain_instance=self.blockchain)
             max_mana = int(self.blockchain.token_power_to_vests(required_fee_token) / 4)
-              
+
         last_mana = int(self["downvote_manabar"]["current_mana"])
         last_update_time = self["downvote_manabar"]["last_update_time"]
         last_update = datetime.utcfromtimestamp(last_update_time)
@@ -1110,7 +1110,7 @@ class Account(BlockchainObject):
         """Returns all subscriptions"""
         if account is None:
             account = self["name"]
-        account = extract_account_name(account)        
+        account = extract_account_name(account)
         if not self.blockchain.is_connected():
             raise OfflineHasNoRPCException("No RPC available in offline mode!")
         self.blockchain.rpc.set_next_node_on_empty_reply(True)
@@ -1300,7 +1300,7 @@ class Account(BlockchainObject):
             interest_rate = self.blockchain.get_dynamic_global_properties()[
                 "hbd_interest_rate"] / 100  # percent
             interest_amount = (interest_rate / 100) * int(
-                int(self["hbd_seconds"]) / (60 * 60 * 24 * 356)) * 10**-3            
+                int(self["hbd_seconds"]) / (60 * 60 * 24 * 356)) * 10**-3
         return {
             "interest": interest_amount,
             "last_payment": last_payment,
@@ -1715,7 +1715,7 @@ class Account(BlockchainObject):
 
     def get_account_votes(self, account=None, start_author="", start_permlink="", limit=1000, start_date=None):
         """ Returns all votes that the account has done
-            
+
             :rtype: list
 
             .. code-block:: python
@@ -1853,7 +1853,7 @@ class Account(BlockchainObject):
                 ret = self.blockchain.rpc.get_account_history(account, start, limit,
                                                               operation_filter_low,
                                                               operation_filter_high,
-                                                              api="database")            
+                                                              api="database")
         return ret
 
     def _get_blocknum_from_hist(self, index, min_index=1):
@@ -2057,7 +2057,7 @@ class Account(BlockchainObject):
                 else:
                     operation_filter_high -= 2 ** (op_id - 64 - 1)
         return operation_filter_low, operation_filter_high
-        
+
 
     def get_account_history(self, index, limit, order=-1, start=None, stop=None, use_block_num=True, only_ops=[], exclude_ops=[], raw_output=False):
         """ Returns a generator for individual account transactions. This call can be used in a
@@ -2110,7 +2110,7 @@ class Account(BlockchainObject):
         else:
             txs_list = txs
         for item in txs_list:
-            item_index, event = item        
+            item_index, event = item
             if start and isinstance(start, (datetime, date, time)):
                 timediff = start - formatTimeString(event["timestamp"])
                 if timediff.total_seconds() * float(order) > 0:
@@ -2282,7 +2282,7 @@ class Account(BlockchainObject):
             start_index = op_est - est_diff
         else:
             start_index = 0
-        
+
         if stop is not None and not use_block_num and not isinstance(stop, (datetime, date, time)):
             if start_index + stop < _limit:
                 _limit = stop
@@ -2296,16 +2296,16 @@ class Account(BlockchainObject):
         elif first < _limit and self.blockchain.rpc.url != "https://api.hive.blog":
             first = _limit
         last_round = False
-        
+
         if _limit < 0:
             return
         last_item_index = -1
-        
+
         if self.blockchain.rpc.url == 'https://api.hive.blog' and (len(only_ops) > 0 or len(exclude_ops) > 0):
             operation_filter = True
         else:
             operation_filter = False
-            
+
         while True:
             # RPC call
             if first < _limit - 1 and self.blockchain.rpc.url == "https://api.hive.blog":
@@ -2350,7 +2350,7 @@ class Account(BlockchainObject):
                     if exclude_ops and op_type in exclude_ops:
                         continue
                     if not only_ops or op_type in only_ops:
-                        yield item                
+                        yield item
                 last_item_index = item_index
             if first < max_index and first + _limit >= max_index and not last_round:
                 _limit = max_index - first
@@ -2482,12 +2482,12 @@ class Account(BlockchainObject):
             first = op_est + est_diff
         if stop is not None and isinstance(stop, int) and stop < 0 and not use_block_num:
             stop += first
-            
+
         if self.blockchain.rpc.url == 'https://api.hive.blog' and (len(only_ops) > 0 or len(exclude_ops) > 0):
             operation_filter = True
         else:
             operation_filter = False
-        
+
         last_item_index = first + 1
         while True:
             # RPC call
@@ -2535,7 +2535,7 @@ class Account(BlockchainObject):
                     if exclude_ops and op_type in exclude_ops:
                         continue
                     if not only_ops or op_type in only_ops:
-                        yield item                    
+                        yield item
                 last_item_index = item_index
             if operation_filter and batch_count < _limit and _limit == 1000:
                 first -= 2000
@@ -2570,7 +2570,7 @@ class Account(BlockchainObject):
             .. note:: what can be one of the following on HIVE:
             blog, ignore, blacklist, unblacklist, follow_blacklist,
             unfollow_blacklist, follow_muted, unfollow_muted
-            
+
             :param str/list other: Follow this account / accounts (only hive)
             :param list what: List of states to follow.
                 ``['blog']`` means to follow ``other``,
@@ -2886,7 +2886,7 @@ class Account(BlockchainObject):
         """
 
         if account is None:
-            account = self  
+            account = self
         elif not skip_account_check:
             account = Account(account, blockchain_instance=self.blockchain)
         amount = Amount(amount, asset, blockchain_instance=self.blockchain)
@@ -2894,16 +2894,16 @@ class Account(BlockchainObject):
             to = Account(to, blockchain_instance=self.blockchain)
 
         to_name = extract_account_name(to)
-        account_name = extract_account_name(account)        
+        account_name = extract_account_name(account)
         if memo and memo[0] == "#":
             from .memo import Memo
             memoObj = Memo(
-                from_account=account,
-                to_account=to,
+                from_account=account_name,
+                to_account=to_name,
                 blockchain_instance=self.blockchain
             )
             memo = memoObj.encrypt(memo[1:])["message"]
-        
+
         op = operations.Transfer(**{
             "amount": amount,
             "to": to_name,
@@ -2999,7 +2999,7 @@ class Account(BlockchainObject):
         if not skip_account_check:
             to = Account(to, blockchain_instance=self.blockchain)
         to_name = extract_account_name(to)
-        account_name = extract_account_name(account)           
+        account_name = extract_account_name(account)
 
         op = operations.Transfer_to_vesting(**{
             "from": account_name,
@@ -3028,7 +3028,7 @@ class Account(BlockchainObject):
         if request_id:
             request_id = int(request_id)
         else:
-            request_id = random.getrandbits(32)  
+            request_id = random.getrandbits(32)
         op = operations.Convert(
             **{
                 "owner": account["name"],
@@ -3192,7 +3192,7 @@ class Account(BlockchainObject):
                              reward_steem=0,
                              reward_sbd=0,
                              reward_hive=0,
-                             reward_hbd=0,                             
+                             reward_hbd=0,
                              reward_vests=0,
                              account=None, **kwargs):
         """ Claim reward balances.
@@ -3228,7 +3228,7 @@ class Account(BlockchainObject):
             reward_backed_token = "reward_hbd"
         else:
             reward_token = "reward_steem"
-            reward_backed_token = "reward_sbd"            
+            reward_backed_token = "reward_sbd"
 
         if reward_token_amount.amount == 0 and reward_backed_token_amount.amount == 0 and reward_vests_amount.amount == 0:
             if len(account.balances["rewards"]) == 3:
@@ -3246,7 +3246,7 @@ class Account(BlockchainObject):
                     reward_backed_token: reward_backed_token_amount,
                     "reward_vests": reward_vests_amount,
                     "prefix": self.blockchain.prefix,
-                })         
+                })
         else:
             op = operations.Claim_reward_balance(
                 **{
@@ -3843,7 +3843,7 @@ class Accounts(AccountsObject):
             accessing a RPCcreator = Account(creator, blockchain_instance=self)
     """
     def __init__(self, name_list, batch_limit=100, lazy=False, full=True, blockchain_instance=None, **kwargs):
-        
+
         if blockchain_instance is None:
             if kwargs.get("steem_instance"):
                 blockchain_instance = kwargs["steem_instance"]
