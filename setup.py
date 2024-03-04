@@ -18,22 +18,40 @@ except LookupError:
 
 VERSION = '0.26.0'
 
-tests_require = ['mock >= 2.0.0', 'pytest', 'pytest-mock', 'parameterized']
+tests_require = [
+    "mock == 4.0.3",
+    "pytest == 7.2.2",
+    "pytest-mock == 3.12.0",
+    "parameterized == 0.9.0",
+    "setuptools == 69.1.1",
+    "wheel == 0.42.0",
+    "future == 0.18.2",
+    "cryptography == 3.4.7",
+    "pycodestyle == 2.7.0",
+    "pyflakes == 2.3.1",
+    "pylibscrypt == 2.0.0",
+    "six == 1.15.0",
+    "pytest-cov == 4.1.0",
+    "coverage == 7.4.3",
+    "tox == 4.13.0",
+    "codacy-coverage == 1.3.11",
+    "virtualenv == 20.25.1",
+]
 
 requires = [
-    "ecdsa",
-    "requests",
-    "websocket-client",
-    "appdirs",
-    "scrypt",
-    "pycryptodomex",
-    "pytz",
-    "Click",
-    "click_shell",
-    "prettytable",
-    "ruamel.yaml",
-    "diff_match_patch",
-    "asn1crypto"
+    "ecdsa == 0.16.1",
+    "requests == 2.27.1",
+    "websocket-client == 0.58.0",
+    "appdirs == 1.4.4",
+    "scrypt == 0.8.18",
+    "pycryptodomex == 3.10.1",
+    "pytz == 2021.1",
+    "Click == 8.0.0",
+    "click_shell == 2.1",
+    "prettytable == 3.8.0",
+    "ruamel.yaml == 0.18.6",
+    "diff_match_patch == 20230430",
+    "asn1crypto == 1.5.1"
 ]
 
 
@@ -105,5 +123,6 @@ if __name__ == '__main__':
         },
         setup_requires=['pytest-runner'],
         tests_require=tests_require,
+        extras_require={"tests": tests_require},
         include_package_data=True,
     )
