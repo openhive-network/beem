@@ -850,7 +850,7 @@ class RecentReplies(list):
             Default: True
         :param Steem blockchain_instance: Steem() instance to use when accesing a RPC
     """
-    def __init__(self, author, skip_own=True, start_permlink="", limit=100, lazy=False, full=True, blockchain_instance=None, **kwargs):
+    def __init__(self, author, skip_own=True, start_permlink="", limit=20, lazy=False, full=True, blockchain_instance=None, **kwargs):
         if blockchain_instance is None:
             if kwargs.get("steem_instance"):
                 blockchain_instance = kwargs["steem_instance"]
@@ -894,7 +894,7 @@ class RankedPosts(list):
         :param str start_permlink: start permlink
         :param Steem blockchain_instance: Steem() instance to use when accesing a RPC
     """
-    def __init__(self, sort, tag="", observer="", limit=21, start_author="", start_permlink="", lazy=False, full=True, raw_data=False, blockchain_instance=None, **kwargs):
+    def __init__(self, sort, tag="", observer="", limit=20, start_author="", start_permlink="", lazy=False, full=True, raw_data=False, blockchain_instance=None, **kwargs):
         if blockchain_instance is None:
             if kwargs.get("steem_instance"):
                 blockchain_instance = kwargs["steem_instance"]
@@ -905,8 +905,8 @@ class RankedPosts(list):
             return None
         comments = []
         api_limit = limit
-        if api_limit > 100:
-            api_limit = 100
+        if api_limit > 20:
+            api_limit = 20
         last_n = -1
         while len(comments) < limit and last_n != len(comments):
             last_n = len(comments)        
@@ -928,7 +928,7 @@ class RankedPosts(list):
             if len(comments) > 0:
                 start_author = comments[-1]["author"]
                 start_permlink = comments[-1]["permlink"]
-            if limit - len(comments) < 100:
+            if limit - len(comments) < 20:
                 api_limit = limit - len(comments) + 1
         super(RankedPosts, self).__init__(comments)
 
@@ -955,8 +955,8 @@ class AccountPosts(list):
             return None
         comments = []
         api_limit = limit
-        if api_limit > 100:
-            api_limit = 100
+        if api_limit > 20:
+            api_limit = 20
         last_n = -1
         while len(comments) < limit and last_n != len(comments):
             last_n = len(comments)
@@ -978,6 +978,6 @@ class AccountPosts(list):
             if len(comments) > 0:
                 start_author = comments[-1]["author"]
                 start_permlink = comments[-1]["permlink"]
-            if limit - len(comments) < 100:
+            if limit - len(comments) < 20:
                 api_limit = limit - len(comments) + 1
         super(AccountPosts, self).__init__(comments)

@@ -69,7 +69,7 @@ class Discussions(object):
         self.lazy = lazy
         self.use_appbase = use_appbase
 
-    def get_discussions(self, discussion_type, discussion_query, limit=1000, raw_data=False):
+    def get_discussions(self, discussion_type, discussion_query, limit=20, raw_data=False):
         """ Get Discussions
 
             :param str discussion_type: Defines the used discussion query
@@ -83,14 +83,14 @@ class Discussions(object):
                 query = Query(limit=51, tag="steemit")
                 discussions = Discussions()
                 count = 0
-                for d in discussions.get_discussions("tags", query, limit=200):
+                for d in discussions.get_discussions("tags", query, limit=20):
                     print(("%d. " % (count + 1)) + str(d))
                     count += 1
 
         """
-        if limit >= 100 and discussion_query["limit"] == 0:
-            discussion_query["limit"] = 100
-        elif limit < 100 and discussion_query["limit"] == 0:
+        if limit >= 20 and discussion_query["limit"] == 0:
+            discussion_query["limit"] = 20
+        elif limit < 20 and discussion_query["limit"] == 0:
             discussion_query["limit"] = limit
         query_count = 0
         found_more_than_start_entry = True
@@ -263,7 +263,7 @@ class Discussions_by_author_before_date(list):
                 print(h)
 
     """
-    def __init__(self, author="", start_permlink="", before_date="1970-01-01T00:00:00", limit=100, lazy=False, use_appbase=False, raw_data=False, blockchain_instance=None, **kwargs):
+    def __init__(self, author="", start_permlink="", before_date="1970-01-01T00:00:00", limit=20, lazy=False, use_appbase=False, raw_data=False, blockchain_instance=None, **kwargs):
         if blockchain_instance is None:
             if kwargs.get("steem_instance"):
                 blockchain_instance = kwargs["steem_instance"]

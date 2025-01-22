@@ -733,11 +733,11 @@ class Account(BlockchainObject):
         """
         return addTzInfo(datetime.utcnow()) + self.get_manabar_recharge_timedelta(manabar, recharge_pct_goal)
 
-    def get_feed(self, start_entry_id=0, limit=100, raw_data=False, short_entries=False, account=None):
+    def get_feed(self, start_entry_id=0, limit=20, raw_data=False, short_entries=False, account=None):
         """ Returns a list of items in an account’s feed
 
             :param int start_entry_id: default is 0
-            :param int limit: default is 100
+            :param int limit: default is 20
             :param bool raw_data: default is False
             :param bool short_entries: when set to True and raw_data is True, get_feed_entries is used istead of get_feed
             :param str account: When set, a different account name is used (Default is object account name)
@@ -773,7 +773,7 @@ class Account(BlockchainObject):
             c for c in d.get_discussions("feed", q, limit=limit, raw_data=raw_data)
         ]
 
-    def get_feed_entries(self, start_entry_id=0, limit=100, raw_data=True,
+    def get_feed_entries(self, start_entry_id=0, limit=20, raw_data=True,
                          account=None):
         """ Returns a list of entries in an account’s feed
 
@@ -800,12 +800,12 @@ class Account(BlockchainObject):
         """
         return self.get_feed(start_entry_id=start_entry_id, limit=limit, raw_data=raw_data, short_entries=True, account=account)
 
-    def get_blog_entries(self, start_entry_id=0, limit=100, raw_data=True,
+    def get_blog_entries(self, start_entry_id=0, limit=20, raw_data=True,
                          account=None):
         """ Returns the list of blog entries for an account
 
             :param int start_entry_id: default is 0
-            :param int limit: default is 100
+            :param int limit: default is 20
             :param bool raw_data: default is False
             :param str account: When set, a different account name is used (Default is object account name)
 
@@ -827,11 +827,11 @@ class Account(BlockchainObject):
         """
         return self.get_blog(start_entry_id=start_entry_id, limit=limit, raw_data=raw_data, short_entries=True, account=account)
 
-    def get_blog(self, start_entry_id=0, limit=100, raw_data=False, short_entries=False, account=None):
+    def get_blog(self, start_entry_id=0, limit=20, raw_data=False, short_entries=False, account=None):
         """ Returns the list of blog entries for an account
 
             :param int start_entry_id: default is 0
-            :param int limit: default is 100
+            :param int limit: default is 20
             :param bool raw_data: default is False
             :param bool short_entries: when set to True and raw_data is True, get_blog_entries is used istead of get_blog
             :param str account: When set, a different account name is used (Default is object account name)
@@ -3612,7 +3612,7 @@ class Account(BlockchainObject):
         start_permlink = None
         start_author = None
         while True:
-            query_limit = 100
+            query_limit = 20
             if limit is not None and reblogs:
                 query_limit = min(limit - post_count + 1, query_limit)
 
@@ -3679,7 +3679,7 @@ class Account(BlockchainObject):
 
         comment_count = 0
         while True:
-            query_limit = 100
+            query_limit = 20
             if limit is not None:
                 query_limit = min(limit - comment_count + 1, query_limit)
             from .discussions import Discussions_by_comments

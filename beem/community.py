@@ -185,7 +185,7 @@ class Community(BlockchainObject):
         self.blockchain.rpc.set_next_node_on_empty_reply(False)        
         return self.blockchain.rpc.account_notifications({"account": community, "limit": limit, "last_id": last_id}, api="bridge")
 
-    def get_ranked_posts(self, observer=None, limit=100, start_author=None, start_permlink=None, sort="created"):
+    def get_ranked_posts(self, observer=None, limit=20, start_author=None, start_permlink=None, sort="created"):
         """ Returns community post
         """
         community = self["name"]

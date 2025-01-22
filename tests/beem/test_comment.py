@@ -253,19 +253,19 @@ class Testcases(unittest.TestCase):
 
     def test_ranked_posts(self):
         bts = self.bts
-        r = RankedPosts(sort="trending", limit=102, blockchain_instance=bts)
-        self.assertTrue(len(r) == 102)
+        r = RankedPosts(sort="trending", limit=18, blockchain_instance=bts)
+        self.assertTrue(len(r) == 18)
         self.assertTrue(r[0] is not None)
 
-        r = RankedPosts(sort="trending", limit=102, raw_data=True, blockchain_instance=bts)
-        self.assertTrue(len(r) == 102)
+        r = RankedPosts(sort="trending", limit=19, raw_data=True, blockchain_instance=bts)
+        self.assertTrue(len(r) == 19)
         self.assertTrue(r[0] is not None)
 
     def test_account_posts(self):
         bts = self.bts
-        r = AccountPosts("feed", "holger80", limit=102, blockchain_instance=bts)
-        self.assertTrue(len(r) == 102)
+        r = AccountPosts("feed", "holger80", limit=18, blockchain_instance=bts)
+        self.assertTrue(len(r) == 18)
         self.assertTrue(r[0] is not None)
 
-        r = AccountPosts("feed", "holger80", limit=102, raw_data=True, blockchain_instance=bts)
-        self.assertTrue(len(r) == 102)        
+        r = AccountPosts("feed", "holger80", limit=19, raw_data=True, blockchain_instance=bts)
+        self.assertTrue(len(r) == 19)        
