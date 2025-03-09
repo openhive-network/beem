@@ -69,3 +69,6 @@ target/
 
 # IDEs
 .vscode
+.DS_Store
+{env_name}*
+.python-version
