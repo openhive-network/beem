@@ -17,3 +17,6 @@ Click
 prettytable
 sphinx_rtd_theme
 sphinx-click
+asn1crypto
+parameterized
+click_shell
