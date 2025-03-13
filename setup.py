@@ -16,7 +16,7 @@ except LookupError:
     ascii = codecs.lookup('ascii')
     codecs.register(lambda name, enc=ascii: {True: enc}.get(name == 'mbcs'))
 
-VERSION = '0.26.0'
+VERSION = '0.26.1'
 
 tests_require = [
     "mock == 4.0.3",
@@ -40,8 +40,8 @@ tests_require = [
 
 requires = [
     "ecdsa == 0.16.1",
-    "requests == 2.27.1",
-    "websocket-client == 0.58.0",
+    "requests >= 2.31.0",
+    "websocket-client >= 1.6.3",
     "appdirs == 1.4.4",
     "scrypt == 0.8.18",
     "pycryptodomex == 3.10.1",
