@@ -30,7 +30,7 @@ tests_require = [
     "pycodestyle == 2.7.0",
     "pyflakes == 2.3.1",
     "pylibscrypt == 2.0.0",
-    "six == 1.15.0",
+    "six == 1.17.0",
     "pytest-cov == 4.1.0",
     "coverage == 7.4.3",
     "tox == 4.13.0",
@@ -39,7 +39,7 @@ tests_require = [
 ]
 
 requires = [
-    "ecdsa == 0.16.1",
+    "ecdsa == 0.19.1",
     "requests >= 2.31.0",
     "websocket-client >= 1.6.3",
     "appdirs == 1.4.4",
