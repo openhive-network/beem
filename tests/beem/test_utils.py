@@ -80,6 +80,19 @@ class Testcases(unittest.TestCase):
         self.assertEqual(len(derive_permlink("", parent_permlink=256 * "a", parent_author="test")), 256)
         self.assertEqual(len(derive_permlink("a" * 1024)), 256)
 
+    def test_derivePermlinkUTCDate(self):
+        def old_code_suffix()
+            suffix = "-" + formatTime(datetime.utcnow()) + "z"
+            return suffix
+
+        def old_formatTime(dt):
+            return dt.strftime("%Y%m%dt%H%M%S")
+
+
+        perm_link_old = derive_permlink("Hello World", parent_permlink="test", parent_author="test")
+        perm_link_new = derive_permlink("Hello World", parent_permlink="test", parent_author="test", utc_date=date(2018, 1, 1))
+        self.assertTrue(perm_link_old != perm_link_new)
+
     def test_patch(self):
         self.assertEqual(make_patch("aa", "ab"), '@@ -1,2 +1,2 @@\n a\n-a\n+b\n')
         self.assertEqual(make_patch("aa\n", "ab\n"), '@@ -1,3 +1,3 @@\n a\n-a\n+b\n %0A\n')
@@ -151,10 +164,10 @@ class Testcases(unittest.TestCase):
         self.assertEqual(b, [{"account": "beembot", "weight": 4000}, {"account": "holger80", "weight": 3000}])
         t = "holger80:30.00%,beembot:40.00%"
         b = derive_beneficiaries(t)
-        self.assertEqual(b, [{"account": "beembot", "weight": 4000}, {"account": "holger80", "weight": 3000}]) 
+        self.assertEqual(b, [{"account": "beembot", "weight": 4000}, {"account": "holger80", "weight": 3000}])
         t = "holger80:30%, beembot:40%"
         b = derive_beneficiaries(t)
-        self.assertEqual(b, [{"account": "beembot", "weight": 4000}, {"account": "holger80", "weight": 3000}])        
+        self.assertEqual(b, [{"account": "beembot", "weight": 4000}, {"account": "holger80", "weight": 3000}])
         t = "holger80:30,beembot"
         b = derive_beneficiaries(t)
         self.assertEqual(b, [{"account": "beembot", "weight": 7000}, {"account": "holger80", "weight": 3000}])
@@ -190,7 +203,7 @@ class Testcases(unittest.TestCase):
         parameter = yaml_safe.load(yaml_content)
         self.assertEqual(parameter["title"], "test")
         self.assertEqual(parameter["author"], "holger80")
-        self.assertEqual(parameter["max_accepted_payout"], "100")  
+        self.assertEqual(parameter["max_accepted_payout"], "100")
 
     def test_create_new_password(self):
         new_password = create_new_password()
