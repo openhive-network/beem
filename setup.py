@@ -23,7 +23,7 @@ tests_require = [
     "pytest == 7.2.2",
     "pytest-mock == 3.12.0",
     "parameterized == 0.9.0",
-    "setuptools == 69.1.1",
+    "setuptools == 77.0.3",
     "wheel == 0.42.0",
     "future == 0.18.2",
     "cryptography == 3.4.7",
