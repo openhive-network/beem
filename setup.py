@@ -121,7 +121,6 @@ if __name__ == '__main__':
                 'beempy=beem.cli:cli',
             ],
         },
-        setup_requires=['pytest-runner'],
         tests_require=tests_require,
         extras_require={"tests": tests_require},
         include_package_data=True,
